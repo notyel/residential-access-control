@@ -1,0 +1,6 @@
+@AccessControl.API_HostAddress = http://192.168.1.17
+
+GET {{AccessControl.API_HostAddress}}/api/Residents/
+Accept: application/json
+
+###
