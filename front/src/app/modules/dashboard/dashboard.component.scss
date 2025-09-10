@@ -1,0 +1,116 @@
+.dashboard-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  .dashboard-header {
+    padding: 1rem 2rem;
+    border-bottom: 1px solid var(--border-color);
+    h1 {
+      margin: 0;
+    }
+  }
+
+  .dashboard-main-content {
+    display: flex;
+    flex: 1;
+  }
+
+  .dashboard-sidebar {
+    width: 250px;
+    padding: 2rem;
+    border-right: 1px solid var(--border-color);
+
+    nav ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+
+      li a {
+        display: block;
+        padding: 0.5rem 1rem;
+        color: var(--text-color);
+        text-decoration: none;
+        border-radius: 5px;
+
+        &:hover {
+          background-color: var(--card-background-color);
+        }
+      }
+    }
+  }
+
+  .dashboard-content {
+    flex: 1;
+    padding: 2rem;
+
+    .stats-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+
+      .card {
+        background-color: var(--card-background-color);
+        padding: 1.5rem;
+        border-radius: 10px;
+        border: 1px solid var(--border-color);
+        h2 {
+            margin-top: 0;
+        }
+      }
+    }
+
+    .user-list {
+        background-color: var(--card-background-color);
+        padding: 1.5rem;
+        border-radius: 10px;
+        border: 1px solid var(--border-color);
+        margin-bottom: 2rem;
+        h2 {
+            margin-top: 0;
+        }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+
+        th, td {
+          padding: 0.75rem;
+          text-align: left;
+          border-bottom: 1px solid var(--border-color);
+        }
+      }
+    }
+
+    .charts {
+        background-color: var(--card-background-color);
+        padding: 1.5rem;
+        border-radius: 10px;
+        border: 1px solid var(--border-color);
+        h2 {
+            margin-top: 0;
+        }
+      .chart-placeholder {
+        height: 200px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px dashed var(--border-color);
+        border-radius: 10px;
+      }
+    }
+  }
+
+  @media (max-width: 768px) {
+    .dashboard-main-content {
+      flex-direction: column;
+    }
+
+    .dashboard-sidebar {
+      width: 100%;
+      border-right: none;
+      border-bottom: 1px solid var(--border-color);
+    }
+  }
