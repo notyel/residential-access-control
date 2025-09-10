@@ -1,12 +1,5 @@
 .app-container {
-    background-color: var(--background-color);
-    color: var(--text-color);
-    min-height: 100vh;
-  }
-
-  .theme-toggle-container {
-    position: fixed;
-    top: 1rem;
-    right: 1rem;
-    z-index: 1000;
-  }
+  background-color: var(--background-color);
+  color: var(--text-color);
+  min-height: 100vh;
+}
