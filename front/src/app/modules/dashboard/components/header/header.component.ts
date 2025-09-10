@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { ThemeToggleComponent } from '../../../../shared/components/theme-toggle/theme-toggle.component';
-import { LucideAngularModule, Search } from 'lucide-angular';
+import { LucideAngularModule } from 'lucide-angular';
 
 @Component({
   selector: 'app-header',
@@ -10,5 +10,4 @@ import { LucideAngularModule, Search } from 'lucide-angular';
   styleUrl: './header.component.scss'
 })
 export class HeaderComponent {
-  searchIcon = Search;
 }
