@@ -1,0 +1,38 @@
+.dashboard-layout {
+    display: flex;
+    min-height: 100vh;
+  }
+
+  .dashboard-main {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .dashboard-content {
+    padding: 2rem;
+    flex-grow: 1;
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .widgets-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  @media (max-width: 768px) {
+    .dashboard-layout {
+      flex-direction: column;
+    }
+
+    .dashboard-content {
+      padding: 1rem;
+    }
+  }

@@ -1,0 +1,32 @@
+.stats-card {
+    display: flex;
+    flex-direction: column;
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1rem;
+    }
+
+    .card-title {
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--secondary-color);
+    }
+
+    .card-icon {
+      color: var(--primary-color);
+    }
+
+    .card-body {
+      margin-top: auto;
+    }
+
+    .card-value {
+      margin: 0;
+      font-size: 2.25rem;
+      font-weight: 700;
+    }
+  }
