@@ -1,72 +1,18 @@
-<div class="dashboard-container">
-  <header class="dashboard-header">
-    <h1>Dashboard</h1>
-  </header>
-  <div class="dashboard-main-content">
-    <aside class="dashboard-sidebar">
-      <nav>
-        <ul>
-          <li><a href="#">Home</a></li>
-          <li><a href="#">Analytics</a></li>
-          <li><a href="#">Users</a></li>
-          <li><a href="#">Settings</a></li>
-        </ul>
-      </nav>
-    </aside>
-    <main class="dashboard-content">
-      <section class="stats-cards">
-        <div class="card">
-          <h2>Users</h2>
-          <p>1,234</p>
-        </div>
-        <div class="card">
-          <h2>Sales</h2>
-          <p>$56,789</p>
-        </div>
-        <div class="card">
-          <h2>Revenue</h2>
-          <p>$123,456</p>
-        </div>
-        <div class="card">
-          <h2>Tasks</h2>
-          <p>78</p>
-        </div>
-      </section>
-      <section class="user-list">
-        <h2>Recent Users</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Role</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>John Doe</td>
-              <td>john.doe&#64;example.com</td>
-              <td>Admin</td>
-            </tr>
-            <tr>
-              <td>Jane Smith</td>
-              <td>jane.smith&#64;example.com</td>
-              <td>User</td>
-            </tr>
-            <tr>
-                <td>Mike Johnson</td>
-                <td>mike.johnson&#64;example.com</td>
-                <td>User</td>
-            </tr>
-          </tbody>
-        </table>
-      </section>
-      <section class="charts">
-        <h2>Analytics</h2>
-        <div class="chart-placeholder">
-          <p>Chart will be here</p>
-        </div>
-      </section>
-    </main>
-  </div>
+<div class="dashboard-layout">
+  <app-sidebar></app-sidebar>
+  <main class="dashboard-main">
+    <app-header></app-header>
+    <div class="dashboard-content">
+      <div class="stats-grid">
+        <app-stats-card title="Total Users" value="1,234" icon="users"></app-stats-card>
+        <app-stats-card title="Sales" value="$56,789" icon="dollar-sign"></app-stats-card>
+        <app-stats-card title="Revenue" value="$123,456" icon="bar-chart"></app-stats-card>
+        <app-stats-card title="Activity" value="78%" icon="activity"></app-stats-card>
+      </div>
+      <div class="widgets-grid">
+        <app-user-list></app-user-list>
+        <!-- Chart component can go here -->
+      </div>
+    </div>
+  </main>
 </div>
