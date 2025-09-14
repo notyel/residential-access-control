@@ -1,65 +1,110 @@
 .dashboard-sidebar {
-    background-color: var(--card-background-color);
-    border-right: 1px solid var(--border-color);
-    width: 250px;
-    display: flex;
-    flex-direction: column;
-    padding: 1.5rem 1rem;
-    transition: width 0.2s ease-in-out;
+  background-color: var(--card-background-color);
+  border-right: 1px solid var(--border-color);
+  width: 250px;
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem 1rem;
+  transition: width 0.2s ease-in-out;
+  height: 100vh;
+  position: sticky;
+  top: 0;
 
-    .sidebar-header {
-      padding: 0 0.5rem;
-      margin-bottom: 2rem;
+  .sidebar-header {
+    padding: 0 0.5rem;
+    margin-bottom: 2rem;
 
-      .logo {
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--text-color);
+      text-decoration: none;
+
+      lucide-icon {
         display: flex;
         align-items: center;
-        gap: 0.75rem;
-        font-size: 1.25rem;
-        font-weight: 600;
-        color: var(--text-color);
-        text-decoration: none;
-
-        .logo-text {
-          transition: opacity 0.2s ease-in-out;
-        }
-      }
-    }
-
-    .sidebar-nav {
-      flex-grow: 1;
-
-      ul {
-        list-style: none;
-        padding: 0;
-        margin: 0;
+        justify-content: center;
+        flex-shrink: 0;
+        width: 32px;
+        height: 32px;
       }
 
-      .nav-link {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        padding: 0.875rem 1rem;
-        border-radius: 0.5rem;
-        color: var(--secondary-color);
-        text-decoration: none;
-        transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
-        font-weight: 500;
-
-        &:hover {
-          background-color: var(--background-color);
-          color: var(--text-color);
-        }
-
-        &.active {
-          background-color: var(--primary-color);
-          color: #ffffff;
-        }
+      .logo-text {
+        transition: opacity 0.2s ease-in-out;
       }
-    }
-
-    .sidebar-footer {
-      padding-top: 1rem;
-      border-top: 1px solid var(--border-color);
     }
   }
+
+  .sidebar-nav {
+    flex-grow: 1;
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.875rem 1rem;
+      border-radius: 0.5rem;
+      color: var(--secondary-color);
+      text-decoration: none;
+      transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+
+      lucide-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        width: 20px;
+        height: 20px;
+      }
+
+      &:hover {
+        background-color: var(--background-color);
+        color: var(--text-color);
+      }
+
+      &.active {
+        background-color: var(--primary-color);
+        color: #ffffff;
+      }
+    }
+  }
+
+  .sidebar-footer {
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+
+      lucide-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        width: 20px;
+        height: 20px;
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-sidebar {
+    height: auto;
+    width: 100%;
+    padding: 1rem;
+  }
+}
