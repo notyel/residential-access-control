@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { ThemeToggleComponent } from './shared/components/theme-toggle/theme-toggle.component';
 import { ThemeService } from './core/services/theme.service';
+import { AuthService } from './core/services/auth/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -12,4 +13,5 @@ import { ThemeService } from './core/services/theme.service';
 })
 export class AppComponent {
   themeService = inject(ThemeService);
+  authService = inject(AuthService); // Inicializar AuthService al arrancar la app
 }

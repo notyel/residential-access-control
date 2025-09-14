@@ -9,8 +9,15 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'login',
+    loadChildren: () =>
+      import('./modules/login/login.routes').then(
+        (m) => m.LOGIN_ROUTES
+      ),
+  },
+  {
     path: '',
-    redirectTo: '/dashboard',
+    redirectTo: '/login',
     pathMatch: 'full',
   },
 ];
