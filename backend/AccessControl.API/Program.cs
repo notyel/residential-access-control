@@ -16,12 +16,22 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 // Repositories
 builder.Services.AddScoped<IResidentRepository, ResidentRepository>();
 
+// Configurar CORS para permitir peticiones desde Angular en puerto 4300
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAngular4300",
+        policy => policy.WithOrigins("http://localhost:4300")
+                        .AllowAnyHeader()
+                        .AllowAnyMethod());
+});
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 
 app.UseHttpsRedirection();
+
+app.UseCors("AllowAngular4300");
 
 app.UseAuthorization();
 
