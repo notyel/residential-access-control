@@ -13,7 +13,14 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
-import { finalize } from 'rxjs';
+import {
+  LucideAngularModule,
+  User,
+  Lock,
+  Eye,
+  EyeOff,
+  ArrowRight,
+} from 'lucide-angular';
 import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
@@ -28,6 +35,7 @@ import { AuthService } from '../../../../core/services/auth.service';
     MatButtonModule,
     MatIconModule,
     MatSnackBarModule,
+    LucideAngularModule,
   ],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
@@ -36,6 +44,13 @@ export class LoginComponent {
   loginForm: FormGroup;
   hidePassword = true;
   isLoading = false;
+
+  // Iconos de Lucide
+  readonly UserIcon = User;
+  readonly LockIcon = Lock;
+  readonly EyeIcon = Eye;
+  readonly EyeOffIcon = EyeOff;
+  readonly ArrowRightIcon = ArrowRight;
 
   constructor(
     private fb: FormBuilder,

@@ -20,6 +20,5 @@ export const appConfig: ApplicationConfig = {
         appearance: 'outline',
       },
     },
-    // ...existing code...
   ],
 };

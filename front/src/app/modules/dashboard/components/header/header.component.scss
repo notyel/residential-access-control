@@ -1,66 +1,66 @@
 .dashboard-header {
-    background-color: var(--card-background-color);
-    border-bottom: 1px solid var(--border-color);
-    padding: 1rem 2rem;
-    position: sticky;
-    top: 0;
-    z-index: 10;
+  background-color: var(--card-background-color);
+  border-bottom: 1px solid var(--border-color);
+  padding: 1rem 2rem;
+  position: sticky;
+  top: 0;
+  z-index: 10;
 
-    .header-content {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
+  .header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
 
-    .search-bar {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      background-color: var(--background-color);
-      padding: 0.5rem 1rem;
-      border-radius: 0.5rem;
-      width: 300px;
+  .search-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: var(--background-color);
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    width: 300px;
 
-      .form-control {
-        border: none;
-        background-color: transparent;
-        padding: 0;
+    .form-control {
+      border: none;
+      background-color: transparent;
+      padding: 0;
 
-        &:focus {
-          box-shadow: none;
-        }
-      }
-    }
-
-    .header-actions {
-      display: flex;
-      align-items: center;
-      gap: 1.5rem;
-    }
-
-    .user-profile {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-
-      .avatar {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-      }
-
-      .user-info {
-        display: flex;
-        flex-direction: column;
-      }
-
-      .user-name {
-        font-weight: 600;
-      }
-
-      .user-role {
-        font-size: 0.875rem;
-        color: var(--secondary-color);
+      &:focus {
+        box-shadow: none;
       }
     }
   }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  .user-profile {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+
+    .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+    }
+
+    .user-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .user-name {
+      font-weight: 600;
+    }
+
+    .user-role {
+      font-size: 0.875rem;
+      color: var(--secondary-color);
+    }
+  }
+}
