@@ -1,8 +1,8 @@
 <aside class="dashboard-sidebar">
   <div class="sidebar-header">
     <a href="#" class="logo">
-      <lucide-icon name="box" size="32"></lucide-icon>
-      <span class="logo-text">My App</span>
+      <lucide-icon name="shield" size="32"></lucide-icon>
+      <span class="logo-text">Zentryal</span>
     </a>
   </div>
   <nav class="sidebar-nav">
@@ -34,7 +34,7 @@
     </ul>
   </nav>
   <div class="sidebar-footer">
-    <a href="#" class="nav-link">
+    <a href="#" class="nav-link" (click)="logout(); $event.preventDefault()">
       <lucide-icon name="log-out" size="20"></lucide-icon>
       <span>Log out</span>
     </a>

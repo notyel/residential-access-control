@@ -8,6 +8,7 @@ namespace AccessControl.Persistence
         public DbSet<UserBase> Users { get; set; }
         public DbSet<Resident> Residents { get; set; }
         public DbSet<AccessLog> AccessLogs { get; set; }
+        public DbSet<User> AuthUsers { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options) { }
@@ -25,6 +26,11 @@ namespace AccessControl.Persistence
                 .HasOne(log => log.User)
                 .WithMany()
                 .HasForeignKey(log => log.UserId);
+
+            // User (Auth) configuration
+            modelBuilder.Entity<User>()
+                .HasIndex(u => u.Email)
+                .IsUnique();
         }
     }
 }

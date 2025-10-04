@@ -1,0 +1,62 @@
+<div class="login-container">
+  <div class="login-card">
+    <div class="login-header">
+      <div class="logo">
+        <lucide-icon name="shield" size="48"></lucide-icon>
+      </div>
+      <h1>Zentryal</h1>
+      <p>Residential Access Control</p>
+    </div>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+      <div class="form-group">
+        <label for="email">Email</label>
+        <div class="input-wrapper">
+          <lucide-icon name="mail" size="20"></lucide-icon>
+          <input
+            type="email"
+            id="email"
+            formControlName="email"
+            placeholder="Enter your email"
+            [class.error]="email?.invalid && email?.touched"
+          />
+        </div>
+        <div class="error-message" *ngIf="email?.invalid && email?.touched">
+          <span *ngIf="email?.errors?.['required']">Email is required</span>
+          <span *ngIf="email?.errors?.['email']">Invalid email format</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <div class="input-wrapper">
+          <lucide-icon name="lock" size="20"></lucide-icon>
+          <input
+            type="password"
+            id="password"
+            formControlName="password"
+            placeholder="Enter your password"
+            [class.error]="password?.invalid && password?.touched"
+          />
+        </div>
+        <div class="error-message" *ngIf="password?.invalid && password?.touched">
+          <span *ngIf="password?.errors?.['required']">Password is required</span>
+          <span *ngIf="password?.errors?.['minlength']">Password must be at least 6 characters</span>
+        </div>
+      </div>
+
+      <div class="error-message" *ngIf="errorMessage">
+        {{ errorMessage }}
+      </div>
+
+      <button type="submit" class="login-button" [disabled]="loginForm.invalid || isLoading">
+        <span *ngIf="!isLoading">Sign In</span>
+        <span *ngIf="isLoading">Signing in...</span>
+      </button>
+    </form>
+
+    <div class="login-footer">
+      <p>&copy; 2024 Zentryal. All rights reserved.</p>
+    </div>
+  </div>
+</div>
