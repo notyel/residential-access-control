@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
-import { environment } from '../../../../environments/environment';
+import { environment } from '../../../environments/environment';
 
 interface LoginCredentials {
   username: string;
@@ -34,6 +34,11 @@ export class AuthService {
           this.isAuthenticatedSubject.next(true);
         })
       );
+  }
+
+  logout(): void {
+    localStorage.removeItem(this.TOKEN_KEY);
+    this.isAuthenticatedSubject.next(false);
   }
 
   private hasToken(): boolean {

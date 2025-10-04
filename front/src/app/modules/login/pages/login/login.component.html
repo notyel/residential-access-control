@@ -1,0 +1,120 @@
+<div class="login-container">
+  <!-- Panel principal con imagen y formulario -->
+  <div class="main-panel">
+    <!-- Sección izquierda con imagen -->
+    <div class="login-left">
+      <div class="login-image">
+        <img
+          src="login/login-illustration.jpeg"
+          alt="Control de Acceso Residencial"
+        />
+      </div>
+    </div>
+
+    <!-- Sección derecha con formulario -->
+    <div class="login-right">
+      <!-- Logo y branding -->
+      <div class="login-header">
+        <div class="logo">
+          <span class="logo-letter">Z</span>
+          <span class="logo-text">ZENTRYAL</span>
+        </div>
+        <p class="tagline">CONTROL DE ACCESO RESIDENCIAL</p>
+      </div>
+
+      <!-- Título de bienvenida -->
+      <div class="welcome-section">
+        <h1>¡Bienvenido de vuelta!</h1>
+        <p class="welcome-subtitle">
+          Si ya estás registrado y adquiriste tu plan,
+          <strong>por favor ingresa con tu nombre de usuario.</strong>
+        </p>
+      </div>
+
+      <!-- Formulario -->
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+        <div class="form-group">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Usuario o Correo electrónico*</mat-label>
+            <input
+              matInput
+              formControlName="username"
+              placeholder="Ingrese su usuario o email"
+            />
+            <lucide-icon [img]="UserIcon" matPrefix></lucide-icon>
+            <mat-error *ngIf="loginForm.get('username')?.hasError('required')">
+              Campo obligatorio
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-group">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Contraseña*</mat-label>
+            <input
+              matInput
+              [type]="hidePassword ? 'password' : 'text'"
+              formControlName="password"
+              placeholder="Contraseña*"
+            />
+            <lucide-icon [img]="LockIcon" matPrefix></lucide-icon>
+            <button
+              mat-icon-button
+              matSuffix
+              (click)="hidePassword = !hidePassword"
+              type="button"
+            >
+              <lucide-icon
+                [img]="hidePassword ? EyeOffIcon : EyeIcon"
+              ></lucide-icon>
+            </button>
+            <mat-error *ngIf="loginForm.get('password')?.hasError('required')">
+              Campo obligatorio
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <!-- Enlace de recuperación -->
+        <div class="forgot-password">
+          <a href="#" class="forgot-link">
+            ¿Has olvidado tu <span class="highlight">nombre de usuario</span> o
+            <span class="highlight">contraseña</span>?
+          </a>
+        </div>
+
+        <!-- Botón de login -->
+        <button
+          mat-raised-button
+          type="submit"
+          class="login-button"
+          [disabled]="loginForm.invalid || isLoading"
+        >
+          <span *ngIf="!isLoading">Iniciar sesión</span>
+          <span *ngIf="isLoading">Iniciando...</span>
+          <lucide-icon
+            *ngIf="!isLoading"
+            [img]="ArrowRightIcon"
+            class="button-icon"
+          ></lucide-icon>
+        </button>
+
+        <!-- Enlace de registro -->
+        <div class="register-section">
+          <span class="register-text">¿No tienes una cuenta?</span>
+          <a href="#" class="register-link">Regístrate aquí</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="login-footer">
+    <div class="footer-content">
+      <div class="footer-links">
+        <a href="#" class="footer-link">Contacto</a>
+        <a href="#" class="footer-link">Política de privacidad</a>
+      </div>
+      <div class="footer-copyright">Copyright © 2025 Zentryal</div>
+    </div>
+  </div>
+</div>

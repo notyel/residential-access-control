@@ -2,14 +2,21 @@ import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 
 @Component({
-  selector: 'app-login-layout',
+  selector: 'app-auth-layout',
   standalone: true,
   imports: [RouterOutlet],
   template: `
-    <div class="login-layout-container">
+    <div class="auth-layout">
       <router-outlet></router-outlet>
     </div>
   `,
-  styleUrls: ['./login-layout.component.scss'],
+  styles: [
+    `
+      .auth-layout {
+        min-height: 100vh;
+        width: 100%;
+      }
+    `,
+  ],
 })
-export class LoginLayoutComponent {}
+export class AuthLayoutComponent {}

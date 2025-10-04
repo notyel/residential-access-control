@@ -1,17 +1,18 @@
+:root,
 [data-theme="light"] {
-    --primary-color: #007bff;
-    --secondary-color: #6c757d;
-    --background-color: #f8f9fa;
-    --text-color: #212529;
-    --card-background-color: #ffffff;
-    --border-color: #dee2e6;
-  }
+  --primary-color: #007bff;
+  --secondary-color: #6c757d;
+  --background-color: #f8f9fa;
+  --text-color: #212529;
+  --card-background-color: #ffffff;
+  --border-color: #dee2e6;
+}
 
-  [data-theme="dark"] {
-    --primary-color: #007bff;
-    --secondary-color: #6c757d;
-    --background-color: #121212;
-    --text-color: #f8f9fa;
-    --card-background-color: #1e1e1e;
-    --border-color: #495057;
-  }
+[data-theme="dark"] {
+  --primary-color: #007bff;
+  --secondary-color: #6c757d;
+  --background-color: #121212;
+  --text-color: #f8f9fa;
+  --card-background-color: #1e1e1e;
+  --border-color: #495057;
+}
