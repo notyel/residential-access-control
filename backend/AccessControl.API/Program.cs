@@ -1,13 +1,35 @@
+﻿using AccessControl.Application.Interfaces;
+using AccessControl.Application.Services;
+using AccessControl.Domain.Entities;
 using AccessControl.Persistence;
 using AccessControl.Persistence.Interfaces;
 using AccessControl.Persistence.Repositories;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 builder.Services.AddControllers();
+
+// Configure CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAngularApp", builder =>
+    {
+        builder.WithOrigins("http://localhost:4200")
+               .AllowAnyMethod()
+               .AllowAnyHeader()
+               .AllowCredentials();
+    });
+});
+
+// 🔎 Mostrar dónde realmente se está conectando
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+Console.WriteLine($"🔎 EF se conectará a: {Path.GetFullPath(connectionString.Replace("Data Source=", ""))}");
+
 
 // Agregar ApplicationDbContext con SQLite
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -15,7 +37,43 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 // Repositories
 builder.Services.AddScoped<IResidentRepository, ResidentRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 
+// Services
+builder.Services.AddScoped<JwtService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+
+// Configure JWT Authentication
+var jwtSettings = builder.Configuration.GetSection("JwtSettings");
+var key = Encoding.ASCII.GetBytes(jwtSettings["Secret"]);
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.RequireHttpsMetadata = false;
+    options.SaveToken = true;
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(key),
+        ValidateIssuer = false,
+        ValidateAudience = false,
+        ClockSkew = TimeSpan.Zero
+    };
+});
+
+// Configurar CORS para permitir peticiones desde Angular en puerto 4300
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAngular4300",
+        policy => policy.WithOrigins("http://localhost:4300")
+                        .AllowAnyHeader()
+                        .AllowAnyMethod());
+});
 
 var app = builder.Build();
 
@@ -23,8 +81,29 @@ var app = builder.Build();
 
 app.UseHttpsRedirection();
 
+app.UseCors("AllowAngular4300");
+
 app.UseAuthorization();
 
 app.MapControllers();
 
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    var model = db.Model;
+
+    Console.WriteLine("🔎 EF detecta estas entidades y columnas:");
+    foreach (var entity in model.GetEntityTypes())
+    {
+        Console.WriteLine($"Entidad: {entity.Name}");
+        foreach (var prop in entity.GetProperties())
+        {
+            Console.WriteLine($"   - {prop.Name} ({prop.ClrType.Name})");
+        }
+    }
+}
+
+
 app.Run();
+
+

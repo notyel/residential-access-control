@@ -2,7 +2,8 @@
   <div class="card-header">
     <h3 class="card-title">{{ title }}</h3>
     <div class="card-icon">
-      <lucide-icon [name]="icon" size="24"></lucide-icon>
+      <lucide-icon [img]="getIcon()" size="24"></lucide-icon>
+      <!-- Agrega la función getIcon en el componente -->
     </div>
   </div>
   <div class="card-body">

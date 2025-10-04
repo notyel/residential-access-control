@@ -7,7 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
+    <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\AccessControl.Persistence\AccessControl.Persistence.csproj" />
+    <ProjectReference Include="..\AccessControl.Application\AccessControl.Application.csproj" />
   </ItemGroup>
 
   <ItemGroup>
