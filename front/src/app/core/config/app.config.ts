@@ -6,7 +6,7 @@ import {
   withInterceptorsFromDi,
 } from '@angular/common/http';
 import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
-import { routes } from './app.routes';
+import { routes } from '../../app.routes';
 
 export const appConfig: ApplicationConfig = {
   providers: [

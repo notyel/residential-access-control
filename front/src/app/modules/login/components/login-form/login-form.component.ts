@@ -14,7 +14,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { finalize } from 'rxjs';
-import { AuthService } from '../../../../core/services/auth/auth.service';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-login-form',
@@ -57,7 +57,7 @@ export class LoginFormComponent {
           next: () => {
             this.router.navigate(['/dashboard']);
           },
-          error: (error) => {
+          error: (error: any) => {
             this.snackBar.open(
             'Error de autenticación: ' +
               (error.message || 'Credenciales inválidas'),
