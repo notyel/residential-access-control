@@ -38,7 +38,7 @@ export class LoginFormComponent {
   isLoading = false;
 
   constructor(
-    private fb: FormBuilder, 
+    private fb: FormBuilder,
     private router: Router,
     private authService: AuthService,
     private snackBar: MatSnackBar
@@ -52,21 +52,21 @@ export class LoginFormComponent {
   onSubmit() {
     if (this.loginForm.valid) {
       this.isLoading = true;
-      
+
       this.authService.login(this.loginForm.value).subscribe({
-          next: () => {
-            this.router.navigate(['/dashboard']);
-          },
-          error: (error: any) => {
-            this.snackBar.open(
+        next: () => {
+          this.router.navigate(['/dashboard']);
+        },
+        error: (error: any) => {
+          this.snackBar.open(
             'Error de autenticación: ' +
               (error.message || 'Credenciales inválidas'),
-              'Cerrar', 
-              { duration: 5000 }
-            );
+            'Cerrar',
+            { duration: 5000 }
+          );
           this.isLoading = false;
         },
-        });
+      });
     }
   }
 }
