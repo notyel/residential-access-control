@@ -16,7 +16,7 @@ export interface LoginResponse {
   providedIn: 'root'
 })
 export class AuthService {
-  private readonly API_URL = 'http://localhost:5000/api/auth';
+  private readonly API_URL = 'http://localhost:5069/api/auth';
   private tokenSubject = new BehaviorSubject<string | null>(this.getToken());
   private userSubject = new BehaviorSubject<any>(this.getUser());
 
