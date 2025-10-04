@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { ThemeService } from '../../../core/services/theme.service';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideAngularModule, Sun, Moon } from 'lucide-angular';
 
 @Component({
   selector: 'app-theme-toggle',
@@ -12,7 +12,13 @@ import { LucideAngularModule } from 'lucide-angular';
 export class ThemeToggleComponent {
   themeService = inject(ThemeService);
 
+  readonly SunIcon = Sun;
+  readonly MoonIcon = Moon;
+
   toggleTheme() {
     this.themeService.toggleTheme();
+  }
+  getIcon() {
+    return this.themeService.isDarkTheme() ? this.SunIcon : this.MoonIcon;
   }
 }

@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 
 namespace AccessControl.API.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
     [Route("api/[controller]")]
     public class AuthController : ControllerBase
@@ -47,9 +46,10 @@ namespace AccessControl.API.Controllers
             }
         }
 
-    public class LoginRequest
+        public class LoginRequest
         {
-        public string Username { get; set; }
-        public string Password { get; set; }
+            public string Username { get; set; }
+            public string Password { get; set; }
+        }
     }
 }

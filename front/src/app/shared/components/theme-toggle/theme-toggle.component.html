@@ -1,3 +1,3 @@
 <button (click)="toggleTheme()" class="theme-toggle-btn">
-  <lucide-icon [name]="themeService.isDarkTheme() ? 'sun' : 'moon'" size="24"></lucide-icon>
+  <lucide-icon [img]="getIcon()" size="24"></lucide-icon>
 </button>
