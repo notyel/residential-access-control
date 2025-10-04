@@ -17,7 +17,7 @@ import { finalize } from 'rxjs';
 import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
-  selector: 'app-login-form',
+  selector: 'app-login',
   standalone: true,
   imports: [
     CommonModule,
@@ -29,10 +29,10 @@ import { AuthService } from '../../../../core/services/auth.service';
     MatIconModule,
     MatSnackBarModule,
   ],
-  templateUrl: './login-form.component.html',
-  styleUrls: ['./login-form.component.scss'],
+  templateUrl: './login.component.html',
+  styleUrls: ['./login.component.scss'],
 })
-export class LoginFormComponent {
+export class LoginComponent {
   loginForm: FormGroup;
   hidePassword = true;
   isLoading = false;
