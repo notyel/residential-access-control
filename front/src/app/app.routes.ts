@@ -16,6 +16,13 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
+    path: 'login',
+    loadChildren: () =>
+      import('./modules/login/login.routes').then(
+        (m) => m.LOGIN_ROUTES
+      ),
+  },
+  {
     path: '',
     redirectTo: 'login',
     pathMatch: 'full',

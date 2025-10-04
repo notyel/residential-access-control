@@ -1,3 +1,4 @@
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
@@ -21,6 +22,7 @@ export class AuthService {
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(
     this.hasToken()
   );
+  public isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
 
   constructor(private http: HttpClient) {}
 
@@ -37,12 +39,16 @@ export class AuthService {
 
   logout(): void {
     localStorage.removeItem(this.TOKEN_KEY);
+    localStorage.removeItem(this.REFRESH_TOKEN_KEY);
+    localStorage.removeItem(this.USER_KEY);
+    this.currentUserSubject.next(null);
     this.isAuthenticatedSubject.next(false);
+    this.router.navigate(['/login']);
   }
 
   isAuthenticated(): boolean {
     return this.hasToken();
-  }
+    }
 
   private hasToken(): boolean {
     return !!localStorage.getItem(this.TOKEN_KEY);

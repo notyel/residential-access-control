@@ -4,6 +4,7 @@
       <mat-card-title>Control de Acceso Residencial</mat-card-title>
       <mat-card-subtitle>Inicie sesión para continuar</mat-card-subtitle>
     </mat-card-header>
+    
     <mat-card-content>
       <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
         <mat-form-field appearance="outline" class="full-width">
@@ -18,7 +19,7 @@
             El usuario es requerido
           </mat-error>
         </mat-form-field>
-
+        
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Contraseña</mat-label>
           <input
@@ -41,7 +42,7 @@
             La contraseña es requerida
           </mat-error>
         </mat-form-field>
-
+        
         <div class="button-container">
           <button
             mat-raised-button
