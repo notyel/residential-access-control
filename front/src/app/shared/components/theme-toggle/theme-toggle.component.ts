@@ -7,7 +7,7 @@ import { LucideAngularModule, Sun, Moon } from 'lucide-angular';
   standalone: true,
   imports: [LucideAngularModule],
   templateUrl: './theme-toggle.component.html',
-  styleUrl: './theme-toggle.component.scss'
+  styleUrl: './theme-toggle.component.scss',
 })
 export class ThemeToggleComponent {
   themeService = inject(ThemeService);
