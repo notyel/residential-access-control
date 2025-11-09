@@ -19,10 +19,13 @@ interface AuthResponse {
 })
 export class AuthService {
   private readonly TOKEN_KEY = 'jwt';
+  private readonly ROLE_KEY = 'role';
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(
     this.hasToken()
   );
   public isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
+  private userRoleSubject = new BehaviorSubject<string>(this.getRole());
+  public userRole$ = this.userRoleSubject.asObservable();
 
   constructor(private http: HttpClient) {}
 
@@ -32,14 +35,18 @@ export class AuthService {
       .pipe(
         tap((response) => {
           localStorage.setItem(this.TOKEN_KEY, response.token);
+          localStorage.setItem(this.ROLE_KEY, response.role);
           this.isAuthenticatedSubject.next(true);
+          this.userRoleSubject.next(response.role);
         })
       );
   }
 
   logout(): void {
     localStorage.removeItem(this.TOKEN_KEY);
+    localStorage.removeItem(this.ROLE_KEY);
     this.isAuthenticatedSubject.next(false);
+    this.userRoleSubject.next('');
   }
 
   private hasToken(): boolean {
@@ -52,5 +59,9 @@ export class AuthService {
 
   getToken(): string | null {
     return localStorage.getItem(this.TOKEN_KEY);
+  }
+
+  getRole(): string | null {
+    return localStorage.getItem(this.ROLE_KEY);
   }
 }

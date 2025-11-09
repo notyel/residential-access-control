@@ -1,0 +1,38 @@
+<div class="visits-container">
+  <h2>Visits</h2>
+  <form [formGroup]="filterForm" (ngSubmit)="onFilter()">
+    <div class="form-group">
+      <label for="startDate">Start Date</label>
+      <input type="date" id="startDate" formControlName="startDate" class="form-control">
+    </div>
+    <div class="form-group">
+      <label for="endDate">End Date</label>
+      <input type="date" id="endDate" formControlName="endDate" class="form-control">
+    </div>
+    <button type="submit" class="btn btn-primary">Filter</button>
+  </form>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Visitor</th>
+        <th>Date</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (visit of visits().visits; track visit.id) {
+        <tr>
+          <td>{{ visit.visitorName }}</td>
+          <td>{{ visit.createdAt | date: 'short' }}</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="pagination">
+    <button (click)="onPageChange(visits().pageNumber - 1)" [disabled]="visits().pageNumber === 1">Previous</button>
+    <span>{{ visits().pageNumber }} / {{ getTotalPages(visits().totalCount, 10) }}</span>
+    <button (click)="onPageChange(visits().pageNumber + 1)" [disabled]="visits().pageNumber === getTotalPages(visits().totalCount, 10)">Next</button>
+  </div>
+</div>

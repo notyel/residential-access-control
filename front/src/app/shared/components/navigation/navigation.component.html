@@ -1,0 +1,12 @@
+<nav>
+  <ul>
+    @for (item of menu(); track item.id) {
+      <li>
+        <a [routerLink]="item.path">{{ item.name }}</a>
+      </li>
+    }
+    <li *appIfRole="['Admin', 'Guard']">
+      <a routerLink="/visits/register">Register Visit</a>
+    </li>
+  </ul>
+</nav>

@@ -16,6 +16,7 @@
   <ItemGroup>
     <ProjectReference Include="..\AccessControl.Domain\AccessControl.Domain.csproj" />
     <ProjectReference Include="..\AccessControl.Persistence\AccessControl.Persistence.csproj" />
+    <ProjectReference Include="..\AccessControl.Common.DTOs\AccessControl.Common.DTOs.csproj" />
   </ItemGroup>
 
 </Project>
