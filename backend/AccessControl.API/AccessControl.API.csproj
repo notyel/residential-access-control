@@ -21,10 +21,4 @@
     <ProjectReference Include="..\AccessControl.Application\AccessControl.Application.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="accesscontrol.db">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
 </Project>
