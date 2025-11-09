@@ -1,9 +1,10 @@
+using AccessControl.Domain.Common;
 using System;
 using System.Collections.Generic;
 
 namespace AccessControl.Domain.Entities
 {
-    public class Menu
+    public class Menu : AuditableEntity
     {
         public Guid Id { get; set; } = Guid.NewGuid();
         public string Name { get; set; } = null!;

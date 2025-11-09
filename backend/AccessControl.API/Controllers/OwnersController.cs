@@ -27,7 +27,7 @@ namespace AccessControl.API.Controllers
             var userId = Guid.Parse(userIdStr);
             var visits = await _visitRepository.GetQueryable()
                 .Where(v => v.Residence.OwnerId == userId)
-                .OrderByDescending(v => v.CheckIn)
+                .OrderByDescending(v => v.CreatedAt)
                 .ToListAsync();
             return Ok(visits);
         }

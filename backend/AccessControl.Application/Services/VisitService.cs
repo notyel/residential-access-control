@@ -81,18 +81,18 @@ namespace AccessControl.Application.Services
 
             if (filter.StartDate.HasValue)
             {
-                query = query.Where(v => v.CheckIn >= filter.StartDate.Value);
+                query = query.Where(v => v.CreatedAt >= filter.StartDate.Value);
             }
 
             if (filter.EndDate.HasValue)
             {
-                query = query.Where(v => v.CheckIn <= filter.EndDate.Value);
+                query = query.Where(v => v.CreatedAt <= filter.EndDate.Value);
             }
 
             var totalCount = await query.CountAsync();
 
             var pagedVisits = await query
-                .OrderByDescending(v => v.CheckIn)
+                .OrderByDescending(v => v.CreatedAt)
                 .Skip((filter.PageNumber - 1) * filter.PageSize)
                 .Take(filter.PageSize)
                 .ToListAsync();

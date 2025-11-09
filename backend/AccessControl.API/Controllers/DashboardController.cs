@@ -7,7 +7,7 @@ namespace AccessControl.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
+    [Authorize(Policy = "AdminOnly")]
     public class DashboardController : ControllerBase
     {
         private readonly IDashboardService _dashboardService;

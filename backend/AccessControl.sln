@@ -24,7 +24,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2. Application", "2. Applic
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccessControl.Application", "AccessControl.Application\AccessControl.Application.csproj", "{03324DF3-4F78-4EB4-9840-2E0DC6379E84}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccessControl.Shared", "AccessControl.Shared\AccessControl.Shared.csproj", "{8C8081E5-4CEC-4110-9FE7-7A7F6E00DFAB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccessControl.Common.DTOs", "AccessControl.Common.DTOs\AccessControl.Common.DTOs.csproj", "{8C8081E5-4CEC-4110-9FE7-7A7F6E00DFAB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

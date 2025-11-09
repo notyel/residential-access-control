@@ -21,7 +21,7 @@ namespace AccessControl.Application.Services
         public async Task<IEnumerable<Visit>> GetLatestVisitsAsync(int count)
         {
             return await _visitRepository.GetQueryable()
-                .OrderByDescending(v => v.CheckIn)
+                .OrderByDescending(v => v.CreatedAt)
                 .Take(count)
                 .ToListAsync();
         }
@@ -33,7 +33,7 @@ namespace AccessControl.Application.Services
             var lastDayOfMonth = firstDayOfMonth.AddMonths(1).AddDays(-1);
 
             return await _visitRepository.GetQueryable()
-                .CountAsync(v => v.CheckIn >= firstDayOfMonth && v.CheckIn <= lastDayOfMonth);
+                .CountAsync(v => v.CreatedAt >= firstDayOfMonth && v.CreatedAt <= lastDayOfMonth);
         }
     }
 }

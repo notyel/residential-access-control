@@ -1,14 +1,14 @@
+using AccessControl.Domain.Common;
 using System;
 
 namespace AccessControl.Domain.Entities
 {
-    public class Visit
+    public class Visit : AuditableEntity
     {
         public Guid Id { get; set; } = Guid.NewGuid();
         public string VisitorName { get; set; } = null!;
         public string VisitorId { get; set; } = null!;
         public string? VehiclePlate { get; set; }
-        public DateTime CheckIn { get; set; } = DateTime.UtcNow;
         public DateTime? CheckOut { get; set; }
         public Guid ResidenceId { get; set; } // a qué propiedad viene
         public Residence Residence { get; set; } = null!;

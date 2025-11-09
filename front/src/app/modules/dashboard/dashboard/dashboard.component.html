@@ -1,0 +1,14 @@
+<div class="dashboard-container">
+  <div class="card">
+    <h2>Total Visits This Month</h2>
+    <p>{{ (totalVisitsThisMonth$ | async)?.count }}</p>
+  </div>
+  <div class="card">
+    <h2>Latest Visits</h2>
+    <ul>
+      <li *ngFor="let visit of latestVisits$ | async">
+        {{ visit.visitorName }} - {{ visit.createdAt | date: 'short' }}
+      </li>
+    </ul>
+  </div>
+</div>

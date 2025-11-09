@@ -43,6 +43,7 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("GuardOnly", p => p.RequireRole(Role.Guard.ToString()));
     options.AddPolicy("AdminOnly", p => p.RequireRole(Role.Admin.ToString()));
     options.AddPolicy("OwnerOnly", p => p.RequireRole(Role.Owner.ToString()));
+    options.AddPolicy("AdminOrGuard", p => p.RequireRole(Role.Admin.ToString(), Role.Guard.ToString()));
 });
 
 builder.Services.AddControllers();

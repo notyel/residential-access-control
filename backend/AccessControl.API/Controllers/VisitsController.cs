@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Security.Claims;
 using AccessControl.Shared.Dtos.Visit;
+using AccessControl.Shared.Enums;
 using System.Threading.Tasks;
 
 namespace AccessControl.API.Controllers
@@ -16,7 +17,7 @@ namespace AccessControl.API.Controllers
         public VisitsController(IVisitService visitService) => _visitService = visitService;
 
         [HttpPost]
-    [Authorize(Policy = "GuardOnly")]
+        [Authorize(Policy = "AdminOrGuard")]
         public async Task<IActionResult> RegisterVisit([FromBody] CreateVisitDto dto)
         {
             var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -28,7 +29,7 @@ namespace AccessControl.API.Controllers
         }
 
         [HttpGet]
-        [Authorize(Policy = "GuardOnly")]
+        [Authorize(Policy = "AdminOrGuard")]
         public async Task<IActionResult> GetVisits([FromQuery] VisitFilterDto filter)
         {
             var (visits, totalCount) = await _visitService.GetVisitsAsync(filter);
@@ -36,16 +37,28 @@ namespace AccessControl.API.Controllers
         }
 
         [HttpGet("{id}")]
-        [Authorize(Policy = "GuardOnly")]
+        [Authorize]
         public async Task<IActionResult> GetVisit(Guid id)
         {
             var visit = await _visitService.GetVisitByIdAsync(id);
             if (visit == null) return NotFound();
+
+            if (User.IsInRole(Role.Owner.ToString()))
+            {
+                var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (string.IsNullOrEmpty(userIdStr)) return Unauthorized();
+                var userId = Guid.Parse(userIdStr);
+                if (visit.Residence.OwnerId != userId)
+                {
+                    return Forbid();
+                }
+            }
+
             return Ok(visit);
         }
 
         [HttpPut("{id}")]
-        [Authorize(Policy = "GuardOnly")]
+        [Authorize(Policy = "AdminOrGuard")]
         public async Task<IActionResult> UpdateVisit(Guid id, [FromBody] UpdateVisitDto dto)
         {
             var visit = await _visitService.UpdateVisitAsync(id, dto);

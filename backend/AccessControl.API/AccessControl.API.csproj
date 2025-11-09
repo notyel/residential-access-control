@@ -19,7 +19,7 @@
   <ItemGroup>
     <ProjectReference Include="..\AccessControl.Persistence\AccessControl.Persistence.csproj" />
     <ProjectReference Include="..\AccessControl.Application\AccessControl.Application.csproj" />
-    <ProjectReference Include="..\AccessControl.Shared\AccessControl.Shared.csproj" />
+    <ProjectReference Include="..\AccessControl.Common.DTOs\AccessControl.Common.DTOs.csproj" />
   </ItemGroup>
 
 </Project>

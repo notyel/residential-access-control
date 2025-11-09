@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\AccessControl.Shared\AccessControl.Shared.csproj" />
+    <ProjectReference Include="..\AccessControl.Common.DTOs\AccessControl.Common.DTOs.csproj" />
   </ItemGroup>
 
   <PropertyGroup>
