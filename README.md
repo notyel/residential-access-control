@@ -12,7 +12,7 @@ Solución para gestionar el ingreso y salida de personas en conjuntos residencia
 ## Tecnologías
 
 - **Backend:** .NET 8 Web API
-- **Base de datos:** SQLite
+- **Base de datos:** PostgreSQL
 - **Frontend:** (en desarrollo)
 - **Despliegue:** Linux con Nginx y systemd
 
