@@ -3,6 +3,7 @@ using System;
 using AccessControl.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace AccessControl.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251109050147_User-FirstName-LastName-ApartmentNumber")]
+    partial class UserFirstNameLastNameApartmentNumber
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,28 +24,6 @@ namespace AccessControl.Persistence.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
-
-            modelBuilder.Entity("AccessControl.Domain.Entities.Menu", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Path")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Name")
-                        .IsUnique();
-
-                    b.ToTable("Menus");
-                });
 
             modelBuilder.Entity("AccessControl.Domain.Entities.Residence", b =>
                 {
@@ -64,28 +45,6 @@ namespace AccessControl.Persistence.Migrations
                     b.HasIndex("OwnerId");
 
                     b.ToTable("Residences");
-                });
-
-            modelBuilder.Entity("AccessControl.Domain.Entities.RoleMenu", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("MenuId")
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("Role")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("MenuId");
-
-                    b.HasIndex("Role", "MenuId")
-                        .IsUnique();
-
-                    b.ToTable("RoleMenus");
                 });
 
             modelBuilder.Entity("AccessControl.Domain.Entities.User", b =>
@@ -142,6 +101,10 @@ namespace AccessControl.Persistence.Migrations
                     b.Property<DateTime?>("CheckOut")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("Notes")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<Guid>("RegisteredById")
                         .HasColumnType("uuid");
 
@@ -151,7 +114,7 @@ namespace AccessControl.Persistence.Migrations
                     b.Property<string>("VehiclePlate")
                         .HasColumnType("text");
 
-                    b.Property<string>("VisitorId")
+                    b.Property<string>("VisitorDocument")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -179,17 +142,6 @@ namespace AccessControl.Persistence.Migrations
                     b.Navigation("Owner");
                 });
 
-            modelBuilder.Entity("AccessControl.Domain.Entities.RoleMenu", b =>
-                {
-                    b.HasOne("AccessControl.Domain.Entities.Menu", "Menu")
-                        .WithMany("RoleMenus")
-                        .HasForeignKey("MenuId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Menu");
-                });
-
             modelBuilder.Entity("AccessControl.Domain.Entities.Visit", b =>
                 {
                     b.HasOne("AccessControl.Domain.Entities.User", "RegisteredBy")
@@ -207,11 +159,6 @@ namespace AccessControl.Persistence.Migrations
                     b.Navigation("RegisteredBy");
 
                     b.Navigation("Residence");
-                });
-
-            modelBuilder.Entity("AccessControl.Domain.Entities.Menu", b =>
-                {
-                    b.Navigation("RoleMenus");
                 });
 
             modelBuilder.Entity("AccessControl.Domain.Entities.User", b =>

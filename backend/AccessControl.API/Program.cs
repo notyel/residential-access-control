@@ -1,11 +1,12 @@
 using AccessControl.Application.Interfaces;
 using AccessControl.Application.Services;
-using AccessControl.Domain.Enums;
+using AccessControl.Shared.Enums;
 using AccessControl.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using AccessControl.Persistence.Generics;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -49,6 +50,9 @@ builder.Services.AddControllers();
 // Repos/Services DI: registrar tus repos y services (por ejemplo IAuthService, IVisitService)
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IVisitService, VisitService>();
+builder.Services.AddScoped<IMenuService, MenuService>();
+builder.Services.AddScoped<IDashboardService, DashboardService>();
+builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
 // Add CORS services
 builder.Services.AddCors(options =>

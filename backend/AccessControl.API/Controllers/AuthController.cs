@@ -1,5 +1,5 @@
-using AccessControl.API.Dtos;
 using AccessControl.Application.Interfaces;
+using AccessControl.Shared.Dtos.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
@@ -17,8 +17,8 @@ namespace AccessControl.API.Controllers
         [Authorize(Policy = "AdminOnly")] // solo admin puede crear admins o propietarios; opcionalmente permitir self-register
         public async Task<IActionResult> Register([FromBody] RegisterDto dto)
         {
-            var user = await _auth.CreateUserAsync(dto.Email, dto.FullName, dto.Password, dto.Role);
-            return Ok(new { user.Id, user.Email, user.FullName, user.Role });
+            var user = await _auth.CreateUserAsync(dto.Email, dto.FirstName, dto.LastName, dto.ApartmentNumber, dto.Password, dto.Role);
+            return Ok(new { user.Id, user.Email, user.FirstName, user.LastName, user.ApartmentNumber, user.Role });
         }
 
         [HttpPost("login")]

@@ -3,6 +3,7 @@ using System;
 using AccessControl.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace AccessControl.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251109050321_Menu-RoleMenu")]
+    partial class MenuRoleMenu
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -142,6 +145,10 @@ namespace AccessControl.Persistence.Migrations
                     b.Property<DateTime?>("CheckOut")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("Notes")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<Guid>("RegisteredById")
                         .HasColumnType("uuid");
 
@@ -151,7 +158,7 @@ namespace AccessControl.Persistence.Migrations
                     b.Property<string>("VehiclePlate")
                         .HasColumnType("text");
 
-                    b.Property<string>("VisitorId")
+                    b.Property<string>("VisitorDocument")
                         .IsRequired()
                         .HasColumnType("text");
 

@@ -10,6 +10,8 @@ namespace AccessControl.Persistence
         public DbSet<User> Users { get; set; }
         public DbSet<Residence> Residences { get; set; }
         public DbSet<Visit> Visits { get; set; }
+        public DbSet<Menu> Menus { get; set; }
+        public DbSet<RoleMenu> RoleMenus { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -35,6 +37,19 @@ namespace AccessControl.Persistence
                 b.HasOne(v => v.Residence).WithMany().HasForeignKey(v => v.ResidenceId);
                 b.HasOne(v => v.RegisteredBy).WithMany().HasForeignKey(v => v.RegisteredById);
                 b.Property(v => v.CheckIn).HasDefaultValueSql("NOW()");
+            });
+
+            modelBuilder.Entity<Menu>(b =>
+            {
+                b.HasKey(m => m.Id);
+                b.HasIndex(m => m.Name).IsUnique();
+            });
+
+            modelBuilder.Entity<RoleMenu>(b =>
+            {
+                b.HasKey(rm => rm.Id);
+                b.HasIndex(rm => new { rm.Role, rm.MenuId }).IsUnique();
+                b.HasOne(rm => rm.Menu).WithMany(m => m.RoleMenus).HasForeignKey(rm => rm.MenuId);
             });
 
             base.OnModelCreating(modelBuilder);
