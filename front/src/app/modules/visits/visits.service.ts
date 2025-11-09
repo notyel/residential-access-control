@@ -14,6 +14,7 @@ export interface VisitFilter {
 export interface PagedVisits {
   visits: Visit[];
   totalCount: number;
+  pageNumber: number;
 }
 
 @Injectable({

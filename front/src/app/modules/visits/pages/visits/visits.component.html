@@ -21,14 +21,18 @@
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let visit of (visits$ | async)?.visits">
-        <td>{{ visit.visitorName }}</td>
-        <td>{{ visit.createdAt | date: 'short' }}</td>
+      @for (visit of visits().visits; track visit.id) {
+        <tr>
+          <td>{{ visit.visitorName }}</td>
+          <td>{{ visit.createdAt | date: 'short' }}</td>
         <td></td>
       </tr>
     </tbody>
   </table>
 
   <div class="pagination">
-    </div>
+    <button (click)="onPageChange(visits().pageNumber - 1)" [disabled]="visits().pageNumber === 1">Previous</button>
+    <span>{{ visits().pageNumber }} / {{ getTotalPages(visits().totalCount, 10) }}</span>
+    <button (click)="onPageChange(visits().pageNumber + 1)" [disabled]="visits().pageNumber === getTotalPages(visits().totalCount, 10)">Next</button>
+  </div>
 </div>
