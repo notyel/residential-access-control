@@ -59,7 +59,7 @@ export class LoginComponent {
     private snackBar: MatSnackBar
   ) {
     this.loginForm = this.fb.group({
-      username: ['', [Validators.required]],
+      email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required]],
     });
   }
@@ -75,7 +75,7 @@ export class LoginComponent {
         error: (error: any) => {
           this.snackBar.open(
             'Error de autenticación: ' +
-              (error.message || 'Credenciales inválidas'),
+              (error.error.message || 'Credenciales inválidas'),
             'Cerrar',
             { duration: 5000 }
           );
