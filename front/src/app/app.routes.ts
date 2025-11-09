@@ -7,26 +7,28 @@ export const routes: Routes = [
   {
     path: 'auth',
     component: AuthLayoutComponent,
-    loadChildren: () =>
-      import('./modules/auth/auth.module').then((m) => m.AuthModule),
+    loadChildren: () => import('./modules/auth/auth.routes'),
   },
   {
     path: 'dashboard',
     component: DashboardLayoutComponent,
     canActivate: [authGuard],
-    loadChildren: () =>
-      import('./modules/dashboard/dashboard.module').then(
-        (m) => m.DashboardModule
+    loadComponent: () =>
+      import('./modules/dashboard/pages/dashboard/dashboard.component').then(
+        (m) => m.DashboardComponent
       ),
   },
   {
     path: 'visits',
     component: DashboardLayoutComponent,
     canActivate: [authGuard],
-    loadChildren: () =>
-      import('./modules/visits/visits.module').then(
-        (m) => m.VisitsModule
-      ),
+    loadChildren: () => import('./modules/visits/visits.routes'),
+  },
+  {
+    path: 'residents',
+    component: DashboardLayoutComponent,
+    canActivate: [authGuard],
+    loadChildren: () => import('./modules/residents/residents.routes'),
   },
   {
     path: '',

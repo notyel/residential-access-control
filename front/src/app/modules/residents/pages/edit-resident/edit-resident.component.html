@@ -1,0 +1,21 @@
+<div class="edit-resident-container">
+  <form [formGroup]="residentForm" (ngSubmit)="onSubmit()">
+    <h2>Edit Resident</h2>
+    <div class="form-group">
+      <label for="firstName">First Name</label>
+      <input type="text" id="firstName" formControlName="firstName" class="form-control">
+    </div>
+    <div class="form-group">
+      <label for="lastName">Last Name</label>
+      <input type="text" id="lastName" formControlName="lastName" class="form-control">
+    </div>
+    <div class="form-group">
+      <label for="apartmentNumber">Apartment Number</label>
+      <input type="text" id="apartmentNumber" formControlName="apartmentNumber" class="form-control">
+    </div>
+    <div *ngIf="errorMessage" class="alert alert-danger">
+      {{ errorMessage }}
+    </div>
+    <button type="submit" [disabled]="!residentForm.valid" class="btn btn-primary">Update</button>
+  </form>
+</div>
