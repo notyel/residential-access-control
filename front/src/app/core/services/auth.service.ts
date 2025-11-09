@@ -4,20 +4,21 @@ import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
 interface LoginCredentials {
-  username: string;
+  email: string;
   password: string;
 }
 
 interface AuthResponse {
   token: string;
-  user: any; // Ajusta esto según la respuesta de tu API
+  role: string;
+  userId: string;
 }
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  private readonly TOKEN_KEY = 'auth_token';
+  private readonly TOKEN_KEY = 'jwt';
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(
     this.hasToken()
   );

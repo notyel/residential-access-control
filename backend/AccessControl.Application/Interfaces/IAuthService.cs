@@ -1,16 +1,13 @@
 using AccessControl.Domain.Entities;
-using AccessControl.Domain.Models;
-using System;
+using AccessControl.Domain.Enums;
 using System.Threading.Tasks;
 
 namespace AccessControl.Application.Interfaces
 {
     public interface IAuthService
     {
-        Task<AuthResponse> LoginAsync(LoginRequest request);
-        Task<AuthResponse> RegisterAsync(RegisterRequest request);
-        Task<AuthResponse> RefreshTokenAsync(RefreshTokenRequest request);
-        Task<bool> RevokeTokenAsync(string username);
-        Task<User> GetUserByUsernameAsync(string username);
+        Task<User?> AuthenticateAsync(string email, string password);
+        Task<User> CreateUserAsync(string email, string fullName, string password, Role role);
+        string GenerateJwtToken(User user);
     }
 }
