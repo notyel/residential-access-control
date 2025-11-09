@@ -22,18 +22,58 @@ namespace AccessControl.Persistence.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("AccessControl.Domain.Entities.Menu", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Path")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("Menus");
+                });
+
             modelBuilder.Entity("AccessControl.Domain.Entities.Residence", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Identifier")
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
                     b.Property<Guid>("OwnerId")
                         .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
@@ -44,11 +84,37 @@ namespace AccessControl.Persistence.Migrations
                     b.ToTable("Residences");
                 });
 
+            modelBuilder.Entity("AccessControl.Domain.Entities.RoleMenu", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("MenuId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Role")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MenuId");
+
+                    b.HasIndex("Role", "MenuId")
+                        .IsUnique();
+
+                    b.ToTable("RoleMenus");
+                });
+
             modelBuilder.Entity("AccessControl.Domain.Entities.User", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<string>("ApartmentNumber")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -57,7 +123,14 @@ namespace AccessControl.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("FullName")
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("LastName")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -67,6 +140,9 @@ namespace AccessControl.Persistence.Migrations
 
                     b.Property<int>("Role")
                         .HasColumnType("integer");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
@@ -82,17 +158,14 @@ namespace AccessControl.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<DateTime>("CheckIn")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasDefaultValueSql("NOW()");
-
                     b.Property<DateTime?>("CheckOut")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("Notes")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
 
                     b.Property<Guid>("RegisteredById")
                         .HasColumnType("uuid");
@@ -100,11 +173,13 @@ namespace AccessControl.Persistence.Migrations
                     b.Property<Guid>("ResidenceId")
                         .HasColumnType("uuid");
 
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("VehiclePlate")
-                        .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("VisitorDocument")
+                    b.Property<string>("VisitorId")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -132,6 +207,17 @@ namespace AccessControl.Persistence.Migrations
                     b.Navigation("Owner");
                 });
 
+            modelBuilder.Entity("AccessControl.Domain.Entities.RoleMenu", b =>
+                {
+                    b.HasOne("AccessControl.Domain.Entities.Menu", "Menu")
+                        .WithMany("RoleMenus")
+                        .HasForeignKey("MenuId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Menu");
+                });
+
             modelBuilder.Entity("AccessControl.Domain.Entities.Visit", b =>
                 {
                     b.HasOne("AccessControl.Domain.Entities.User", "RegisteredBy")
@@ -149,6 +235,11 @@ namespace AccessControl.Persistence.Migrations
                     b.Navigation("RegisteredBy");
 
                     b.Navigation("Residence");
+                });
+
+            modelBuilder.Entity("AccessControl.Domain.Entities.Menu", b =>
+                {
+                    b.Navigation("RoleMenus");
                 });
 
             modelBuilder.Entity("AccessControl.Domain.Entities.User", b =>

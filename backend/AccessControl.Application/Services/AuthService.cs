@@ -1,7 +1,7 @@
 using AccessControl.Application.Interfaces;
 using AccessControl.Domain.Entities;
-using AccessControl.Domain.Enums;
-using AccessControl.Persistence;
+using AccessControl.Shared.Enums;
+using AccessControl.Persistence.Generics;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -16,18 +16,18 @@ namespace AccessControl.Application.Services
 {
     public class AuthService : IAuthService
     {
-        private readonly ApplicationDbContext _db;
+        private readonly IRepository<User> _userRepository;
         private readonly IConfiguration _config;
 
-        public AuthService(ApplicationDbContext db, IConfiguration config)
+        public AuthService(IRepository<User> userRepository, IConfiguration config)
         {
-            _db = db;
+            _userRepository = userRepository;
             _config = config;
         }
 
         public async Task<User?> AuthenticateAsync(string email, string password)
         {
-            var user = await _db.Users.SingleOrDefaultAsync(u => u.Email.ToLower() == email.ToLower());
+            var user = await _userRepository.GetQueryable().FirstOrDefaultAsync(u => u.Email.ToLower() == email.ToLower());
             if (user == null) return null;
 
             // verificar password con BCrypt
@@ -35,13 +35,13 @@ namespace AccessControl.Application.Services
             return ok ? user : null;
         }
 
-        public async Task<User> CreateUserAsync(string email, string fullName, string password, Role role)
+        public async Task<User> CreateUserAsync(string email, string firstName, string lastName, string apartmentNumber, string password, Role role)
         {
-            if (await _db.Users.AnyAsync(u => u.Email == email)) throw new InvalidOperationException("Email already exists");
+            if (await _userRepository.GetQueryable().AnyAsync(u => u.Email == email)) throw new InvalidOperationException("Email already exists");
             var hash = BCrypt.Net.BCrypt.HashPassword(password);
-            var user = new User { Email = email, FullName = fullName, PasswordHash = hash, Role = role };
-            _db.Users.Add(user);
-            await _db.SaveChangesAsync();
+            var user = new User { Email = email, FirstName = firstName, LastName = lastName, ApartmentNumber = apartmentNumber, PasswordHash = hash, Role = role };
+            await _userRepository.AddAsync(user);
+            await _userRepository.SaveChangesAsync();
             return user;
         }
 
@@ -53,7 +53,7 @@ namespace AccessControl.Application.Services
 
             var claims = new List<Claim>{
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Name, user.FullName),
+                new Claim(ClaimTypes.Name, $"{user.FirstName} {user.LastName}"),
                 new Claim(ClaimTypes.Email, user.Email),
                 new Claim(ClaimTypes.Role, user.Role.ToString())
             };

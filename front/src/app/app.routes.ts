@@ -5,33 +5,32 @@ import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   {
-    path: 'login',
+    path: 'auth',
     component: AuthLayoutComponent,
-    children: [
-      {
-        path: '',
-        loadChildren: () =>
-          import('./modules/login/login.routes').then((m) => m.LOGIN_ROUTES),
-      },
-    ],
+    loadChildren: () =>
+      import('./modules/auth/auth.module').then((m) => m.AuthModule),
   },
   {
     path: 'dashboard',
     component: DashboardLayoutComponent,
     canActivate: [authGuard],
-    children: [
-      {
-        path: '',
-        loadChildren: () =>
-          import('./modules/dashboard/dashboard.routes').then(
-            (m) => m.DASHBOARD_ROUTES
-          ),
-      },
-    ],
+    loadChildren: () =>
+      import('./modules/dashboard/dashboard.module').then(
+        (m) => m.DashboardModule
+      ),
+  },
+  {
+    path: 'visits',
+    component: DashboardLayoutComponent,
+    canActivate: [authGuard],
+    loadChildren: () =>
+      import('./modules/visits/visits.module').then(
+        (m) => m.VisitsModule
+      ),
   },
   {
     path: '',
-    redirectTo: 'login',
+    redirectTo: 'auth/login',
     pathMatch: 'full',
   },
 ];

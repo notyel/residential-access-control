@@ -1,4 +1,4 @@
-namespace AccessControl.Domain.Enums
+namespace AccessControl.Shared.Enums
 {
     public enum Role
     {

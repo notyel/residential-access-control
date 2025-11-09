@@ -1,0 +1,34 @@
+<div class="visits-container">
+  <h2>Visits</h2>
+  <form [formGroup]="filterForm" (ngSubmit)="onFilter()">
+    <div class="form-group">
+      <label for="startDate">Start Date</label>
+      <input type="date" id="startDate" formControlName="startDate" class="form-control">
+    </div>
+    <div class="form-group">
+      <label for="endDate">End Date</label>
+      <input type="date" id="endDate" formControlName="endDate" class="form-control">
+    </div>
+    <button type="submit" class="btn btn-primary">Filter</button>
+  </form>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Visitor</th>
+        <th>Date</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let visit of (visits$ | async)?.visits">
+        <td>{{ visit.visitorName }}</td>
+        <td>{{ visit.createdAt | date: 'short' }}</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="pagination">
+    </div>
+</div>

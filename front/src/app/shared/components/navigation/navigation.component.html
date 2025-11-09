@@ -1,0 +1,7 @@
+<nav>
+  <ul>
+    <li *ngFor="let item of menu$ | async">
+      <a [routerLink]="item.path">{{ item.name }}</a>
+    </li>
+  </ul>
+</nav>

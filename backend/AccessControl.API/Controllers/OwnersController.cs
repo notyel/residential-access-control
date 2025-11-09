@@ -1,4 +1,5 @@
-using AccessControl.Persistence;
+using AccessControl.Domain.Entities;
+using AccessControl.Persistence.Generics;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -14,18 +15,20 @@ namespace AccessControl.API.Controllers
     [Authorize(Policy = "OwnerOnly")]
     public class OwnersController : ControllerBase
     {
-        private readonly ApplicationDbContext _db;
-        public OwnersController(ApplicationDbContext db) => _db = db;
+        private readonly IRepository<Visit> _visitRepository;
+        public OwnersController(IRepository<Visit> visitRepository) => _visitRepository = visitRepository;
 
         [HttpGet("visits")]
         public async Task<IActionResult> MyVisits()
         {
-            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            var visits = await _db.Visits
-                                  .Include(v => v.Residence)
-                                  .Where(v => v.Residence.OwnerId == userId)
-                                  .OrderByDescending(v => v.CheckIn)
-                                  .ToListAsync();
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userIdStr)) return Unauthorized();
+
+            var userId = Guid.Parse(userIdStr);
+            var visits = await _visitRepository.GetQueryable()
+                .Where(v => v.Residence.OwnerId == userId)
+                .OrderByDescending(v => v.CreatedAt)
+                .ToListAsync();
             return Ok(visits);
         }
     }
