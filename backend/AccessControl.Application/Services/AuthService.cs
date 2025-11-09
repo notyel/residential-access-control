@@ -1,134 +1,72 @@
 using AccessControl.Application.Interfaces;
 using AccessControl.Domain.Entities;
-using AccessControl.Domain.Models;
-using AccessControl.Persistence.Interfaces;
+using AccessControl.Domain.Enums;
+using AccessControl.Persistence;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 using System;
+using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
-using BC = BCrypt.Net.BCrypt;
 
 namespace AccessControl.Application.Services
 {
     public class AuthService : IAuthService
     {
-        private readonly IUserRepository _userRepository;
-        private readonly JwtService _jwtService;
-        private readonly IConfiguration _configuration;
+        private readonly ApplicationDbContext _db;
+        private readonly IConfiguration _config;
 
-        public AuthService(IUserRepository userRepository, JwtService jwtService, IConfiguration configuration)
+        public AuthService(ApplicationDbContext db, IConfiguration config)
         {
-            _userRepository = userRepository;
-            _jwtService = jwtService;
-            _configuration = configuration;
+            _db = db;
+            _config = config;
         }
 
-        public async Task<AuthResponse> LoginAsync(LoginRequest request)
+        public async Task<User?> AuthenticateAsync(string email, string password)
         {
-            var user = await _userRepository.GetByUsernameAsync(request.Username);
-            
-            if (user == null || !BC.Verify(request.Password, user.PasswordHash))
-            {
-                throw new ApplicationException("Invalid username or password");
-            }
+            var user = await _db.Users.SingleOrDefaultAsync(u => u.Email.ToLower() == email.ToLower());
+            if (user == null) return null;
 
-            return await GenerateAuthResponseAsync(user);
+            // verificar password con BCrypt
+            bool ok = BCrypt.Net.BCrypt.Verify(password, user.PasswordHash);
+            return ok ? user : null;
         }
 
-        public async Task<AuthResponse> RegisterAsync(RegisterRequest request)
+        public async Task<User> CreateUserAsync(string email, string fullName, string password, Role role)
         {
-            if (await _userRepository.UsernameExistsAsync(request.Username))
-            {
-                throw new ApplicationException("Username already exists");
-            }
+            if (await _db.Users.AnyAsync(u => u.Email == email)) throw new InvalidOperationException("Email already exists");
+            var hash = BCrypt.Net.BCrypt.HashPassword(password);
+            var user = new User { Email = email, FullName = fullName, PasswordHash = hash, Role = role };
+            _db.Users.Add(user);
+            await _db.SaveChangesAsync();
+            return user;
+        }
 
-            if (await _userRepository.EmailExistsAsync(request.Email))
-            {
-                throw new ApplicationException("Email already exists");
-            }
+        public string GenerateJwtToken(User user)
+        {
+            var jwt = _config.GetSection("Jwt");
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt["Key"]!));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-            var user = new User
-            {
-                Id = Guid.NewGuid(),
-                Username = request.Username,
-                Email = request.Email,
-                PasswordHash = BC.HashPassword(request.Password),
-                FullName = request.FullName,
-                IdentificationNumber = request.IdentificationNumber,
-                Role = request.Role,
-                Type = "User",
-                IsActive = true,
-                CreatedAt = DateTime.UtcNow
+            var claims = new List<Claim>{
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Name, user.FullName),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Role, user.Role.ToString())
             };
 
-            await _userRepository.CreateAsync(user);
+            var token = new JwtSecurityToken(
+                issuer: jwt["Issuer"],
+                audience: jwt["Audience"],
+                claims: claims,
+                expires: DateTime.UtcNow.AddMinutes(int.Parse(jwt["ExpireMinutes"]!)),
+                signingCredentials: creds
+            );
 
-            return await GenerateAuthResponseAsync(user);
-        }
-
-        public async Task<AuthResponse> RefreshTokenAsync(RefreshTokenRequest request)
-        {
-            var principal = _jwtService.GetPrincipalFromExpiredToken(request.Token);
-            var username = principal.FindFirst(ClaimTypes.Name)?.Value;
-
-            if (string.IsNullOrEmpty(username))
-            {
-                throw new ApplicationException("Invalid token");
-            }
-
-            var user = await _userRepository.GetByUsernameAsync(username);
-
-            if (user == null || user.RefreshToken != request.RefreshToken || user.RefreshTokenExpiryTime <= DateTime.UtcNow)
-            {
-                throw new ApplicationException("Invalid client request");
-            }
-
-            return await GenerateAuthResponseAsync(user);
-        }
-
-        public async Task<bool> RevokeTokenAsync(string username)
-        {
-            var user = await _userRepository.GetByUsernameAsync(username);
-            
-            if (user == null)
-            {
-                return false;
-            }
-
-            user.RefreshToken = null;
-            user.RefreshTokenExpiryTime = null;
-            
-            await _userRepository.UpdateAsync(user);
-            
-            return true;
-        }
-
-        public async Task<User> GetUserByUsernameAsync(string username)
-        {
-            return await _userRepository.GetByUsernameAsync(username);
-        }
-
-        private async Task<AuthResponse> GenerateAuthResponseAsync(User user)
-        {
-            var token = _jwtService.GenerateJwtToken(user);
-            var refreshToken = _jwtService.GenerateRefreshToken();
-
-            user.RefreshToken = refreshToken;
-            user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
-            user.LastLogin = DateTime.UtcNow;
-
-            await _userRepository.UpdateAsync(user);
-
-            return new AuthResponse
-            {
-                Token = token,
-                RefreshToken = refreshToken,
-                Expiration = DateTime.UtcNow.AddHours(1),
-                Username = user.Username,
-                Email = user.Email,
-                FullName = user.FullName,
-                Role = user.Role
-            };
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
     }
 }

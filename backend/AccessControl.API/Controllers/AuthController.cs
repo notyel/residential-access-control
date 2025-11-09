@@ -1,8 +1,7 @@
+using AccessControl.API.Dtos;
 using AccessControl.Application.Interfaces;
-using AccessControl.Domain.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Threading.Tasks;
 
 namespace AccessControl.API.Controllers
@@ -11,45 +10,26 @@ namespace AccessControl.API.Controllers
     [Route("api/[controller]")]
     public class AuthController : ControllerBase
     {
-        private readonly IAuthService _authService;
+        private readonly IAuthService _auth;
+        public AuthController(IAuthService auth) => _auth = auth;
 
-        public AuthController(IAuthService authService)
+        [HttpPost("register")]
+        [Authorize(Policy = "AdminOnly")] // solo admin puede crear admins o propietarios; opcionalmente permitir self-register
+        public async Task<IActionResult> Register([FromBody] RegisterDto dto)
         {
-            _authService = authService;
+            var user = await _auth.CreateUserAsync(dto.Email, dto.FullName, dto.Password, dto.Role);
+            return Ok(new { user.Id, user.Email, user.FullName, user.Role });
         }
 
         [HttpPost("login")]
-        public IActionResult Login([FromBody] LoginRequest request)
+        [AllowAnonymous]
+        public async Task<IActionResult> Login([FromBody] LoginDto dto)
         {
-            if (request.Username == "leyton" && request.Password == "123456")
-            {
-                return Ok(new
-            {
-                    token = "fake-jwt-token",
-                    user = new { username = "leyton" }
-                });
-            }
-            return Unauthorized();
-        }
+            var user = await _auth.AuthenticateAsync(dto.Email, dto.Password);
+            if (user == null) return Unauthorized(new { message = "Credenciales inválidas" });
 
-        [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterRequest request)
-        {
-            try
-            {
-                var response = await _authService.RegisterAsync(request);
-                return Ok(response);
-            }
-            catch (ApplicationException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-        }
-
-        public class LoginRequest
-        {
-            public string Username { get; set; }
-            public string Password { get; set; }
+            var token = _auth.GenerateJwtToken(user);
+            return Ok(new { token, role = user.Role.ToString(), userId = user.Id });
         }
     }
 }

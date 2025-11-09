@@ -1,9 +1,7 @@
-﻿using AccessControl.Application.Interfaces;
+using AccessControl.Application.Interfaces;
 using AccessControl.Application.Services;
-using AccessControl.Domain.Entities;
+using AccessControl.Domain.Enums;
 using AccessControl.Persistence;
-using AccessControl.Persistence.Interfaces;
-using AccessControl.Persistence.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -11,41 +9,13 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-builder.Services.AddControllers();
-
-// Configure CORS
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowAngularApp", builder =>
-    {
-        builder.WithOrigins("http://localhost:4300")
-               .AllowAnyMethod()
-               .AllowAnyHeader()
-               .AllowCredentials();
-    });
-});
-
-// 🔎 Mostrar dónde realmente se está conectando
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-Console.WriteLine($"🔎 EF se conectará a: {Path.GetFullPath(connectionString.Replace("Data Source=", ""))}");
-
-
-// Agregar ApplicationDbContext con SQLite
+// DB
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Repositories
-builder.Services.AddScoped<IResidentRepository, ResidentRepository>();
-builder.Services.AddScoped<IUserRepository, UserRepository>();
-
-// Services
-builder.Services.AddScoped<JwtService>();
-builder.Services.AddScoped<IAuthService, AuthService>();
-
-// Configure JWT Authentication
-var jwtSettings = builder.Configuration.GetSection("JwtSettings");
-var key = Encoding.ASCII.GetBytes(jwtSettings["Secret"]);
+// JWT Auth
+var jwtSettings = builder.Configuration.GetSection("Jwt");
+var key = Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!);
 
 builder.Services.AddAuthentication(options =>
 {
@@ -54,56 +24,54 @@ builder.Services.AddAuthentication(options =>
 })
 .AddJwtBearer(options =>
 {
-    options.RequireHttpsMetadata = false;
+    options.RequireHttpsMetadata = true;
     options.SaveToken = true;
     options.TokenValidationParameters = new TokenValidationParameters
     {
+        ValidateIssuer = true,
+        ValidateAudience = true,
         ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(key),
-        ValidateIssuer = false,
-        ValidateAudience = false,
-        ClockSkew = TimeSpan.Zero
+        ValidIssuer = jwtSettings["Issuer"],
+        ValidAudience = jwtSettings["Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(key)
     };
 });
 
-// Configurar CORS para permitir peticiones desde Angular en puerto 4300
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("PorteriaOnly", p => p.RequireRole(Role.Porteria.ToString()));
+    options.AddPolicy("AdminOnly", p => p.RequireRole(Role.Admin.ToString()));
+    options.AddPolicy("PropietarioOnly", p => p.RequireRole(Role.Propietario.ToString()));
+});
+
+builder.Services.AddControllers();
+
+// Repos/Services DI: registrar tus repos y services (por ejemplo IAuthService, IVisitService)
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IVisitService, VisitService>();
+
+// Add CORS services
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAngular4300",
-        policy => policy.WithOrigins("http://localhost:4300")
-                        .AllowAnyHeader()
-                        .AllowAnyMethod());
+    options.AddPolicy("AllowAll",
+        builder =>
+        {
+            builder.AllowAnyOrigin()
+                   .AllowAnyMethod()
+                   .AllowAnyHeader();
+        });
 });
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-
 app.UseHttpsRedirection();
 
-app.UseCors("AllowAngular4300");
+// Use CORS policy
+app.UseCors("AllowAll");
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
 
-using (var scope = app.Services.CreateScope())
-{
-    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    var model = db.Model;
-
-    Console.WriteLine("🔎 EF detecta estas entidades y columnas:");
-    foreach (var entity in model.GetEntityTypes())
-    {
-        Console.WriteLine($"Entidad: {entity.Name}");
-        foreach (var prop in entity.GetProperties())
-        {
-            Console.WriteLine($"   - {prop.Name} ({prop.ClrType.Name})");
-        }
-    }
-}
-
-
 app.Run();
-
-
