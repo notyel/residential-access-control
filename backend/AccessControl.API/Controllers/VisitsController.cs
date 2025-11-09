@@ -15,7 +15,7 @@ namespace AccessControl.API.Controllers
         public VisitsController(IVisitService visitService) => _visitService = visitService;
 
         [HttpPost]
-        [Authorize(Policy = "PorteriaOnly")]
+    [Authorize(Policy = "GuardOnly")]
         public async Task<IActionResult> RegisterVisit([FromBody] CreateVisitDto dto)
         {
             var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
@@ -24,7 +24,7 @@ namespace AccessControl.API.Controllers
         }
 
         [HttpPost("{id}/checkout")]
-        [Authorize(Policy = "PorteriaOnly")]
+        [Authorize(Policy = "GuardOnly")]
         public async Task<IActionResult> Checkout(Guid id)
         {
             var v = await _visitService.CheckoutAsync(id);

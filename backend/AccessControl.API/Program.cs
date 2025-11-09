@@ -39,9 +39,9 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("PorteriaOnly", p => p.RequireRole(Role.Porteria.ToString()));
+    options.AddPolicy("GuardOnly", p => p.RequireRole(Role.Guard.ToString()));
     options.AddPolicy("AdminOnly", p => p.RequireRole(Role.Admin.ToString()));
-    options.AddPolicy("PropietarioOnly", p => p.RequireRole(Role.Propietario.ToString()));
+    options.AddPolicy("OwnerOnly", p => p.RequireRole(Role.Owner.ToString()));
 });
 
 builder.Services.AddControllers();
@@ -53,10 +53,10 @@ builder.Services.AddScoped<IVisitService, VisitService>();
 // Add CORS services
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll",
+    options.AddPolicy("WebAppPolicy",
         builder =>
         {
-            builder.AllowAnyOrigin()
+            builder.WithOrigins("http://localhost:4400")
                    .AllowAnyMethod()
                    .AllowAnyHeader();
         });
@@ -67,7 +67,7 @@ var app = builder.Build();
 app.UseHttpsRedirection();
 
 // Use CORS policy
-app.UseCors("AllowAll");
+app.UseCors("WebAppPolicy");
 
 app.UseAuthentication();
 app.UseAuthorization();

@@ -11,7 +11,7 @@ namespace AccessControl.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Policy = "PropietarioOnly")]
+    [Authorize(Policy = "OwnerOnly")]
     public class OwnersController : ControllerBase
     {
         private readonly ApplicationDbContext _db;
