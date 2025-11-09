@@ -42,7 +42,7 @@ To add a new theme (e.g., a "blue" theme):
 
 ## Development server
 
-Run `npm start` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+Run `npm start` for a dev server. Navigate to `http://localhost:4400/`. The application will automatically reload if you change any of the source files.
 
 ## Project Structure
 
@@ -71,7 +71,7 @@ You are an expert in TypeScript, Angular, and scalable web application developme
 - Avoid the `any` type; use `unknown` when type is uncertain
 ## Angular Best Practices
 - Always use standalone components over NgModules
-- Must NOT set `standalone: true` inside Angular decorators. It's the default in Angular v20+.
+- Must NOT set `standalone: true` inside Angular decorators. It's the default in Angular v18+.
 - Use signals for state management
 - Implement lazy loading for feature routes
 - Do NOT use the `@HostBinding` and `@HostListener` decorators. Put host bindings inside the `host` object of the `@Component` or `@Directive` decorator instead
