@@ -1,7 +1,7 @@
 import { Injectable, signal, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { tap, map } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
+import { tap, map, catchError } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { ResponseModel } from '../types/response.model';
 import { LucideIconData } from 'lucide-angular';
@@ -26,8 +26,24 @@ export class MenuService {
   constructor(private http: HttpClient) {}
 
   getMenuForCurrentUser(): Observable<MenuItem[]> {
-    // TODO: Remove mock data when backend is ready
-    const mockMenuItems: MenuItem[] = [
+    return this.http.get<ResponseModel<MenuItem[]>>(this.apiUrl).pipe(
+      map((response) => response.data!),
+      tap((items) => {
+        const processedItems = this.processMenuItems(items);
+        this.menuItems.set(processedItems);
+      }),
+      catchError((error) => {
+        console.warn('Failed to load menu from backend, using fallback menu:', error);
+        const fallbackMenu = this.getFallbackMenu();
+        const processedItems = this.processMenuItems(fallbackMenu);
+        this.menuItems.set(processedItems);
+        return of(fallbackMenu);
+      })
+    );
+  }
+
+  private getFallbackMenu(): MenuItem[] {
+    return [
       {
         id: '1',
         name: 'Tablero',
@@ -47,18 +63,6 @@ export class MenuService {
         icon: 'Users',
       },
     ];
-
-    // Agregar los datos de iconos a los elementos del menú
-    const itemsWithIcons = this.processMenuItems(mockMenuItems);
-    this.menuItems.set(itemsWithIcons);
-
-    return this.http.get<ResponseModel<MenuItem[]>>(this.apiUrl).pipe(
-      map((response) => response.data!),
-      tap((items) => {
-        const processedItems = this.processMenuItems(items);
-        this.menuItems.set(processedItems);
-      })
-    );
   }
 
   private processMenuItems(items: MenuItem[]): MenuItem[] {
