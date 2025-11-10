@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { HeaderComponent } from '../../../modules/dashboard/components/header/header.component';
-import { SidebarComponent } from '../../../modules/dashboard/components/sidebar/sidebar.component';
+import { HeaderComponent } from '../../../modules/access-control/dashboard/components/header/header.component';
+import { SidebarComponent } from '../../../modules/access-control/dashboard/components/sidebar/sidebar.component';
 
 @Component({
   selector: 'app-dashboard-layout',

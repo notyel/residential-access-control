@@ -1,4 +1,4 @@
-﻿## 📁 Proyecto: `AccessControl`
+## 📁 Proyecto: `AccessControl`
 
 ```
 AccessControl.sln
@@ -39,7 +39,7 @@ AccessControl.sln
 │   │   └── IRepository.cs
 │   │   └── Repository.cs
 │   └── Migrations
-│       └── [EF Migration Files Here]
+│       └── [Archivos de Migración de EF]
 │
 └── 📁 AccessControl.Shared          # DTOs, Enums, y código común
     ├── Dtos
@@ -55,7 +55,7 @@ AccessControl.sln
 
 ---
 
-###  diagrama de flujo de capas
+###  Diagrama de Flujo de Capas
 
 ```mermaid
 graph TD
@@ -68,7 +68,7 @@ graph TD
     C --> E
 ```
 
-### Reglas de codificación
+### Reglas de Codificación
 
 *   **Nombres de proyectos:** `AccessControl.ProjectName`
 *   **Nombres de archivos:** `ClassName.cs`
@@ -84,7 +84,15 @@ graph TD
 *   **Entidades:** Clases simples que representan las tablas de la base de datos.
 *   **DTOs:** Clases simples para transferir datos entre capas.
 
-### Buenas prácticas de validación y seguridad
+### Patrón Repository
+
+Este proyecto utiliza el patrón Repository para abstraer el acceso a los datos. La implementación genérica se encuentra en `AccessControl.Persistence/Generics` y consta de una interfaz `IRepository<T>` y una clase `Repository<T>`. Esto permite realizar operaciones CRUD (Crear, Leer, Actualizar, Eliminar) de forma estandarizada para cualquier entidad del dominio.
+
+### Uso de DTOs en el Proyecto Común
+
+Los Data Transfer Objects (DTOs) se utilizan para transferir datos entre las diferentes capas de la aplicación. Se encuentran en el proyecto `AccessControl.Shared`, lo que permite que sean utilizados tanto por el backend como por el frontend (si fuera necesario). Esto ayuda a mantener un bajo acoplamiento entre las capas y a definir contratos de datos claros.
+
+### Buenas Prácticas de Validación y Seguridad
 
 *   **Validación:** Usar `FluentValidation` para validar los DTOs de entrada en la capa de la API.
 *   **Autorización:** Usar políticas de autorización para restringir el acceso a los endpoints.
@@ -92,7 +100,7 @@ graph TD
 *   **Secretos:** Usar el `Secret Manager` de .NET para almacenar secretos en desarrollo.
 *   **CORS:** Configurar CORS para permitir solicitudes solo desde el frontend.
 
-### Cómo agregar nuevos endpoints y repositorios
+### Cómo Agregar Nuevos Endpoints y Repositorios
 
 **Agregar un nuevo repositorio:**
 
@@ -108,92 +116,91 @@ graph TD
 4.  Crear un nuevo método en el controlador en `AccessControl.API/Controllers` que use el nuevo método del servicio.
 
 ---
-### 🔐 Security Note: Managing Secrets
+### 🔐 Nota de Seguridad: Gestión de Secretos
 
-**Do not store sensitive data like database passwords or JWT keys directly in configuration files.** This project is configured to use the .NET Secret Manager for development.
+**No almacene datos sensibles como contraseñas de bases de datos o claves JWT directamente en los archivos de configuración.** Este proyecto está configurado para usar el .NET Secret Manager en desarrollo.
 
-To configure your local environment, run the following commands from the `backend/AccessControl.API` directory:
+Para configurar su entorno local, ejecute los siguientes comandos desde el directorio `backend/AccessControl.API`:
 
 ```bash
 dotnet user-secrets init
-dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Host=ep-mute-cherry-a4j6mcyc-pooler.us-east-1.aws.neon.tech;Database=verceldb;Username=default;Password=<YOUR_ACTUAL_PASSWORD>;Ssl Mode=Require;Trust Server Certificate=true"
-dotnet user-secrets set "Jwt:Key" "<YOUR_SUPER_SECRET_JWT_KEY>"
+dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Host=ep-mute-cherry-a4j6mcyc-pooler.us-east-1.aws.neon.tech;Database=verceldb;Username=default;Password=<SU_CONTRASEÑA_REAL>;Ssl Mode=Require;Trust Server Certificate=true"
+dotnet user-secrets set "Jwt:Key" "<SU_CLAVE_JWT_SUPER_SECRETA>"
 ```
 
-Replace `<YOUR_ACTUAL_PASSWORD>` and `<YOUR_SUPER_SECRET_JWT_KEY>` with your actual credentials.
+Reemplace `<SU_CONTRASEÑA_REAL>` y `<SU_CLAVE_JWT_SUPER_SECRETA>` con sus credenciales reales.
 
-### 👤 User Creation
+### 👤 Creación de Usuarios
 
-Users can be created via the API. The `POST /api/auth/register` endpoint is protected and requires an `Admin` user's JWT for authorization.
+Los usuarios se pueden crear a través de la API. El endpoint `POST /api/auth/register` está protegido y requiere el JWT de un usuario `Admin` para la autorización.
 
 **Endpoint:** `POST https://localhost:7262/api/auth/register`
 
-**Headers:**
+**Encabezados:**
 - `Content-Type: application/json`
-- `Authorization: Bearer <ADMIN_JWT_TOKEN>`
+- `Authorization: Bearer <TOKEN_JWT_DE_ADMIN>`
 
-**Request Body:**
+**Cuerpo de la Solicitud:**
 
 ```json
 {
-  "email": "user@example.com",
+  "email": "usuario@example.com",
   "firstName": "John",
   "lastName": "Doe",
   "apartmentNumber": "101",
-  "password": "AStrongPassword123!",
-  "role": <ROLE_ID>
+  "password": "UnaContraseñaSegura123!",
+  "role": <ID_DE_ROL>
 }
 ```
 
-**Role IDs:**
+**IDs de Rol:**
 - `0`: Admin
-- `1`: Guard
-- `2`: Owner
+- `1`: Guardia
+- `2`: Propietario
 
-**cURL Examples:**
+**Ejemplos con cURL:**
 
-*   **Create an Admin user:**
+*   **Crear un usuario Admin:**
     ```bash
     curl -X POST https://localhost:7262/api/auth/register \
     -H "Content-Type: application/json" \
-    -H "Authorization: Bearer <ADMIN_JWT_TOKEN>" \
+    -H "Authorization: Bearer <TOKEN_JWT_DE_ADMIN>" \
     -d '{
       "email": "admin@example.com",
       "firstName": "Admin",
       "lastName": "User",
       "apartmentNumber": "000",
-      "password": "AStrongPassword123!",
+      "password": "UnaContraseñaSegura123!",
       "role": 0
     }'
     ```
 
-*   **Create a Guard user:**
+*   **Crear un usuario Guardia:**
     ```bash
     curl -X POST https://localhost:7262/api/auth/register \
     -H "Content-Type: application/json" \
-    -H "Authorization: Bearer <ADMIN_JWT_TOKEN>" \
+    -H "Authorization: Bearer <TOKEN_JWT_DE_ADMIN>" \
     -d '{
-      "email": "guard@example.com",
-      "firstName": "Guard",
+      "email": "guardia@example.com",
+      "firstName": "Guardia",
       "lastName": "User",
       "apartmentNumber": "000",
-      "password": "AStrongPassword123!",
+      "password": "UnaContraseñaSegura123!",
       "role": 1
     }'
     ```
 
-*   **Create an Owner user:**
+*   **Crear un usuario Propietario:**
     ```bash
     curl -X POST https://localhost:7262/api/auth/register \
     -H "Content-Type: application/json" \
-    -H "Authorization: Bearer <ADMIN_JWT_TOKEN>" \
+    -H "Authorization: Bearer <TOKEN_JWT_DE_ADMIN>" \
     -d '{
-      "email": "owner@example.com",
+      "email": "propietario@example.com",
       "firstName": "John",
       "lastName": "Doe",
       "apartmentNumber": "101",
-      "password": "AStrongPassword123!",
+      "password": "UnaContraseñaSegura123!",
       "role": 2
     }'
     ```
-
