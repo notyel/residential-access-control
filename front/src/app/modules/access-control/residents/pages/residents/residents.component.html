@@ -1,8 +1,12 @@
 <div class="p-6">
   <div class="flex justify-between items-center mb-6">
     <h1 class="text-2xl font-bold">Residents</h1>
-    <button mat-flat-button color="primary" [routerLink]="['/access-control/residents/new']">
-      <lucide-angular [name]="PlusCircleIcon" class="mr-2"></lucide-angular>
+    <button
+      mat-flat-button
+      color="primary"
+      [routerLink]="['/access-control/residents/new']"
+    >
+      <lucide-icon [img]="PlusCircleIcon" class="mr-2"></lucide-icon>
       New Resident
     </button>
   </div>
@@ -19,15 +23,20 @@
     <!-- Apartment Column -->
     <ng-container matColumnDef="apartment">
       <th mat-header-cell *matHeaderCellDef>Apartment</th>
-      <td mat-cell *matCellDef="let resident">{{ resident.apartmentNumber }}</td>
+      <td mat-cell *matCellDef="let resident">
+        {{ resident.apartmentNumber }}
+      </td>
     </ng-container>
 
     <!-- Actions Column -->
     <ng-container matColumnDef="actions">
       <th mat-header-cell *matHeaderCellDef></th>
       <td mat-cell *matCellDef="let resident">
-        <button mat-icon-button [routerLink]="['/access-control/residents/edit', resident.id]">
-          <lucide-angular [name]="EditIcon"></lucide-angular>
+        <button
+          mat-icon-button
+          [routerLink]="['/access-control/residents/edit', resident.id]"
+        >
+          <lucide-icon [img]="EditIcon"></lucide-icon>
         </button>
       </td>
     </ng-container>
