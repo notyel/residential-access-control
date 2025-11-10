@@ -14,34 +14,10 @@ export const routes: Routes = [
     path: 'access-control',
     component: DashboardLayoutComponent,
     canActivate: [authGuard],
-    children: [
-      {
-        path: 'dashboard',
-        loadChildren: () =>
-          import('./modules/access-control/dashboard/dashboard.routes').then(
-            (m) => m.default
-          ),
-      },
-      {
-        path: 'visits',
-        loadChildren: () =>
-          import('./modules/access-control/visits/visits.routes').then(
-            (m) => m.default
-          ),
-      },
-      {
-        path: 'residents',
-        loadChildren: () =>
-          import('./modules/access-control/residents/residents.routes').then(
-            (m) => m.default
-          ),
-      },
-      {
-        path: '',
-        redirectTo: 'dashboard',
-        pathMatch: 'full',
-      },
-    ],
+    loadChildren: () =>
+      import('./modules/access-control/access-control.routes').then(
+        (m) => m.default
+      ),
   },
   {
     path: '',
