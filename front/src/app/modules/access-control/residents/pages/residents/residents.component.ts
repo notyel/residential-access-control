@@ -9,8 +9,8 @@ import { MatIconModule } from '@angular/material/icon';
 import {
   LucideAngularModule,
   User as UserIconLucide,
-  Edit,
-  PlusCircle,
+  SquarePen as EditIconLucide,
+  CirclePlus,
 } from 'lucide-angular';
 
 @Component({
@@ -33,8 +33,8 @@ export class ResidentsComponent implements OnInit {
 
   // Icons
   UserIcon = UserIconLucide;
-  EditIcon = Edit;
-  PlusCircleIcon = PlusCircle;
+  EditIcon = EditIconLucide;
+  PlusCircleIcon = CirclePlus;
 
   private residentsService = inject(ResidentsService);
 

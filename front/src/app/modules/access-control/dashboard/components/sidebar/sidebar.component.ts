@@ -1,7 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideAngularModule, LogOut, Box } from 'lucide-angular';
 import { MenuService } from '../../../../../core/services/menu.service';
 
 @Component({
@@ -13,6 +13,8 @@ import { MenuService } from '../../../../../core/services/menu.service';
 })
 export class SidebarComponent implements OnInit {
   menuService = inject(MenuService);
+  readonly LogOut = LogOut;
+  readonly Box = Box;
 
   ngOnInit(): void {
     this.menuService.getMenuForCurrentUser().subscribe();
