@@ -3,7 +3,10 @@ export interface Visit {
   visitorName: string;
   visitorId: string;
   vehiclePlate?: string;
-  createdAt: Date;
   checkOut?: Date;
   residenceId: string;
+  residenceIdentifier?: string;
+  registeredById: string;
+  registeredByFullName?: string;
+  createdAt: Date;
 }

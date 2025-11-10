@@ -1,10 +1,10 @@
-using AccessControl.Domain.Entities;
-using AccessControl.Persistence.Generics;
+using AccessControl.Application.Interfaces;
+using AccessControl.Common.DTOs;
+using AccessControl.Common.DTOs.Visit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System;
-using System.Linq;
+using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -15,21 +15,25 @@ namespace AccessControl.API.Controllers
     [Authorize(Policy = "OwnerOnly")]
     public class OwnersController : ControllerBase
     {
-        private readonly IRepository<Visit> _visitRepository;
-        public OwnersController(IRepository<Visit> visitRepository) => _visitRepository = visitRepository;
+        private readonly IOwnersService _ownersService;
+        public OwnersController(IOwnersService ownersService) => _ownersService = ownersService;
 
         [HttpGet("visits")]
         public async Task<IActionResult> MyVisits()
         {
-            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrEmpty(userIdStr)) return Unauthorized();
+            try
+            {
+                var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (string.IsNullOrEmpty(userIdStr)) return Unauthorized(new ResponseModel<string>(false, "Invalid user.", null));
 
-            var userId = Guid.Parse(userIdStr);
-            var visits = await _visitRepository.GetQueryable()
-                .Where(v => v.Residence.OwnerId == userId)
-                .OrderByDescending(v => v.CreatedAt)
-                .ToListAsync();
-            return Ok(visits);
+                var userId = Guid.Parse(userIdStr);
+                var visits = await _ownersService.GetMyVisitsAsync(userId);
+                return Ok(new ResponseModel<IEnumerable<VisitDto>>(true, "Visits retrieved successfully.", visits));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ResponseModel<string>(false, "An error occurred while retrieving visits.", null, new() { ex.Message }));
+            }
         }
     }
 }

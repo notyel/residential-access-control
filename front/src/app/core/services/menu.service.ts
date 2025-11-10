@@ -1,14 +1,15 @@
 import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { tap, map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
+import { ResponseModel } from '../types/response.model';
 
 export interface MenuItem {
-  label: string;
-  icon: string;
+  id: string;
+  name: string;
   path: string;
-  roles: string[];
+  icon: string;
 }
 
 @Injectable({
@@ -21,7 +22,8 @@ export class MenuService {
   constructor(private http: HttpClient) {}
 
   getMenuForCurrentUser(): Observable<MenuItem[]> {
-    return this.http.get<MenuItem[]>(this.apiUrl).pipe(
+    return this.http.get<ResponseModel<MenuItem[]>>(this.apiUrl).pipe(
+      map((response) => response.data!),
       tap((items) => this.menuItems.set(items))
     );
   }

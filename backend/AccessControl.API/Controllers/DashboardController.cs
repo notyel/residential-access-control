@@ -1,6 +1,9 @@
 using AccessControl.Application.Interfaces;
+using AccessControl.Common.DTOs;
+using AccessControl.Common.DTOs.Dashboard;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Threading.Tasks;
 
 namespace AccessControl.API.Controllers
@@ -17,18 +20,26 @@ namespace AccessControl.API.Controllers
             _dashboardService = dashboardService;
         }
 
-        [HttpGet("latest-visits")]
-        public async Task<IActionResult> GetLatestVisits()
+        [HttpGet]
+        public async Task<IActionResult> GetDashboard()
         {
-            var visits = await _dashboardService.GetLatestVisitsAsync(10);
-            return Ok(visits);
-        }
+            try
+            {
+                var latestVisits = await _dashboardService.GetLatestVisitsAsync(10);
+                var totalVisitsThisMonth = await _dashboardService.GetTotalVisitsThisMonthAsync();
 
-        [HttpGet("total-visits-this-month")]
-        public async Task<IActionResult> GetTotalVisitsThisMonth()
-        {
-            var count = await _dashboardService.GetTotalVisitsThisMonthAsync();
-            return Ok(new { count });
+                var dashboardDto = new DashboardDto
+                {
+                    LatestVisits = latestVisits,
+                    TotalVisitsThisMonth = totalVisitsThisMonth
+                };
+
+                return Ok(new ResponseModel<DashboardDto>(true, "Dashboard data retrieved successfully.", dashboardDto));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ResponseModel<DashboardDto>(false, "An error occurred while retrieving dashboard data.", null, new() { ex.Message }));
+            }
         }
     }
 }
