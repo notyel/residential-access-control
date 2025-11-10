@@ -69,7 +69,7 @@ export class NewResidentComponent implements OnInit {
       this.residentsService.createResident(this.residentForm.value).subscribe({
         next: () => this.router.navigate(['/access-control/residents']),
         error: (err) => {
-          this.errorMessage = 'Error creating resident';
+          this.errorMessage = 'Error al crear el residente';
           console.error(err);
         },
       });

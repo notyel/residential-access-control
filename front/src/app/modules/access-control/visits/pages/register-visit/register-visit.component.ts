@@ -77,7 +77,7 @@ export class RegisterVisitComponent implements OnInit {
       this.visitsService.createVisit(this.visitForm.value).subscribe({
         next: () => this.router.navigate(['/access-control/visits']),
         error: (err) => {
-          this.errorMessage = 'Error creating visit';
+          this.errorMessage = 'Error al crear la visita';
           console.error(err);
         },
       });

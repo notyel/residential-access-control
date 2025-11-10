@@ -79,7 +79,7 @@ export class EditResidentComponent implements OnInit {
         .subscribe({
           next: () => this.router.navigate(['/access-control/residents']),
           error: (err) => {
-            this.errorMessage = 'Error updating resident';
+            this.errorMessage = 'Error al actualizar el residente';
             console.error(err);
           },
         });

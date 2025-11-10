@@ -1,22 +1,22 @@
 <div class="p-6">
   <mat-card>
     <mat-card-header>
-      <mat-card-title>Register Visit</mat-card-title>
+      <mat-card-title>Registrar Visita</mat-card-title>
     </mat-card-header>
     <mat-card-content>
       <form [formGroup]="visitForm" (ngSubmit)="onSubmit()">
         <mat-form-field class="w-full">
-          <mat-label>Visitor Name</mat-label>
+          <mat-label>Nombre del Visitante</mat-label>
           <input matInput formControlName="visitorName" />
         </mat-form-field>
 
         <mat-form-field class="w-full">
-          <mat-label>Reason for Visit</mat-label>
+          <mat-label>Motivo de la Visita</mat-label>
           <input matInput formControlName="reason" />
         </mat-form-field>
 
         <mat-form-field class="w-full">
-          <mat-label>Resident</mat-label>
+          <mat-label>Residente</mat-label>
           <mat-select formControlName="residentId">
             @for (resident of residents; track resident.id) {
             <mat-option [value]="resident.id">
@@ -38,7 +38,7 @@
           [disabled]="!visitForm.valid || !canRegister"
         >
           <lucide-icon [img]="SaveIcon" class="mr-2"></lucide-icon>
-          Register Visit
+          Registrar Visita
         </button>
       </form>
     </mat-card-content>

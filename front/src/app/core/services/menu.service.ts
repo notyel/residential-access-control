@@ -32,13 +32,13 @@ export class MenuService {
       },
       {
         id: '2',
-        name: 'Visits',
+        name: 'Visitas',
         path: '/access-control/visits',
         icon: 'Calendar',
       },
       {
         id: '3',
-        name: 'Residents',
+        name: 'Residentes',
         path: '/access-control/residents',
         icon: 'Users',
       },
