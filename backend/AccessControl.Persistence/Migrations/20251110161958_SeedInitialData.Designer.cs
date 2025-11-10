@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace AccessControl.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251110160919_SeedInitialData")]
+    [Migration("20251110161958_SeedInitialData")]
     partial class SeedInitialData
     {
         /// <inheritdoc />
@@ -33,6 +33,10 @@ namespace AccessControl.Persistence.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Icon")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
@@ -58,24 +62,27 @@ namespace AccessControl.Persistence.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("70c1e2e6-410f-4bcd-b25f-59a2723c46c4"),
-                            CreatedAt = new DateTime(2025, 11, 10, 16, 9, 17, 632, DateTimeKind.Utc).AddTicks(6771),
+                            Id = new Guid("fd62efee-c22c-432d-9b6b-1ed0cceea663"),
+                            CreatedAt = new DateTime(2025, 11, 10, 16, 19, 57, 712, DateTimeKind.Utc).AddTicks(4553),
+                            Icon = "LayoutDashboard",
                             IsActive = true,
                             Name = "Dashboard",
                             Path = "/dashboard"
                         },
                         new
                         {
-                            Id = new Guid("e37221d9-a167-4302-8af9-ae9454e5139d"),
-                            CreatedAt = new DateTime(2025, 11, 10, 16, 9, 17, 632, DateTimeKind.Utc).AddTicks(6786),
+                            Id = new Guid("e4109e58-ac11-4cb9-a538-710ee4b07afe"),
+                            CreatedAt = new DateTime(2025, 11, 10, 16, 19, 57, 712, DateTimeKind.Utc).AddTicks(4757),
+                            Icon = "CarFront",
                             IsActive = true,
                             Name = "Visits",
                             Path = "/visits"
                         },
                         new
                         {
-                            Id = new Guid("72cf8d54-d378-4fbf-b405-3b9aba54054f"),
-                            CreatedAt = new DateTime(2025, 11, 10, 16, 9, 17, 632, DateTimeKind.Utc).AddTicks(6814),
+                            Id = new Guid("b7dabed6-e654-4ba6-9f50-a0dc2f24e9ac"),
+                            CreatedAt = new DateTime(2025, 11, 10, 16, 19, 57, 712, DateTimeKind.Utc).AddTicks(4786),
+                            Icon = "Users",
                             IsActive = true,
                             Name = "Users",
                             Path = "/users"
@@ -115,11 +122,11 @@ namespace AccessControl.Persistence.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("0d98e5eb-7a34-4953-95cd-5ac0bb558f5e"),
-                            CreatedAt = new DateTime(2025, 11, 10, 16, 9, 17, 632, DateTimeKind.Utc).AddTicks(6611),
+                            Id = new Guid("a0dfde6e-ebda-4809-864d-3c7ee8d5989e"),
+                            CreatedAt = new DateTime(2025, 11, 10, 16, 19, 57, 712, DateTimeKind.Utc).AddTicks(4384),
                             Identifier = "RES-001",
                             IsActive = true,
-                            OwnerId = new Guid("64a11d2f-3b49-4c68-a6b7-be16ed0b5f0c")
+                            OwnerId = new Guid("5afe1bf5-2e00-4e38-a0d9-0e80c8418303")
                         });
                 });
 
@@ -147,44 +154,44 @@ namespace AccessControl.Persistence.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("918e0c20-692c-4727-bc06-95e492901b3b"),
-                            MenuId = new Guid("70c1e2e6-410f-4bcd-b25f-59a2723c46c4"),
+                            Id = new Guid("5dc4fb40-b77f-4c73-8291-9a65104898cf"),
+                            MenuId = new Guid("fd62efee-c22c-432d-9b6b-1ed0cceea663"),
                             Role = 0
                         },
                         new
                         {
-                            Id = new Guid("24e0ece9-1388-4919-8573-9d683561a3a8"),
-                            MenuId = new Guid("e37221d9-a167-4302-8af9-ae9454e5139d"),
+                            Id = new Guid("01c2109a-a25d-4d59-98bc-5770224198a8"),
+                            MenuId = new Guid("e4109e58-ac11-4cb9-a538-710ee4b07afe"),
                             Role = 0
                         },
                         new
                         {
-                            Id = new Guid("69a69007-a723-4bf3-aed0-db9facfae7df"),
-                            MenuId = new Guid("72cf8d54-d378-4fbf-b405-3b9aba54054f"),
+                            Id = new Guid("09647dd5-1574-45a7-a969-d7a38859e3b8"),
+                            MenuId = new Guid("b7dabed6-e654-4ba6-9f50-a0dc2f24e9ac"),
                             Role = 0
                         },
                         new
                         {
-                            Id = new Guid("eec202fc-ea5b-4d42-8545-7564e4123bc0"),
-                            MenuId = new Guid("70c1e2e6-410f-4bcd-b25f-59a2723c46c4"),
+                            Id = new Guid("117fa697-5f7c-4930-8a47-707c1b9adef8"),
+                            MenuId = new Guid("fd62efee-c22c-432d-9b6b-1ed0cceea663"),
                             Role = 1
                         },
                         new
                         {
-                            Id = new Guid("b75b15d5-75bb-4c2c-9f6c-e048282b833f"),
-                            MenuId = new Guid("e37221d9-a167-4302-8af9-ae9454e5139d"),
+                            Id = new Guid("bb56a956-9acd-4188-a1a1-b88917559b55"),
+                            MenuId = new Guid("e4109e58-ac11-4cb9-a538-710ee4b07afe"),
                             Role = 1
                         },
                         new
                         {
-                            Id = new Guid("cc22db92-d9aa-40a6-8cf2-238252f52539"),
-                            MenuId = new Guid("70c1e2e6-410f-4bcd-b25f-59a2723c46c4"),
+                            Id = new Guid("364a06eb-de3b-48b2-82f4-519d94a511e6"),
+                            MenuId = new Guid("fd62efee-c22c-432d-9b6b-1ed0cceea663"),
                             Role = 2
                         },
                         new
                         {
-                            Id = new Guid("a5dece41-cfc3-496a-82f1-fa8e0a544a31"),
-                            MenuId = new Guid("e37221d9-a167-4302-8af9-ae9454e5139d"),
+                            Id = new Guid("58dc24c9-683a-463e-a4a3-2f7bd4ee9e15"),
+                            MenuId = new Guid("e4109e58-ac11-4cb9-a538-710ee4b07afe"),
                             Role = 2
                         });
                 });
@@ -237,38 +244,38 @@ namespace AccessControl.Persistence.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("003e0a7f-f42d-4a41-bd7a-3951dcc2c5ca"),
+                            Id = new Guid("c4daa537-604b-48f8-880a-9a49b0ab5d56"),
                             ApartmentNumber = "001",
-                            CreatedAt = new DateTime(2025, 11, 10, 16, 9, 17, 228, DateTimeKind.Utc).AddTicks(7255),
+                            CreatedAt = new DateTime(2025, 11, 10, 16, 19, 57, 308, DateTimeKind.Utc).AddTicks(4282),
                             Email = "admin@accesscontrol.com",
                             FirstName = "Admin",
                             IsActive = true,
                             LastName = "User",
-                            PasswordHash = "$2a$11$dJXYBidufZNnTvlRGDsChuaVzI7tqrmBkfd16nAaWXXO7F9snPizG",
+                            PasswordHash = "$2a$11$h5VJArtUEPEf.a4mzXU.wuPBuxT0XLCS2D.mlEPTZBn99f3Ar0vaa",
                             Role = 0
                         },
                         new
                         {
-                            Id = new Guid("64a11d2f-3b49-4c68-a6b7-be16ed0b5f0c"),
+                            Id = new Guid("5afe1bf5-2e00-4e38-a0d9-0e80c8418303"),
                             ApartmentNumber = "101",
-                            CreatedAt = new DateTime(2025, 11, 10, 16, 9, 17, 432, DateTimeKind.Utc).AddTicks(1847),
+                            CreatedAt = new DateTime(2025, 11, 10, 16, 19, 57, 510, DateTimeKind.Utc).AddTicks(7210),
                             Email = "owner@accesscontrol.com",
                             FirstName = "John",
                             IsActive = true,
                             LastName = "Doe",
-                            PasswordHash = "$2a$11$qhul2mDDa.bP/iE/4P.pzuSaxXBy3yG8PKO8MgKTwDDUrqGmQqX4W",
+                            PasswordHash = "$2a$11$baw5u69n3UpBglq4A2k2ZeO3X1qk6NSgjXbdBvXjUAenqiIBsKCLq",
                             Role = 2
                         },
                         new
                         {
-                            Id = new Guid("a5e0389f-38a2-4e0a-91f2-3ad0fdb78c12"),
+                            Id = new Guid("564ea613-4aa7-48bb-9fcc-c97bfe77122b"),
                             ApartmentNumber = "002",
-                            CreatedAt = new DateTime(2025, 11, 10, 16, 9, 17, 632, DateTimeKind.Utc).AddTicks(5190),
+                            CreatedAt = new DateTime(2025, 11, 10, 16, 19, 57, 712, DateTimeKind.Utc).AddTicks(2800),
                             Email = "guard@accesscontrol.com",
                             FirstName = "Guard",
                             IsActive = true,
                             LastName = "User",
-                            PasswordHash = "$2a$11$uMckiZ1YRxLqisKsh82N2eX/OjOd9loD/6n4e33VT8YC48S4WkvEu",
+                            PasswordHash = "$2a$11$4HxulFqrdJSL40CC9c0PEuKTHzUjxCIKE9c95JCQOmTHDhphaYv.i",
                             Role = 1
                         });
                 });
