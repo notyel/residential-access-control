@@ -59,6 +59,29 @@ namespace AccessControl.Persistence
                     CreatedAt = DateTime.UtcNow
                 }
             );
+
+            var menuId1 = Guid.NewGuid();
+            var menuId2 = Guid.NewGuid();
+            var menuId3 = Guid.NewGuid();
+
+            modelBuilder.Entity<Menu>().HasData(
+                new Menu { Id = menuId1, Name = "Dashboard", Path = "/dashboard", CreatedAt = DateTime.UtcNow },
+                new Menu { Id = menuId2, Name = "Visits", Path = "/visits", CreatedAt = DateTime.UtcNow },
+                new Menu { Id = menuId3, Name = "Users", Path = "/users", CreatedAt = DateTime.UtcNow }
+            );
+
+            modelBuilder.Entity<RoleMenu>().HasData(
+                // Admin
+                new RoleMenu { Id = Guid.NewGuid(), Role = Role.Admin, MenuId = menuId1 },
+                new RoleMenu { Id = Guid.NewGuid(), Role = Role.Admin, MenuId = menuId2 },
+                new RoleMenu { Id = Guid.NewGuid(), Role = Role.Admin, MenuId = menuId3 },
+                // Guard
+                new RoleMenu { Id = Guid.NewGuid(), Role = Role.Guard, MenuId = menuId1 },
+                new RoleMenu { Id = Guid.NewGuid(), Role = Role.Guard, MenuId = menuId2 },
+                // Owner
+                new RoleMenu { Id = Guid.NewGuid(), Role = Role.Owner, MenuId = menuId1 },
+                new RoleMenu { Id = Guid.NewGuid(), Role = Role.Owner, MenuId = menuId2 }
+            );
         }
     }
 }

@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace AccessControl.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251110155943_SeedInitialData")]
+    [Migration("20251110160919_SeedInitialData")]
     partial class SeedInitialData
     {
         /// <inheritdoc />
@@ -54,6 +54,32 @@ namespace AccessControl.Persistence.Migrations
                         .IsUnique();
 
                     b.ToTable("Menus");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("70c1e2e6-410f-4bcd-b25f-59a2723c46c4"),
+                            CreatedAt = new DateTime(2025, 11, 10, 16, 9, 17, 632, DateTimeKind.Utc).AddTicks(6771),
+                            IsActive = true,
+                            Name = "Dashboard",
+                            Path = "/dashboard"
+                        },
+                        new
+                        {
+                            Id = new Guid("e37221d9-a167-4302-8af9-ae9454e5139d"),
+                            CreatedAt = new DateTime(2025, 11, 10, 16, 9, 17, 632, DateTimeKind.Utc).AddTicks(6786),
+                            IsActive = true,
+                            Name = "Visits",
+                            Path = "/visits"
+                        },
+                        new
+                        {
+                            Id = new Guid("72cf8d54-d378-4fbf-b405-3b9aba54054f"),
+                            CreatedAt = new DateTime(2025, 11, 10, 16, 9, 17, 632, DateTimeKind.Utc).AddTicks(6814),
+                            IsActive = true,
+                            Name = "Users",
+                            Path = "/users"
+                        });
                 });
 
             modelBuilder.Entity("AccessControl.Domain.Entities.Residence", b =>
@@ -89,11 +115,11 @@ namespace AccessControl.Persistence.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("090aebe9-5996-49a8-88da-c62bfc70ce3d"),
-                            CreatedAt = new DateTime(2025, 11, 10, 15, 59, 42, 777, DateTimeKind.Utc).AddTicks(1945),
+                            Id = new Guid("0d98e5eb-7a34-4953-95cd-5ac0bb558f5e"),
+                            CreatedAt = new DateTime(2025, 11, 10, 16, 9, 17, 632, DateTimeKind.Utc).AddTicks(6611),
                             Identifier = "RES-001",
                             IsActive = true,
-                            OwnerId = new Guid("18739275-5cdd-423f-9cab-ab6eb971f05f")
+                            OwnerId = new Guid("64a11d2f-3b49-4c68-a6b7-be16ed0b5f0c")
                         });
                 });
 
@@ -117,6 +143,50 @@ namespace AccessControl.Persistence.Migrations
                         .IsUnique();
 
                     b.ToTable("RoleMenus");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("918e0c20-692c-4727-bc06-95e492901b3b"),
+                            MenuId = new Guid("70c1e2e6-410f-4bcd-b25f-59a2723c46c4"),
+                            Role = 0
+                        },
+                        new
+                        {
+                            Id = new Guid("24e0ece9-1388-4919-8573-9d683561a3a8"),
+                            MenuId = new Guid("e37221d9-a167-4302-8af9-ae9454e5139d"),
+                            Role = 0
+                        },
+                        new
+                        {
+                            Id = new Guid("69a69007-a723-4bf3-aed0-db9facfae7df"),
+                            MenuId = new Guid("72cf8d54-d378-4fbf-b405-3b9aba54054f"),
+                            Role = 0
+                        },
+                        new
+                        {
+                            Id = new Guid("eec202fc-ea5b-4d42-8545-7564e4123bc0"),
+                            MenuId = new Guid("70c1e2e6-410f-4bcd-b25f-59a2723c46c4"),
+                            Role = 1
+                        },
+                        new
+                        {
+                            Id = new Guid("b75b15d5-75bb-4c2c-9f6c-e048282b833f"),
+                            MenuId = new Guid("e37221d9-a167-4302-8af9-ae9454e5139d"),
+                            Role = 1
+                        },
+                        new
+                        {
+                            Id = new Guid("cc22db92-d9aa-40a6-8cf2-238252f52539"),
+                            MenuId = new Guid("70c1e2e6-410f-4bcd-b25f-59a2723c46c4"),
+                            Role = 2
+                        },
+                        new
+                        {
+                            Id = new Guid("a5dece41-cfc3-496a-82f1-fa8e0a544a31"),
+                            MenuId = new Guid("e37221d9-a167-4302-8af9-ae9454e5139d"),
+                            Role = 2
+                        });
                 });
 
             modelBuilder.Entity("AccessControl.Domain.Entities.User", b =>
@@ -167,38 +237,38 @@ namespace AccessControl.Persistence.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("c05a5096-b169-404a-94d0-e896627d37ff"),
+                            Id = new Guid("003e0a7f-f42d-4a41-bd7a-3951dcc2c5ca"),
                             ApartmentNumber = "001",
-                            CreatedAt = new DateTime(2025, 11, 10, 15, 59, 42, 370, DateTimeKind.Utc).AddTicks(2925),
+                            CreatedAt = new DateTime(2025, 11, 10, 16, 9, 17, 228, DateTimeKind.Utc).AddTicks(7255),
                             Email = "admin@accesscontrol.com",
                             FirstName = "Admin",
                             IsActive = true,
                             LastName = "User",
-                            PasswordHash = "$2a$11$9/VyK3rzxBjmlcPGKVdBH.rQaRjSUggzdSWM6UTKBH9xCn.cMcyxC",
+                            PasswordHash = "$2a$11$dJXYBidufZNnTvlRGDsChuaVzI7tqrmBkfd16nAaWXXO7F9snPizG",
                             Role = 0
                         },
                         new
                         {
-                            Id = new Guid("18739275-5cdd-423f-9cab-ab6eb971f05f"),
+                            Id = new Guid("64a11d2f-3b49-4c68-a6b7-be16ed0b5f0c"),
                             ApartmentNumber = "101",
-                            CreatedAt = new DateTime(2025, 11, 10, 15, 59, 42, 576, DateTimeKind.Utc).AddTicks(4974),
+                            CreatedAt = new DateTime(2025, 11, 10, 16, 9, 17, 432, DateTimeKind.Utc).AddTicks(1847),
                             Email = "owner@accesscontrol.com",
                             FirstName = "John",
                             IsActive = true,
                             LastName = "Doe",
-                            PasswordHash = "$2a$11$EjuLD0h2HCCjf2R/IUAjTeVk6aHxpORjJRRj2z7taVQ/aYFVZ8z4S",
+                            PasswordHash = "$2a$11$qhul2mDDa.bP/iE/4P.pzuSaxXBy3yG8PKO8MgKTwDDUrqGmQqX4W",
                             Role = 2
                         },
                         new
                         {
-                            Id = new Guid("b4d6e89d-0062-46df-a812-7f8cafc127e6"),
+                            Id = new Guid("a5e0389f-38a2-4e0a-91f2-3ad0fdb78c12"),
                             ApartmentNumber = "002",
-                            CreatedAt = new DateTime(2025, 11, 10, 15, 59, 42, 777, DateTimeKind.Utc).AddTicks(654),
+                            CreatedAt = new DateTime(2025, 11, 10, 16, 9, 17, 632, DateTimeKind.Utc).AddTicks(5190),
                             Email = "guard@accesscontrol.com",
                             FirstName = "Guard",
                             IsActive = true,
                             LastName = "User",
-                            PasswordHash = "$2a$11$9b0pzdUx/FI5dqjE2bn62OFRdinUrMiiEe2tZehSntty3PbqbMOd6",
+                            PasswordHash = "$2a$11$uMckiZ1YRxLqisKsh82N2eX/OjOd9loD/6n4e33VT8YC48S4WkvEu",
                             Role = 1
                         });
                 });
