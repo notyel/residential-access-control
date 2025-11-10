@@ -95,9 +95,10 @@ namespace AccessControl.Persistence.Migrations
                 columns: new[] { "Id", "CreatedAt", "Icon", "IsActive", "Name", "Order", "Path", "UpdatedAt" },
                 values: new object[,]
                 {
-                    { new Guid("239d0797-0293-4387-8e0f-3f94cb66f732"), new DateTime(2025, 11, 10, 20, 32, 29, 45, DateTimeKind.Utc).AddTicks(7769), "Users", true, "Users", 3, "/users", null },
-                    { new Guid("884af528-cae0-4da4-9c6c-443020d1c6d3"), new DateTime(2025, 11, 10, 20, 32, 29, 45, DateTimeKind.Utc).AddTicks(7725), "LayoutDashboard", true, "Dashboard", 1, "/dashboard", null },
-                    { new Guid("a6ba19e3-61a5-4e50-a2b6-566a8e6f8af0"), new DateTime(2025, 11, 10, 20, 32, 29, 45, DateTimeKind.Utc).AddTicks(7740), "CarFront", true, "Visits", 2, "/visits", null }
+                    { new Guid("884af528-cae0-4da4-9c6c-443020d1c6d3"), new DateTime(2025, 11, 10, 20, 32, 29, 45, DateTimeKind.Utc).AddTicks(7725), "BarChart", true, "Dashboard", 1, "/access-control/dashboard", null },
+                    { new Guid("a6ba19e3-61a5-4e50-a2b6-566a8e6f8af0"), new DateTime(2025, 11, 10, 20, 32, 29, 45, DateTimeKind.Utc).AddTicks(7740), "Calendar", true, "Visitas", 2, "/access-control/visits", null },
+                    { new Guid("a3f9b2d1-7c4e-4b8a-9f2d-0c1e2f3a4b5c"), new DateTime(2025, 11, 10, 20, 32, 29, 45, DateTimeKind.Utc).AddTicks(7725), "Users", true, "Residentes", 3, "/access-control/residents", null },
+                    { new Guid("239d0797-0293-4387-8e0f-3f94cb66f732"), new DateTime(2025, 11, 10, 20, 32, 29, 45, DateTimeKind.Utc).AddTicks(7769), "Users", true, "Usuarios", 4, "/access-control/users", null }
                 });
 
             migrationBuilder.InsertData(

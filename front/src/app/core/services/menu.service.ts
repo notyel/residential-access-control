@@ -52,7 +52,7 @@ export class MenuService {
     return [
       {
         id: '1',
-        name: 'Tablero',
+        name: 'Dashboard',
         path: '/access-control/dashboard',
         icon: 'BarChart',
         order: 1,
