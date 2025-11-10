@@ -33,7 +33,10 @@ export class MenuService {
         this.menuItems.set(processedItems);
       }),
       catchError((error) => {
-        console.warn('Failed to load menu from backend, using fallback menu:', error);
+        console.warn(
+          'Failed to load menu from backend, using fallback menu:',
+          error
+        );
         const fallbackMenu = this.getFallbackMenu();
         const processedItems = this.processMenuItems(fallbackMenu);
         this.menuItems.set(processedItems);
