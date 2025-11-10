@@ -13,7 +13,7 @@ export const routes: Routes = [
   {
     path: 'access-control',
     component: DashboardLayoutComponent,
-    canActivate: [authGuard],
+    // canActivate: [authGuard],
     children: [
       {
         path: 'dashboard',
