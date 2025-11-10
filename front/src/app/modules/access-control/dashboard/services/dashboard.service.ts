@@ -1,8 +1,19 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { environment } from '../../../../../environments/environment';
-import { Visit } from '../../../../core/models/visit.model';
+import { ResponseModel } from '../../../../core/types/response.model';
+
+export interface LatestVisit {
+  visitorFullName: string;
+  residentFullName: string;
+  entryTime: Date;
+}
+
+export interface DashboardData {
+  totalVisitsThisMonth: number;
+  latestVisits: LatestVisit[];
+}
 
 @Injectable({
   providedIn: 'root',
@@ -10,15 +21,11 @@ import { Visit } from '../../../../core/models/visit.model';
 export class DashboardService {
   constructor(private http: HttpClient) {}
 
-  getLatestVisits(): Observable<Visit[]> {
-    return this.http.get<Visit[]>(
-      `${environment.apiUrl}/dashboard/latest-visits`
-    );
-  }
-
-  getTotalVisitsThisMonth(): Observable<{ count: number }> {
-    return this.http.get<{ count: number }>(
-      `${environment.apiUrl}/dashboard/total-visits-this-month`
+  getDashboardData(): Observable<DashboardData> {
+    return this.http.get<ResponseModel<DashboardData>>(
+      `${environment.apiUrl}/dashboard`
+    ).pipe(
+      map((response) => response.data!)
     );
   }
 }

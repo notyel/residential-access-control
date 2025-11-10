@@ -1,6 +1,5 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { Visit } from '../../../../../core/models/visit.model';
-import { DashboardService } from '../../services/dashboard.service';
+import { DashboardService, LatestVisit } from '../../services/dashboard.service';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatListModule } from '@angular/material/list';
@@ -21,7 +20,7 @@ import { LucideAngularModule, Users, Calendar } from 'lucide-angular';
   styleUrls: ['./dashboard.component.scss'],
 })
 export class DashboardComponent implements OnInit {
-  latestVisits = signal<Visit[]>([]);
+  latestVisits = signal<LatestVisit[]>([]);
   totalVisitsThisMonth = signal<number>(0);
 
   // Icons
@@ -32,10 +31,10 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit(): void {
     this.dashboardService
-      .getLatestVisits()
-      .subscribe((items) => this.latestVisits.set(items));
-    this.dashboardService
-      .getTotalVisitsThisMonth()
-      .subscribe((result) => this.totalVisitsThisMonth.set(result.count));
+      .getDashboardData()
+      .subscribe((data) => {
+        this.latestVisits.set(data.latestVisits);
+        this.totalVisitsThisMonth.set(data.totalVisitsThisMonth);
+      });
   }
 }

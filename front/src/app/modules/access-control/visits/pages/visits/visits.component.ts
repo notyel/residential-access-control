@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { PagedVisits, VisitsService } from '../../services/visits.service';
+import { VisitsService } from '../../services/visits.service';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MatTableModule } from '@angular/material/table';
@@ -17,6 +17,8 @@ import {
   Filter,
   PlusCircle,
 } from 'lucide-angular';
+import { PaginatedResultDto } from '../../../../../core/types/paginated-result.dto';
+import { Visit } from '../../../../../core/models/visit.model';
 
 @Component({
   selector: 'app-visits',
@@ -39,14 +41,17 @@ import {
   styleUrls: ['./visits.component.scss'],
 })
 export class VisitsComponent implements OnInit {
-  visits = signal<PagedVisits>({
-    visits: [],
+  visits = signal<PaginatedResultDto<Visit>>({
+    items: [],
     totalCount: 0,
-    pageNumber: 1,
-    pageSize: 10,
   });
   filterForm: FormGroup;
   displayedColumns: string[] = ['visitor', 'date', 'actions'];
+
+  // Paginator properties
+  totalCount = 0;
+  pageSize = 10;
+  pageIndex = 0;
 
   // Icons
   CalendarIcon = Calendar;
@@ -82,6 +87,11 @@ export class VisitsComponent implements OnInit {
         pageSize,
         ...this.filterForm.value,
       })
-      .subscribe((pagedVisits) => this.visits.set(pagedVisits));
+      .subscribe((pagedVisits) => {
+        this.visits.set(pagedVisits);
+        this.totalCount = pagedVisits.totalCount;
+        this.pageSize = pageSize;
+        this.pageIndex = pageNumber - 1;
+      });
   }
 }

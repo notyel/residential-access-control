@@ -1,4 +1,5 @@
 using AccessControl.Application.Interfaces;
+using AccessControl.Common.DTOs.Dashboard;
 using AccessControl.Domain.Entities;
 using AccessControl.Persistence.Generics;
 using Microsoft.EntityFrameworkCore;
@@ -18,11 +19,19 @@ namespace AccessControl.Application.Services
             _visitRepository = visitRepository;
         }
 
-        public async Task<IEnumerable<Visit>> GetLatestVisitsAsync(int count)
+        public async Task<IEnumerable<LatestVisitDto>> GetLatestVisitsAsync(int count)
         {
             return await _visitRepository.GetQueryable()
+                .Include(v => v.Residence)
+                .ThenInclude(r => r.Owner)
                 .OrderByDescending(v => v.CreatedAt)
                 .Take(count)
+                .Select(v => new LatestVisitDto
+                {
+                    VisitorFullName = v.VisitorName,
+                    ResidentFullName = $"{v.Residence.Owner.FirstName} {v.Residence.Owner.LastName}",
+                    EntryTime = v.CreatedAt
+                })
                 .ToListAsync();
         }
 

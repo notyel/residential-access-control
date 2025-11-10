@@ -11,6 +11,8 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using AccessControl.Common.DTOs.Auth;
+using AccessControl.Common.DTOs.User;
 
 namespace AccessControl.Application.Services
 {
@@ -25,24 +27,50 @@ namespace AccessControl.Application.Services
             _config = config;
         }
 
-        public async Task<User?> AuthenticateAsync(string email, string password)
+        public async Task<LoginResponseDto?> AuthenticateAsync(string email, string password)
         {
             var user = await _userRepository.GetQueryable().FirstOrDefaultAsync(u => u.Email.ToLower() == email.ToLower());
             if (user == null) return null;
 
-            // verificar password con BCrypt
             bool ok = BCrypt.Net.BCrypt.Verify(password, user.PasswordHash);
-            return ok ? user : null;
+            if (!ok) return null;
+
+            var userDto = new UserDto
+            {
+                Id = user.Id,
+                Email = user.Email,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                ApartmentNumber = user.ApartmentNumber,
+                Role = user.Role
+            };
+
+            var token = GenerateJwtToken(user);
+
+            return new LoginResponseDto
+            {
+                User = userDto,
+                Token = token
+            };
         }
 
-        public async Task<User> CreateUserAsync(string email, string firstName, string lastName, string apartmentNumber, string password, Role role)
+        public async Task<UserDto> CreateUserAsync(string email, string firstName, string lastName, string apartmentNumber, string password, Role role)
         {
             if (await _userRepository.GetQueryable().AnyAsync(u => u.Email == email)) throw new InvalidOperationException("Email already exists");
             var hash = BCrypt.Net.BCrypt.HashPassword(password);
             var user = new User { Email = email, FirstName = firstName, LastName = lastName, ApartmentNumber = apartmentNumber, PasswordHash = hash, Role = role };
             await _userRepository.AddAsync(user);
             await _userRepository.SaveChangesAsync();
-            return user;
+
+            return new UserDto
+            {
+                Id = user.Id,
+                Email = user.Email,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                ApartmentNumber = user.ApartmentNumber,
+                Role = user.Role
+            };
         }
 
         public string GenerateJwtToken(User user)
