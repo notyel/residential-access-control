@@ -2,7 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { LucideAngularModule, LogOut, Box } from 'lucide-angular';
-import { MenuService } from '../../../../../core/services/menu.service';
+import { MenuService } from '../../../../core/services/menu.service';
 
 @Component({
   selector: 'app-sidebar',

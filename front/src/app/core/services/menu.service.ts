@@ -22,6 +22,30 @@ export class MenuService {
   constructor(private http: HttpClient) {}
 
   getMenuForCurrentUser(): Observable<MenuItem[]> {
+    // TODO: Remove mock data when backend is ready
+    const mockMenuItems: MenuItem[] = [
+      {
+        id: '1',
+        name: 'Dashboard',
+        path: '/access-control/dashboard',
+        icon: 'BarChart',
+      },
+      {
+        id: '2',
+        name: 'Visits',
+        path: '/access-control/visits',
+        icon: 'Calendar',
+      },
+      {
+        id: '3',
+        name: 'Residents',
+        path: '/access-control/residents',
+        icon: 'Users',
+      },
+    ];
+
+    this.menuItems.set(mockMenuItems);
+
     return this.http.get<ResponseModel<MenuItem[]>>(this.apiUrl).pipe(
       map((response) => response.data!),
       tap((items) => this.menuItems.set(items))
