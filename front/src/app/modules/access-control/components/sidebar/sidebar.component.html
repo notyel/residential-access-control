@@ -10,7 +10,7 @@
       @for (item of menuService.menuItems(); track item.path) {
       <li>
         <a [routerLink]="item.path" routerLinkActive="active" class="nav-link">
-          <lucide-icon [name]="item.icon" [size]="20"></lucide-icon>
+          <lucide-icon [img]="getMenuIcon(item.icon)" [size]="20"></lucide-icon>
           <span>{{ item.name }}</span>
         </a>
       </li>
