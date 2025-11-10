@@ -1,7 +1,7 @@
 <aside class="dashboard-sidebar">
   <div class="sidebar-header">
     <a href="#" class="logo">
-      <lucide-angular [name]="Box" size="32"></lucide-angular>
+      <lucide-angular name="Box" size="32"></lucide-angular>
       <span class="logo-text">My App</span>
     </a>
   </div>
@@ -11,7 +11,7 @@
       <li>
         <a [routerLink]="item.path" routerLinkActive="active" class="nav-link">
           <lucide-angular [name]="item.icon" size="20"></lucide-angular>
-          <span>{{ item.label }}</span>
+          <span>{{ item.name }}</span>
         </a>
       </li>
       }
@@ -19,7 +19,7 @@
   </nav>
   <div class="sidebar-footer">
     <a href="#" class="nav-link">
-      <lucide-angular [name]="LogOut" size="20"></lucide-angular>
+      <lucide-angular name="LogOut" size="20"></lucide-angular>
       <span>Log out</span>
     </a>
   </div>

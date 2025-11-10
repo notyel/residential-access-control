@@ -1,4 +1,5 @@
 using AccessControl.Application.Interfaces;
+using AccessControl.Common.DTOs.Menu;
 using AccessControl.Domain.Entities;
 using AccessControl.Persistence.Generics;
 using AccessControl.Shared.Enums;
@@ -18,11 +19,17 @@ namespace AccessControl.Application.Services
             _roleMenuRepository = roleMenuRepository;
         }
 
-        public async Task<IEnumerable<Menu>> GetMenusByRoleAsync(Role role)
+        public async Task<IEnumerable<MenuDto>> GetMenusByRoleAsync(Role role)
         {
             return await _roleMenuRepository.GetQueryable()
                 .Where(rm => rm.Role == role)
-                .Select(rm => rm.Menu)
+                .Select(rm => new MenuDto
+                {
+                    Id = rm.Menu.Id,
+                    Name = rm.Menu.Name,
+                    Path = rm.Menu.Path,
+                    Icon = rm.Menu.Icon
+                })
                 .ToListAsync();
         }
     }

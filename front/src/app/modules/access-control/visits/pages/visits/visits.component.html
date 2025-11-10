@@ -28,7 +28,7 @@
     </div>
   </form>
 
-  <table mat-table [dataSource]="visits().visits" class="mat-elevation-z8 w-full">
+  <table mat-table [dataSource]="visits().items" class="mat-elevation-z8 w-full">
     <!-- Visitor Column -->
     <ng-container matColumnDef="visitor">
       <th mat-header-cell *matHeaderCellDef>Visitor</th>
@@ -54,9 +54,9 @@
   </table>
 
   <mat-paginator
-    [length]="visits().totalCount"
-    [pageSize]="visits().pageSize"
-    [pageIndex]="visits().pageNumber - 1"
+    [length]="totalCount"
+    [pageSize]="pageSize"
+    [pageIndex]="pageIndex"
     (page)="onPageChange($event)"
     aria-label="Select page"
   >

@@ -1,17 +1,26 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { BehaviorSubject, Observable, tap, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { ResponseModel } from '../types/response.model';
 
 interface LoginCredentials {
   email: string;
   password: string;
 }
 
-interface AuthResponse {
-  token: string;
+interface User {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  apartmentNumber: string;
   role: string;
-  userId: string;
+}
+
+interface AuthResponse {
+  user: User;
+  token: string;
 }
 
 @Injectable({
@@ -33,13 +42,14 @@ export class AuthService {
 
   login(credentials: LoginCredentials): Observable<AuthResponse> {
     return this.http
-      .post<AuthResponse>(`${environment.apiUrl}/auth/login`, credentials)
+      .post<ResponseModel<AuthResponse>>(`${environment.apiUrl}/auth/login`, credentials)
       .pipe(
+        map((response) => response.data!),
         tap((response) => {
           localStorage.setItem(this.TOKEN_KEY, response.token);
-          localStorage.setItem(this.ROLE_KEY, response.role);
+          localStorage.setItem(this.ROLE_KEY, response.user.role);
           this.isAuthenticatedSubject.next(true);
-          this.userRoleSubject.next(response.role);
+          this.userRoleSubject.next(response.user.role);
         })
       );
   }

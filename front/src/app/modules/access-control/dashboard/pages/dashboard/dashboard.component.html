@@ -20,10 +20,10 @@
     </mat-card-header>
     <mat-card-content>
       <mat-list>
-        @for (visit of latestVisits(); track visit.id) {
+        @for (visit of latestVisits(); track $index) {
         <mat-list-item>
-          <span matListItemTitle>{{ visit.visitorName }}</span>
-          <span matListItemLine>{{ visit.createdAt | date : 'short' }}</span>
+          <span matListItemTitle>{{ visit.visitorFullName }}</span>
+          <span matListItemLine>{{ visit.entryTime | date : 'short' }}</span>
         </mat-list-item>
         }
       </mat-list>

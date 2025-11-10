@@ -1,4 +1,6 @@
 using AccessControl.Application.Interfaces;
+using AccessControl.Common.DTOs.Common;
+using AccessControl.Common.DTOs.Visit;
 using AccessControl.Domain.Entities;
 using AccessControl.Persistence.Generics;
 using AccessControl.Shared.Dtos.Visit;
@@ -18,7 +20,7 @@ namespace AccessControl.Application.Services
             _visitRepository = visitRepository;
         }
 
-        public async Task<Visit> RegisterVisitAsync(CreateVisitDto dto, Guid userId)
+        public async Task<VisitDto> RegisterVisitAsync(CreateVisitDto dto, Guid userId)
         {
             var visit = new Visit
             {
@@ -31,15 +33,16 @@ namespace AccessControl.Application.Services
 
             await _visitRepository.AddAsync(visit);
             await _visitRepository.SaveChangesAsync();
-            return visit;
+            return MapVisitToDto(visit);
         }
 
-        public async Task<Visit?> GetVisitByIdAsync(Guid visitId)
+        public async Task<VisitDto?> GetVisitByIdAsync(Guid visitId)
         {
-            return await _visitRepository.GetByIdAsync(visitId);
+            var visit = await _visitRepository.GetByIdAsync(visitId);
+            return visit != null ? MapVisitToDto(visit) : null;
         }
 
-        public async Task<Visit?> UpdateVisitAsync(Guid visitId, UpdateVisitDto dto)
+        public async Task<VisitDto?> UpdateVisitAsync(Guid visitId, UpdateVisitDto dto)
         {
             var visit = await _visitRepository.GetByIdAsync(visitId);
             if (visit != null)
@@ -49,7 +52,7 @@ namespace AccessControl.Application.Services
                 visit.VehiclePlate = dto.VehiclePlate;
                 await _visitRepository.SaveChangesAsync();
             }
-            return visit;
+            return visit != null ? MapVisitToDto(visit) : null;
         }
 
         public async Task<bool> DeleteVisitAsync(Guid visitId)
@@ -64,7 +67,7 @@ namespace AccessControl.Application.Services
             return false;
         }
 
-        public async Task<Visit?> CheckoutAsync(Guid visitId)
+        public async Task<VisitDto?> CheckoutAsync(Guid visitId)
         {
             var visit = await _visitRepository.GetByIdAsync(visitId);
             if (visit != null)
@@ -72,10 +75,10 @@ namespace AccessControl.Application.Services
                 visit.CheckOut = DateTime.UtcNow;
                 await _visitRepository.SaveChangesAsync();
             }
-            return visit;
+            return visit != null ? MapVisitToDto(visit) : null;
         }
 
-        public async Task<(IEnumerable<Visit> Visits, int TotalCount)> GetVisitsAsync(VisitFilterDto filter)
+        public async Task<PaginatedResultDto<VisitDto>> GetVisitsAsync(VisitFilterDto filter)
         {
             var query = _visitRepository.GetQueryable();
 
@@ -95,9 +98,27 @@ namespace AccessControl.Application.Services
                 .OrderByDescending(v => v.CreatedAt)
                 .Skip((filter.PageNumber - 1) * filter.PageSize)
                 .Take(filter.PageSize)
+                .Select(v => MapVisitToDto(v))
                 .ToListAsync();
 
-            return (pagedVisits, totalCount);
+            return new PaginatedResultDto<VisitDto> { Items = pagedVisits, TotalCount = totalCount };
+        }
+
+        private static VisitDto MapVisitToDto(Visit visit)
+        {
+            return new VisitDto
+            {
+                Id = visit.Id,
+                VisitorName = visit.VisitorName,
+                VisitorId = visit.VisitorId,
+                VehiclePlate = visit.VehiclePlate,
+                CheckOut = visit.CheckOut,
+                ResidenceId = visit.ResidenceId,
+                ResidenceIdentifier = visit.Residence?.Identifier,
+                RegisteredById = visit.RegisteredById,
+                RegisteredByFullName = visit.RegisteredBy != null ? $"{visit.RegisteredBy.FirstName} {visit.RegisteredBy.LastName}" : null,
+                CreatedAt = visit.CreatedAt
+            };
         }
     }
 }
