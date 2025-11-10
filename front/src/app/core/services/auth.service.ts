@@ -24,7 +24,9 @@ export class AuthService {
     this.hasToken()
   );
   public isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
-  private userRoleSubject = new BehaviorSubject<string>(this.getRole());
+  private userRoleSubject = new BehaviorSubject<string | null>(
+    this.getRole()
+  );
   public userRole$ = this.userRoleSubject.asObservable();
 
   constructor(private http: HttpClient) {}
@@ -46,7 +48,7 @@ export class AuthService {
     localStorage.removeItem(this.TOKEN_KEY);
     localStorage.removeItem(this.ROLE_KEY);
     this.isAuthenticatedSubject.next(false);
-    this.userRoleSubject.next('');
+    this.userRoleSubject.next(null);
   }
 
   private hasToken(): boolean {
@@ -63,5 +65,9 @@ export class AuthService {
 
   getRole(): string | null {
     return localStorage.getItem(this.ROLE_KEY);
+  }
+
+  hasRole(role: string): boolean {
+    return this.getRole() === role;
   }
 }

@@ -1,0 +1,49 @@
+<div class="p-6">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>New Resident</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form [formGroup]="residentForm" (ngSubmit)="onSubmit()">
+        <mat-form-field class="w-full">
+          <mat-label>First Name</mat-label>
+          <input matInput formControlName="firstName" />
+        </mat-form-field>
+
+        <mat-form-field class="w-full">
+          <mat-label>Last Name</mat-label>
+          <input matInput formControlName="lastName" />
+        </mat-form-field>
+
+        <mat-form-field class="w-full">
+          <mat-label>Apartment Number</mat-label>
+          <input matInput formControlName="apartmentNumber" />
+        </mat-form-field>
+
+        <mat-form-field class="w-full">
+          <mat-label>Email</mat-label>
+          <input matInput formControlName="email" />
+        </mat-form-field>
+
+        <mat-form-field class="w-full">
+          <mat-label>Password</mat-label>
+          <input matInput formControlName="password" type="password" />
+        </mat-form-field>
+
+        <div *ngIf="errorMessage" class="text-red-500 my-4">
+          {{ errorMessage }}
+        </div>
+
+        <button
+          mat-flat-button
+          color="primary"
+          type="submit"
+          [disabled]="!residentForm.valid || !isAdmin"
+        >
+          <lucide-angular [name]="SaveIcon" class="mr-2"></lucide-angular>
+          Save
+        </button>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

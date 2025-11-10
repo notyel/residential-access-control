@@ -1,0 +1,64 @@
+<div class="p-6">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold">Visits</h1>
+    <button mat-flat-button color="primary" [routerLink]="['/access-control/visits/register']">
+      <lucide-angular [name]="PlusCircleIcon" class="mr-2"></lucide-angular>
+      Register Visit
+    </button>
+  </div>
+
+  <form [formGroup]="filterForm" (ngSubmit)="onFilter()" class="mb-6">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <mat-form-field>
+        <mat-label>Start Date</mat-label>
+        <input matInput [matDatepicker]="pickerStart" formControlName="startDate" />
+        <mat-datepicker-toggle matSuffix [for]="pickerStart"></mat-datepicker-toggle>
+        <mat-datepicker #pickerStart></mat-datepicker>
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>End Date</mat-label>
+        <input matInput [matDatepicker]="pickerEnd" formControlName="endDate" />
+        <mat-datepicker-toggle matSuffix [for]="pickerEnd"></mat-datepicker-toggle>
+        <mat-datepicker #pickerEnd></mat-datepicker>
+      </mat-form-field>
+      <button mat-flat-button color="primary" type="submit">
+        <lucide-angular [name]="FilterIcon" class="mr-2"></lucide-angular>
+        Filter
+      </button>
+    </div>
+  </form>
+
+  <table mat-table [dataSource]="visits().visits" class="mat-elevation-z8 w-full">
+    <!-- Visitor Column -->
+    <ng-container matColumnDef="visitor">
+      <th mat-header-cell *matHeaderCellDef>Visitor</th>
+      <td mat-cell *matCellDef="let visit">{{ visit.visitorName }}</td>
+    </ng-container>
+
+    <!-- Date Column -->
+    <ng-container matColumnDef="date">
+      <th mat-header-cell *matHeaderCellDef>Date</th>
+      <td mat-cell *matCellDef="let visit">
+        {{ visit.createdAt | date : 'short' }}
+      </td>
+    </ng-container>
+
+    <!-- Actions Column -->
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let visit"></td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+  </table>
+
+  <mat-paginator
+    [length]="visits().totalCount"
+    [pageSize]="visits().pageSize"
+    [pageIndex]="visits().pageNumber - 1"
+    (page)="onPageChange($event)"
+    aria-label="Select page"
+  >
+  </mat-paginator>
+</div>
