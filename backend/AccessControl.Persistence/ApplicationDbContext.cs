@@ -57,6 +57,7 @@ namespace AccessControl.Persistence
             });
 
             base.OnModelCreating(modelBuilder);
+            DataSeeder.Seed(modelBuilder);
         }
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
