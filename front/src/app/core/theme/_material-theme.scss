@@ -1,0 +1,22 @@
+// src/app/core/theme/_material-theme.scss
+@use "@angular/material" as mat;
+@use "sass:map";
+
+// Paletas base (usa paletas predefinidas de Angular Material)
+$primary-palette: mat.$indigo-palette;
+$accent-palette: mat.$pink-palette;
+$warn-palette: mat.$red-palette;
+
+// Define el tema (light theme)
+$my-theme: mat.define-light-theme(
+  (
+    color: (
+      primary: $primary-palette,
+      accent: $accent-palette,
+      warn: $warn-palette,
+    ),
+  )
+);
+
+// Genera los estilos para todos los componentes Material (MDC)
+@include mat.all-component-themes($my-theme);

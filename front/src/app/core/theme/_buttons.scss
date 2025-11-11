@@ -1,0 +1,21 @@
+/* ===============================
+ * ESTILOS COMPLEMENTARIOS PARA BOTONES
+ * ===============================
+ * 
+ * El color primario se maneja automáticamente por el tema de Material.
+ * Solo agregamos mejoras de espaciado y alineación.
+ */
+
+// Alineación de iconos en botones
+.mat-mdc-button,
+.mat-mdc-unelevated-button,
+.mat-mdc-raised-button,
+.mat-mdc-outlined-button {
+  gap: 8px !important;
+
+  .mdc-button__label {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+  }
+}
