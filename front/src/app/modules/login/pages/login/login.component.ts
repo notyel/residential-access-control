@@ -20,6 +20,7 @@ import {
   Eye,
   EyeOff,
   ArrowRight,
+  Box,
 } from 'lucide-angular';
 import { AuthService } from '../../../../core/services/auth.service';
 
@@ -51,6 +52,7 @@ export class LoginComponent {
   readonly EyeIcon = Eye;
   readonly EyeOffIcon = EyeOff;
   readonly ArrowRightIcon = ArrowRight;
+  readonly Box = Box;
 
   constructor(
     private fb: FormBuilder,

@@ -28,9 +28,10 @@
           mat-flat-button
           color="primary"
           type="submit"
-          [disabled]="!residentForm.valid || !isAdmin"
+          [disabled]="!residentForm.valid"
+          class="icon-left"
         >
-          <lucide-icon [img]="SaveIcon" class="mr-2"></lucide-icon>
+          <lucide-icon [img]="SaveIcon"></lucide-icon>
           Guardar
         </button>
       </form>

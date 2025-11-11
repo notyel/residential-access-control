@@ -1,6 +1,10 @@
 <aside class="dashboard-sidebar">
   <div class="sidebar-header">
-    <a href="#" class="logo">
+    <a
+      [routerLink]="'/access-control/dashboard'"
+      routerLinkActive="active"
+      class="logo"
+    >
       <lucide-icon [img]="Box" [size]="32"></lucide-icon>
       <span class="logo-text">ZENTRYAL</span>
     </a>
@@ -18,7 +22,7 @@
     </ul>
   </nav>
   <div class="sidebar-footer">
-    <a href="#" class="nav-link" (click)="logout()">
+    <a href="#" class="nav-link" (click)="logout(); $event.preventDefault()">
       <lucide-icon [img]="LogOut" [size]="20"></lucide-icon>
       <span>Cerrar sesión</span>
     </a>

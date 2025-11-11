@@ -28,8 +28,10 @@ namespace AccessControl.Application.Services
                     Id = rm.Menu.Id,
                     Name = rm.Menu.Name,
                     Path = rm.Menu.Path,
-                    Icon = rm.Menu.Icon
+                    Icon = rm.Menu.Icon,
+                    Order = rm.Menu.Order
                 })
+                .OrderBy(m => m.Order)
                 .ToListAsync();
         }
     }

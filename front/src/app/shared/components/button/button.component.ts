@@ -32,12 +32,12 @@ import { CommonModule } from '@angular/common';
       }
 
       .btn-primary {
-        background-color: #3b82f6;
+        background-color: var(--primary-color);
         color: white;
       }
 
       .btn-primary:hover:not(:disabled) {
-        background-color: #2563eb;
+        background-color: #005ce6;
       }
 
       .btn-secondary {

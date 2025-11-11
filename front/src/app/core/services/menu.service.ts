@@ -12,6 +12,7 @@ export interface MenuItem {
   name: string;
   path: string;
   icon: string;
+  order: number;
   iconData?: LucideIconData;
 }
 
@@ -27,11 +28,13 @@ export class MenuService {
 
   getMenuForCurrentUser(): Observable<MenuItem[]> {
     return this.http.get<ResponseModel<MenuItem[]>>(this.apiUrl).pipe(
-      map((response) => response.data!),
-      tap((items) => {
-        const processedItems = this.processMenuItems(items);
-        this.menuItems.set(processedItems);
-      }),
+      map((response) =>
+        response.data!.map((item) => ({
+          ...item,
+          iconData: this.iconService.getIcon(item.icon),
+        }))
+      ),
+      tap((items) => this.menuItems.set(items)),
       catchError((error) => {
         console.warn(
           'Failed to load menu from backend, using fallback menu:',
@@ -49,21 +52,24 @@ export class MenuService {
     return [
       {
         id: '1',
-        name: 'Tablero',
+        name: 'Dashboard',
         path: '/access-control/dashboard',
         icon: 'BarChart',
+        order: 1,
       },
       {
         id: '2',
         name: 'Visitas',
         path: '/access-control/visits',
         icon: 'Calendar',
+        order: 2,
       },
       {
         id: '3',
         name: 'Residentes',
         path: '/access-control/residents',
         icon: 'Users',
+        order: 3,
       },
     ];
   }

@@ -65,9 +65,9 @@ namespace AccessControl.Persistence
             var menuId3 = Guid.NewGuid();
 
             modelBuilder.Entity<Menu>().HasData(
-                new Menu { Id = menuId1, Name = "Dashboard", Path = "/dashboard", Icon = "LayoutDashboard", CreatedAt = DateTime.UtcNow },
-                new Menu { Id = menuId2, Name = "Visits", Path = "/visits", Icon = "CarFront", CreatedAt = DateTime.UtcNow },
-                new Menu { Id = menuId3, Name = "Users", Path = "/users", Icon = "Users", CreatedAt = DateTime.UtcNow }
+                new Menu { Id = menuId1, Name = "Dashboard", Path = "/dashboard", Icon = "LayoutDashboard", Order = 1, CreatedAt = DateTime.UtcNow },
+                new Menu { Id = menuId2, Name = "Visits", Path = "/visits", Icon = "CarFront", Order = 2, CreatedAt = DateTime.UtcNow },
+                new Menu { Id = menuId3, Name = "Users", Path = "/users", Icon = "Users", Order = 3, CreatedAt = DateTime.UtcNow }
             );
 
             modelBuilder.Entity<RoleMenu>().HasData(

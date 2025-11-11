@@ -1,0 +1,79 @@
+// src/app/core/theme/_material-theme.scss
+
+@use "@angular/material" as mat;
+
+// Definir tema Material 3 (Angular 18+)
+$my-theme: mat.define-theme(
+  (
+    color: (
+      theme-type: light,
+      primary: mat.$blue-palette,
+      tertiary: mat.$orange-palette,
+    ),
+  )
+);
+
+// Aplicar el tema a todos los componentes
+html {
+  @include mat.all-component-themes($my-theme);
+
+  /************** COLOR SYSTEM OVERRIDES **************/
+  --mat-sys-primary: #0066ff;
+  --mat-sys-on-primary: #ffffff;
+  --mat-sys-primary-container: #e3f0ff;
+  --mat-sys-on-primary-container: #001258;
+
+  /************** Material Button Overrides **************/
+
+  /* mat-flat-button (Filled Button) */
+  --mat-filled-button-container-color: #0066ff;
+  --mat-filled-button-label-text-color: #ffffff;
+  --mat-filled-button-hover-state-layer-color: #0056d6;
+  --mat-filled-button-pressed-state-layer-color: #0044ad;
+  --mat-filled-button-disabled-container-color: #d0d7e2;
+  --mat-filled-button-disabled-label-text-color: rgba(255, 255, 255, 0.4);
+
+  /* mat-raised-button (Elevated Button) */
+  --mat-elevated-button-container-color: #0066ff;
+  --mat-elevated-button-label-text-color: #ffffff;
+
+  /* mat-outlined-button */
+  --mat-outlined-button-outline-color: #0066ff;
+  --mat-outlined-button-label-text-color: #0066ff;
+  --mat-outlined-button-hover-state-layer-color: rgba(0, 102, 255, 0.08);
+  --mat-outlined-button-pressed-state-layer-color: rgba(0, 102, 255, 0.12);
+
+  /* mat-button (Text Button) */
+  --mat-text-button-label-text-color: #0066ff;
+  --mat-text-button-hover-state-layer-color: rgba(0, 102, 255, 0.08);
+  --mat-text-button-pressed-state-layer-color: rgba(0, 102, 255, 0.12);
+
+  /* mat-icon-button */
+  --mat-icon-button-icon-color: #0066ff;
+  --mat-icon-button-hover-state-layer-color: rgba(0, 102, 255, 0.08);
+
+  /* Ripple & Focus */
+  --mat-mdc-button-focus-outline-color: #0066ff;
+  --mat-mdc-button-persistent-ripple-color: #0066ff;
+
+  /************** BUTTON SHAPE (Border Radius) OVERRIDES **************/
+
+  /* Filled/Elevated Buttons Border Radius */
+  --mdc-filled-button-container-shape: 8px;
+  --mdc-elevated-button-container-shape: 8px;
+
+  /* Outlined Button Border Radius */
+  --mdc-outlined-button-container-shape: 8px;
+
+  /* Text Button Border Radius */
+  --mdc-text-button-container-shape: 8px;
+
+  /* Icon Button Border Radius */
+  --mdc-icon-button-state-layer-shape: 8px;
+
+  /************** FORM FIELD OVERRIDES **************/
+  --mdc-outlined-text-field-focus-outline-color: #0066ff;
+  --mdc-outlined-text-field-focus-label-text-color: #0066ff;
+  --mdc-filled-text-field-focus-active-indicator-color: #0066ff;
+  --mdc-filled-text-field-focus-label-text-color: #0066ff;
+}
