@@ -1,0 +1,58 @@
+<h1>{{ isEditMode ? 'Edit Visitor' : 'Add Visitor' }}</h1>
+
+<form [formGroup]="visitorForm" (ngSubmit)="onSubmit()">
+  <div>
+    <label for="fullName">Full Name</label>
+    <input id="fullName" formControlName="fullName">
+  </div>
+
+  <div>
+    <label for="documentType">Document Type</label>
+    <select id="documentType" formControlName="documentType">
+      <option value="CC">CC</option>
+      <option value="CE">CE</option>
+      <option value="Pasaporte">Pasaporte</option>
+      <option value="Otro">Otro</option>
+    </select>
+  </div>
+
+  <div>
+    <label for="documentNumber">Document Number</label>
+    <input id="documentNumber" formControlName="documentNumber">
+  </div>
+
+  <div>
+    <label for="gender">Gender</label>
+    <select id="gender" formControlName="gender">
+      <option value="Masculino">Masculino</option>
+      <option value="Femenino">Femenino</option>
+      <option value="Otro">Otro</option>
+    </select>
+  </div>
+
+  <div>
+    <label for="visitorType">Visitor Type</label>
+    <select id="visitorType" formControlName="visitorType">
+      <option value="Familiar">Familiar</option>
+      <option value="Domiciliario">Domiciliario</option>
+      <option value="TrabajadorVarios">Trabajador Varios</option>
+      <option value="TrabajadorServiciosPublicos">Trabajador de Servicios Públicos</option>
+      <option value="VisitanteRegular">Visitante Regular</option>
+    </select>
+  </div>
+
+  <div>
+    <label for="isMinor">Is Minor</label>
+    <input id="isMinor" type="checkbox" formControlName="isMinor">
+  </div>
+
+  <div *ngIf="isEditMode">
+    <label for="status">Status</label>
+    <select id="status" formControlName="status">
+      <option value="Activo">Activo</option>
+      <option value="Inactivo">Inactivo</option>
+    </select>
+  </div>
+
+  <button type="submit">{{ isEditMode ? 'Update' : 'Create' }}</button>
+</form>

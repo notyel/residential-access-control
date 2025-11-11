@@ -11,6 +11,10 @@ export const accessControlRoutes: Routes = [
     loadChildren: () => import('./visits/visits.routes').then((m) => m.default),
   },
   {
+    path: 'visitors',
+    loadChildren: () => import('../visitors/visitors.routes').then((m) => m.default),
+  },
+  {
     path: 'residents',
     loadChildren: () =>
       import('./residents/residents.routes').then((m) => m.default),
