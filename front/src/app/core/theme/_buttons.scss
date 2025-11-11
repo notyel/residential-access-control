@@ -12,10 +12,72 @@
 .mat-mdc-raised-button,
 .mat-mdc-outlined-button {
   gap: 8px !important;
+  border-radius: 8px !important; // Forzar border-radius consistente
 
   .mdc-button__label {
     display: flex !important;
     align-items: center !important;
     gap: 8px !important;
+  }
+}
+
+// Asegurar que el color primario #0066ff se aplique correctamente
+.mat-mdc-unelevated-button.mat-primary,
+.mat-mdc-raised-button.mat-primary {
+  --mdc-filled-button-container-color: #0066ff !important;
+  --mdc-filled-button-label-text-color: #ffffff !important;
+
+  &:not(:disabled) {
+    background-color: #0066ff !important;
+    color: #ffffff !important;
+  }
+
+  &:hover:not(:disabled) {
+    background-color: #005ce6 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 102, 255, 0.3);
+  }
+}
+
+.mat-mdc-outlined-button.mat-primary {
+  --mdc-outlined-button-outline-color: #0066ff !important;
+  --mdc-outlined-button-label-text-color: #0066ff !important;
+
+  &:not(:disabled) {
+    border-color: #0066ff !important;
+    color: #0066ff !important;
+  }
+
+  &:hover:not(:disabled) {
+    background-color: rgba(0, 102, 255, 0.08) !important;
+    border-color: #005ce6 !important;
+    color: #005ce6 !important;
+  }
+}
+
+.mat-mdc-button.mat-primary {
+  --mdc-text-button-label-text-color: #0066ff !important;
+
+  &:not(:disabled) {
+    color: #0066ff !important;
+  }
+
+  &:hover:not(:disabled) {
+    background-color: rgba(0, 102, 255, 0.04) !important;
+    color: #005ce6 !important;
+  }
+}
+
+.mat-mdc-icon-button.mat-primary {
+  --mat-mdc-icon-button-icon-color: #0066ff !important;
+  border-radius: 8px !important; // Border radius para icon buttons
+
+  &:not(:disabled) {
+    color: #0066ff !important;
+  }
+
+  &:hover:not(:disabled) {
+    background-color: rgba(0, 102, 255, 0.08) !important;
+    color: #005ce6 !important;
   }
 }
