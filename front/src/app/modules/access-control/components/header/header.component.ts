@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { LucideAngularModule, Search } from 'lucide-angular';
+import { Component, EventEmitter, Output } from '@angular/core';
+import { LucideAngularModule, Search, Menu } from 'lucide-angular';
 
 @Component({
   selector: 'app-header',
@@ -10,4 +10,11 @@ import { LucideAngularModule, Search } from 'lucide-angular';
 })
 export class HeaderComponent {
   readonly SearchIcon = Search;
+  readonly MenuIcon = Menu;
+
+  @Output() toggleSidebar = new EventEmitter<void>();
+
+  onToggleSidebar() {
+    this.toggleSidebar.emit();
+  }
 }

@@ -1,14 +1,12 @@
 .dashboard-sidebar {
   background-color: var(--card-background-color);
   border-right: 1px solid var(--border-color);
-  width: 250px;
+  width: 100%;
   display: flex;
   flex-direction: column;
   padding: 1.5rem 1rem;
-  transition: width 0.2s ease-in-out;
   height: 100vh;
-  position: sticky;
-  top: 0;
+  overflow-y: auto;
 
   .sidebar-header {
     padding: 0 0.5rem;
@@ -98,13 +96,5 @@
         height: 20px;
       }
     }
-  }
-}
-
-@media (max-width: 768px) {
-  .dashboard-sidebar {
-    height: auto;
-    width: 100%;
-    padding: 1rem;
   }
 }

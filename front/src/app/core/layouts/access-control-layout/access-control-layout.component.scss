@@ -1,16 +1,74 @@
 .access-control-layout {
   display: flex;
   min-height: 100vh;
+  position: relative;
+
+  &.mobile {
+    flex-direction: column;
+  }
+}
+
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  display: block;
+}
+
+.sidebar-container {
+  background-color: var(--card-background-color);
+  border-right: 1px solid var(--border-color);
+  width: 250px;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  transition: transform 0.3s ease-in-out;
+  z-index: 1000;
+
+  &.mobile {
+    position: fixed;
+    top: 0;
+    left: 0;
+    transform: translateX(-100%);
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+
+    &.visible {
+      transform: translateX(0);
+    }
+  }
+
+  &:not(.mobile) {
+    &.visible {
+      transform: translateX(0);
+    }
+
+    &:not(.visible) {
+      transform: translateX(-250px);
+      width: 0;
+      border-right: none;
+    }
+  }
 }
 
 .access-control-main {
   flex: 1;
   display: flex;
   flex-direction: column;
+  transition: margin-left 0.3s ease-in-out;
+  min-height: 100vh;
 }
 
 .access-control-content {
   flex: 1;
   padding: 2rem;
   background-color: #f8fafc;
+  min-height: calc(100vh - 80px); /* Ajustar según altura del header */
+
+  @media (max-width: 768px) {
+    padding: 1rem;
+  }
 }
