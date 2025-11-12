@@ -18,13 +18,13 @@
     <div class="header-actions">
       <div class="user-profile">
         <img
-          src="https://i.pravatar.cc/40"
+          src="/placeholder/user-profile.webp"
           alt="Avatar del Usuario"
           class="avatar"
         />
         <div class="user-info">
-          <span class="user-name">Juan Pérez</span>
-          <span class="user-role">Administrador</span>
+          <span class="user-name">{{ displayName }}</span>
+          <span class="user-role">{{ userRole || "Usuario" }}</span>
         </div>
       </div>
     </div>

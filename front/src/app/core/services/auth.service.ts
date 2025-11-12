@@ -15,7 +15,7 @@ interface User {
   firstName: string;
   lastName: string;
   apartmentNumber: string;
-  role: string;
+  role: number;
 }
 
 interface AuthResponse {
@@ -28,37 +28,48 @@ interface AuthResponse {
 })
 export class AuthService {
   private readonly TOKEN_KEY = 'jwt';
-  private readonly ROLE_KEY = 'role';
+  private readonly USER_KEY = 'user';
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(
     this.hasToken()
   );
   public isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
-  private userRoleSubject = new BehaviorSubject<string | null>(
-    this.getRole()
-  );
-  public userRole$ = this.userRoleSubject.asObservable();
+  private userSubject = new BehaviorSubject<User | null>(this.getUser());
+  public user$ = this.userSubject.asObservable();
 
   constructor(private http: HttpClient) {}
 
+  // Mapeo de roles numéricos a strings
+  private getRoleText(role: number): string {
+    const roleMap: { [key: number]: string } = {
+      0: 'Admin',
+      1: 'Guard',
+      2: 'Owner',
+    };
+    return roleMap[role] || 'Usuario';
+  }
+
   login(credentials: LoginCredentials): Observable<AuthResponse> {
     return this.http
-      .post<ResponseModel<AuthResponse>>(`${environment.apiUrl}/auth/login`, credentials)
+      .post<ResponseModel<AuthResponse>>(
+        `${environment.apiUrl}/auth/login`,
+        credentials
+      )
       .pipe(
         map((response) => response.data!),
         tap((response) => {
           localStorage.setItem(this.TOKEN_KEY, response.token);
-          localStorage.setItem(this.ROLE_KEY, response.user.role);
+          localStorage.setItem(this.USER_KEY, JSON.stringify(response.user));
           this.isAuthenticatedSubject.next(true);
-          this.userRoleSubject.next(response.user.role);
+          this.userSubject.next(response.user);
         })
       );
   }
 
   logout(): void {
     localStorage.removeItem(this.TOKEN_KEY);
-    localStorage.removeItem(this.ROLE_KEY);
+    localStorage.removeItem(this.USER_KEY);
     this.isAuthenticatedSubject.next(false);
-    this.userRoleSubject.next(null);
+    this.userSubject.next(null);
   }
 
   private hasToken(): boolean {
@@ -73,11 +84,21 @@ export class AuthService {
     return localStorage.getItem(this.TOKEN_KEY);
   }
 
+  getUser(): User | null {
+    const userData = localStorage.getItem(this.USER_KEY);
+    return userData ? JSON.parse(userData) : null;
+  }
+
+  getUserRole(): string | null {
+    const user = this.getUser();
+    return user ? this.getRoleText(user.role) : null;
+  }
+
   getRole(): string | null {
-    return localStorage.getItem(this.ROLE_KEY);
+    return this.getUserRole();
   }
 
   hasRole(role: string): boolean {
-    return this.getRole() === role;
+    return this.getUserRole() === role;
   }
 }
