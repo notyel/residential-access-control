@@ -101,7 +101,13 @@ namespace AccessControl.Application.Services
                 .Select(v => MapVisitToDto(v))
                 .ToListAsync();
 
-            return new PaginatedResultDto<VisitDto> { Items = pagedVisits, TotalCount = totalCount };
+            return new PaginatedResultDto<VisitDto>
+            {
+                Items = pagedVisits,
+                TotalCount = totalCount,
+                PageNumber = filter.PageNumber,
+                PageSize = filter.PageSize
+            };
         }
 
         private static VisitDto MapVisitToDto(Visit visit)
