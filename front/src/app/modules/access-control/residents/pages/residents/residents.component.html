@@ -5,47 +5,38 @@
       mat-flat-button
       color="primary"
       [routerLink]="['/access-control/residents/new']"
+      class="add-resident-btn"
     >
       <lucide-icon [img]="PlusCircleIcon"></lucide-icon>
       Nuevo Residente
     </button>
   </div>
 
-  <table
-    mat-table
-    [dataSource]="residents()"
-    class="mat-elevation-z8 data-table"
-  >
-    <!-- Name Column -->
-    <ng-container matColumnDef="name">
-      <th mat-header-cell *matHeaderCellDef>Nombre</th>
-      <td mat-cell *matCellDef="let resident">
-        {{ resident.firstName }} {{ resident.lastName }}
-      </td>
-    </ng-container>
+  <div class="residents-container">
+    <div *ngIf="isLoading()" class="loading-state">
+      <div class="loading-spinner"></div>
+      <p>Cargando residentes...</p>
+    </div>
 
-    <!-- Apartment Column -->
-    <ng-container matColumnDef="apartment">
-      <th mat-header-cell *matHeaderCellDef>Apartamento</th>
-      <td mat-cell *matCellDef="let resident">
-        {{ resident.apartmentNumber }}
-      </td>
-    </ng-container>
+    <div *ngIf="!isLoading() && residents().length === 0" class="empty-state">
+      <lucide-icon [img]="UserIcon" size="64"></lucide-icon>
+      <h2>No hay residentes registrados</h2>
+      <p>Comienza agregando el primer residente al sistema</p>
+      <button
+        mat-flat-button
+        color="primary"
+        [routerLink]="['/access-control/residents/new']"
+      >
+        <lucide-icon [img]="PlusCircleIcon"></lucide-icon>
+        Agregar Primer Residente
+      </button>
+    </div>
 
-    <!-- Actions Column -->
-    <ng-container matColumnDef="actions">
-      <th mat-header-cell *matHeaderCellDef>Acciones</th>
-      <td mat-cell *matCellDef="let resident">
-        <button
-          mat-icon-button
-          [routerLink]="['/access-control/residents/edit', resident.id]"
-        >
-          <lucide-icon [img]="EditIcon"></lucide-icon>
-        </button>
-      </td>
-    </ng-container>
-
-    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-  </table>
+    <div class="residents-grid" *ngIf="!isLoading() && residents().length > 0">
+      <app-resident-card
+        *ngFor="let resident of residents(); trackBy: trackByResident"
+        [resident]="resident"
+      ></app-resident-card>
+    </div>
+  </div>
 </div>

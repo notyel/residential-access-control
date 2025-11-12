@@ -3,15 +3,14 @@ import { User } from '../../../../../core/models/user.model';
 import { ResidentsService } from '../../services/residents.service';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import {
   LucideAngularModule,
   User as UserIconLucide,
-  SquarePen as EditIconLucide,
   CirclePlus,
 } from 'lucide-angular';
+import { ResidentCardComponent } from '../../components/resident-card/resident-card.component';
 
 @Component({
   selector: 'app-residents',
@@ -19,28 +18,43 @@ import {
   imports: [
     CommonModule,
     RouterModule,
-    MatTableModule,
     MatButtonModule,
     MatIconModule,
     LucideAngularModule,
+    ResidentCardComponent,
   ],
   templateUrl: './residents.component.html',
   styleUrls: ['./residents.component.scss'],
 })
 export class ResidentsComponent implements OnInit {
   residents = signal<User[]>([]);
-  displayedColumns: string[] = ['name', 'apartment', 'actions'];
+  isLoading = signal(true);
 
   // Icons
   UserIcon = UserIconLucide;
-  EditIcon = EditIconLucide;
   PlusCircleIcon = CirclePlus;
 
   private residentsService = inject(ResidentsService);
 
   ngOnInit(): void {
-    this.residentsService
-      .getResidents()
-      .subscribe((items) => this.residents.set(items));
+    this.loadResidents();
+  }
+
+  private loadResidents(): void {
+    this.isLoading.set(true);
+    this.residentsService.getResidents().subscribe({
+      next: (items) => {
+        this.residents.set(items);
+        this.isLoading.set(false);
+      },
+      error: (error) => {
+        console.error('Error loading residents:', error);
+        this.isLoading.set(false);
+      },
+    });
+  }
+
+  trackByResident(index: number, resident: User): string {
+    return resident.id;
   }
 }
