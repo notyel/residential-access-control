@@ -1,9 +1,4 @@
-.dashboard-container {
-  padding: 24px;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
+// Estilos específicos del dashboard
 .empty-state {
   text-align: center;
   padding: 40px 20px;
@@ -15,11 +10,8 @@
   }
 }
 
+// Responsive específico para el dashboard grid
 @media (max-width: 768px) {
-  .dashboard-container {
-    padding: 16px;
-  }
-
   .dashboard-grid {
     grid-template-columns: 1fr;
     gap: 16px;

@@ -1,6 +1,6 @@
-<div class="p-6">
-  <div class="flex justify-between items-center mb-6">
-    <h1 class="text-2xl font-bold">Residentes</h1>
+<div class="page-layout">
+  <div class="page-header">
+    <h1 class="page-title">Residentes</h1>
     <button
       mat-flat-button
       color="primary"
@@ -11,7 +11,11 @@
     </button>
   </div>
 
-  <table mat-table [dataSource]="residents()" class="mat-elevation-z8 w-full">
+  <table
+    mat-table
+    [dataSource]="residents()"
+    class="mat-elevation-z8 data-table"
+  >
     <!-- Name Column -->
     <ng-container matColumnDef="name">
       <th mat-header-cell *matHeaderCellDef>Nombre</th>

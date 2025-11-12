@@ -74,9 +74,30 @@ a {
   }
 }
 
-// Common page layout
+// Common page layout - Clase base estándar para todas las páginas
+.page-layout {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+
+  @media (max-width: 768px) {
+    padding: 16px;
+  }
+}
+
+// Backward compatibility - mantener .page-container como alias
 .page-container {
   padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+
+  @media (max-width: 768px) {
+    padding: 16px;
+  }
 }
 
 .page-header {
@@ -97,6 +118,25 @@ a {
   font-weight: 700;
   color: var(--text-color);
   margin: 0;
+}
+
+// Form utilities
+.form-field-full {
+  width: 100%;
+  display: block;
+  margin-bottom: 16px;
+}
+
+// Data table full width
+.data-table {
+  width: 100%;
+}
+
+// Error message styling
+.error-message {
+  color: #ef4444;
+  margin: 16px 0;
+  font-size: 0.875rem;
 }
 
 // Filter form
