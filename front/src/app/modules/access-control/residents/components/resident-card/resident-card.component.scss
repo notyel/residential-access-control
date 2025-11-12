@@ -1,14 +1,24 @@
 // Resetear estilos de iconos para este componente
 lucide-icon {
-  vertical-align: text-bottom !important;
+  // Usar flexbox para alineación perfecta con el texto
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  // Fallback con vertical-align para casos especiales
+  vertical-align: middle !important;
 
   svg {
-    vertical-align: text-bottom !important;
-    display: inline-block !important;
+    // Asegurar que el SVG se comporte como un bloque
+    display: block !important;
+
+    // Asegurar que el SVG mantenga sus dimensiones
+    flex-shrink: 0;
   }
 }
 
 .resident-card {
+  background-color: white;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
@@ -64,7 +74,7 @@ lucide-icon {
 
         lucide-icon {
           margin-right: 0.5rem;
-          vertical-align: text-bottom !important;
+          // Eliminar vertical-align ya que ahora usa flexbox
         }
 
         span {
@@ -89,9 +99,7 @@ lucide-icon {
           margin-right: 0.75rem;
           color: var(--text-secondary, #999);
           flex-shrink: 0;
-          vertical-align: text-bottom !important;
-          width: 16px;
-          height: 16px;
+          // Eliminar vertical-align y dimensiones fijas ya que ahora usa flexbox
         }
 
         .detail-text {
@@ -119,11 +127,6 @@ lucide-icon {
     justify-content: flex-end;
     padding-top: 0.75rem;
     border-top: 1px solid var(--border-color, #e0e0e0);
-
-    // Solo estilos de alineación de iconos, sin modificar el botón
-    lucide-icon {
-      vertical-align: text-bottom !important;
-    }
   }
 }
 
