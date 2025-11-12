@@ -11,6 +11,7 @@ import {
   CirclePlus,
 } from 'lucide-angular';
 import { ResidentCardComponent } from '../../components/resident-card/resident-card.component';
+import { PageHeaderComponent } from '../../../components/page-header/page-header.component';
 
 @Component({
   selector: 'app-residents',
@@ -22,6 +23,7 @@ import { ResidentCardComponent } from '../../components/resident-card/resident-c
     MatIconModule,
     LucideAngularModule,
     ResidentCardComponent,
+    PageHeaderComponent,
   ],
   templateUrl: './residents.component.html',
   styleUrls: ['./residents.component.scss'],

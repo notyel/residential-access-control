@@ -64,11 +64,19 @@
 
 .access-control-content {
   flex: 1;
-  padding: 2rem;
   background-color: #f8fafc;
   min-height: calc(100vh - 80px); /* Ajustar según altura del header */
 
+  // El padding se aplicará solo a elementos que tengan la clase page-layout
+  .page-layout {
+    padding: 2rem;
+
+    @media (max-width: 768px) {
+      padding: 1rem;
+    }
+  }
+
   @media (max-width: 768px) {
-    padding: 1rem;
+    // Sin padding por defecto en móvil
   }
 }
