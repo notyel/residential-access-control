@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace AccessControl.Persistence
 {
@@ -20,6 +21,34 @@ namespace AccessControl.Persistence
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            // Global converters to ensure DateTime kinds are Utc when sent to/received from the database
+            var dateTimeConverter = new ValueConverter<DateTime, DateTime>(
+                v => v.Kind == DateTimeKind.Utc ? v : DateTime.SpecifyKind(v, DateTimeKind.Utc),
+                v => DateTime.SpecifyKind(v, DateTimeKind.Utc));
+
+            var nullableDateTimeConverter = new ValueConverter<DateTime?, DateTime?>(
+                v => v.HasValue ? (DateTime?) (v.Value.Kind == DateTimeKind.Utc ? v.Value : DateTime.SpecifyKind(v.Value, DateTimeKind.Utc)) : null,
+                v => v.HasValue ? (DateTime?) DateTime.SpecifyKind(v.Value, DateTimeKind.Utc) : null);
+
+            foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+            {
+                var clrType = entityType.ClrType;
+                if (clrType == null) continue;
+
+                var entity = modelBuilder.Entity(clrType);
+                foreach (var property in entityType.GetProperties().Where(p => p.ClrType == typeof(DateTime) || p.ClrType == typeof(DateTime?)))
+                {
+                    if (property.ClrType == typeof(DateTime))
+                    {
+                        entity.Property(property.Name).HasConversion(dateTimeConverter).HasColumnType("timestamp with time zone");
+                    }
+                    else
+                    {
+                        entity.Property(property.Name).HasConversion(nullableDateTimeConverter).HasColumnType("timestamp with time zone");
+                    }
+                }
+            }
+
             modelBuilder.Entity<User>(b =>
             {
                 b.HasKey(u => u.Id);

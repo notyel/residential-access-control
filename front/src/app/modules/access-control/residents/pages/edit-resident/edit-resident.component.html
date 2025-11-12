@@ -1,22 +1,22 @@
 <div class="p-6">
   <mat-card>
     <mat-card-header>
-      <mat-card-title>Edit Resident</mat-card-title>
+      <mat-card-title>Editar Residente</mat-card-title>
     </mat-card-header>
     <mat-card-content>
       <form [formGroup]="residentForm" (ngSubmit)="onSubmit()">
         <mat-form-field class="w-full">
-          <mat-label>First Name</mat-label>
+          <mat-label>Nombre</mat-label>
           <input matInput formControlName="firstName" />
         </mat-form-field>
 
         <mat-form-field class="w-full">
-          <mat-label>Last Name</mat-label>
+          <mat-label>Apellido</mat-label>
           <input matInput formControlName="lastName" />
         </mat-form-field>
 
         <mat-form-field class="w-full">
-          <mat-label>Apartment Number</mat-label>
+          <mat-label>Número de Apartamento</mat-label>
           <input matInput formControlName="apartmentNumber" />
         </mat-form-field>
 
@@ -28,10 +28,11 @@
           mat-flat-button
           color="primary"
           type="submit"
-          [disabled]="!residentForm.valid || !isAdmin"
+          [disabled]="!residentForm.valid"
+          class="icon-left"
         >
-          <lucide-angular [name]="SaveIcon" class="mr-2"></lucide-angular>
-          Save
+          <lucide-icon [img]="SaveIcon"></lucide-icon>
+          Guardar
         </button>
       </form>
     </mat-card-content>

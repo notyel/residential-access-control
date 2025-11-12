@@ -1,0 +1,30 @@
+<aside class="dashboard-sidebar">
+  <div class="sidebar-header">
+    <a
+      [routerLink]="'/access-control/dashboard'"
+      routerLinkActive="active"
+      class="logo"
+    >
+      <lucide-icon [img]="Box" [size]="32"></lucide-icon>
+      <span class="logo-text">ZENTRYAL</span>
+    </a>
+  </div>
+  <nav class="sidebar-nav">
+    <ul>
+      @for (item of menuService.menuItems(); track item.path) {
+      <li>
+        <a [routerLink]="item.path" routerLinkActive="active" class="nav-link">
+          <lucide-icon [img]="getMenuIcon(item.icon)" [size]="20"></lucide-icon>
+          <span>{{ item.name }}</span>
+        </a>
+      </li>
+      }
+    </ul>
+  </nav>
+  <div class="sidebar-footer">
+    <a href="#" class="nav-link" (click)="logout(); $event.preventDefault()">
+      <lucide-icon [img]="LogOut" [size]="20"></lucide-icon>
+      <span>Cerrar sesión</span>
+    </a>
+  </div>
+</aside>

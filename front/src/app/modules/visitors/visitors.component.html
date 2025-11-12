@@ -1,0 +1,33 @@
+<h1>Visitors</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Full Name</th>
+      <th>Document Type</th>
+      <th>Document Number</th>
+      <th>Gender</th>
+      <th>Visitor Type</th>
+      <th>Is Minor</th>
+      <th>Status</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let visitor of visitors">
+      <td>{{ visitor.fullName }}</td>
+      <td>{{ visitor.documentType }}</td>
+      <td>{{ visitor.documentNumber }}</td>
+      <td>{{ visitor.gender }}</td>
+      <td>{{ visitor.visitorType }}</td>
+      <td>{{ visitor.isMinor }}</td>
+      <td>{{ visitor.status }}</td>
+      <td>
+        <button>Edit</button>
+        <button>Delete</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<button>Add Visitor</button>

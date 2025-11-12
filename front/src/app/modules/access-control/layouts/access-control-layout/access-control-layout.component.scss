@@ -1,0 +1,16 @@
+.access-control-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.access-control-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.access-control-content {
+  flex: 1;
+  padding: 2rem;
+  background-color: #f8fafc;
+}

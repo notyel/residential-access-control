@@ -16,7 +16,9 @@
       <!-- Logo y branding -->
       <div class="login-header">
         <div class="logo">
-          <span class="logo-letter">Z</span>
+          <span class="logo-letter"
+            ><lucide-icon [img]="Box" [size]="32"></lucide-icon
+          ></span>
           <span class="logo-text">ZENTRYAL</span>
         </div>
         <p class="tagline">CONTROL DE ACCESO RESIDENCIAL</p>
@@ -26,10 +28,8 @@
       <div class="welcome-section">
         <h1>¡Bienvenido de vuelta!</h1>
         <p class="welcome-subtitle">
-          <strong>
-            Si ya cuentas con acceso, por favor inicia sesión con tu correo
-            electrónico.
-          </strong>
+          <span>Si ya cuentas con acceso,</span>
+          <strong> por favor inicia sesión con tu correo electrónico. </strong>
         </p>
       </div>
 
@@ -37,7 +37,7 @@
       <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
         <div class="form-group">
           <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Correo electrónico*</mat-label>
+            <mat-label>Correo electrónico</mat-label>
             <input
               matInput
               formControlName="email"
@@ -55,7 +55,7 @@
 
         <div class="form-group">
           <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Contraseña*</mat-label>
+            <mat-label>Contraseña</mat-label>
             <input
               matInput
               [type]="hidePassword ? 'password' : 'text'"
@@ -96,11 +96,7 @@
         >
           <span *ngIf="!isLoading">Iniciar sesión</span>
           <span *ngIf="isLoading">Iniciando...</span>
-          <lucide-icon
-            *ngIf="!isLoading"
-            [img]="ArrowRightIcon"
-            class="button-icon"
-          ></lucide-icon>
+          <lucide-icon *ngIf="!isLoading" [img]="ArrowRightIcon"></lucide-icon>
         </button>
 
         <!-- Enlace de registro -->

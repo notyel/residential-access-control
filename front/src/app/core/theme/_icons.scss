@@ -1,0 +1,33 @@
+/* SOLUCIÓN SIMPLE PARA ICONOS - SOLO EN BOTONES */
+
+// Alineación básica de iconos Lucide SOLO en botones
+.mat-mdc-button lucide-icon,
+.mat-mdc-unelevated-button lucide-icon,
+.mat-mdc-raised-button lucide-icon,
+.mat-mdc-outlined-button lucide-icon {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  svg {
+    display: block !important;
+    width: 20px !important;
+    height: 20px !important;
+  }
+}
+
+// Quitar márgenes automáticos problemáticos SOLO en botones
+.mat-mdc-button lucide-icon.mr-2,
+.mat-mdc-button lucide-icon.ml-2,
+.mat-mdc-button lucide-icon.mx-2,
+.mat-mdc-unelevated-button lucide-icon.mr-2,
+.mat-mdc-unelevated-button lucide-icon.ml-2,
+.mat-mdc-unelevated-button lucide-icon.mx-2,
+.mat-mdc-raised-button lucide-icon.mr-2,
+.mat-mdc-raised-button lucide-icon.ml-2,
+.mat-mdc-raised-button lucide-icon.mx-2,
+.mat-mdc-outlined-button lucide-icon.mr-2,
+.mat-mdc-outlined-button lucide-icon.ml-2,
+.mat-mdc-outlined-button lucide-icon.mx-2 {
+  margin: 0 !important;
+}

@@ -2,8 +2,8 @@
   <mat-card>
     <mat-card-header>
       <mat-card-title>
-        <lucide-angular [name]="UsersIcon" class="icon"></lucide-angular>
-        Total Visits This Month
+        <lucide-icon [img]="UsersIcon" class="icon"></lucide-icon>
+        Total de Visitas Este Mes
       </mat-card-title>
     </mat-card-header>
     <mat-card-content>
@@ -14,8 +14,8 @@
   <mat-card>
     <mat-card-header>
       <mat-card-title>
-        <lucide-angular [name]="CalendarIcon" class="icon"></lucide-angular>
-        Latest Visits
+        <lucide-icon [img]="CalendarIcon" class="icon"></lucide-icon>
+        Últimas Visitas
       </mat-card-title>
     </mat-card-header>
     <mat-card-content>
@@ -23,7 +23,7 @@
         @for (visit of latestVisits(); track $index) {
         <mat-list-item>
           <span matListItemTitle>{{ visit.visitorFullName }}</span>
-          <span matListItemLine>{{ visit.entryTime | date : 'short' }}</span>
+          <span matListItemLine>{{ visit.entryTime | date : "short" }}</span>
         </mat-list-item>
         }
       </mat-list>
