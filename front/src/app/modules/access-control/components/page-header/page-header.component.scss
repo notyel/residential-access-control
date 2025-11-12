@@ -19,8 +19,8 @@ lucide-icon {
 .page-header {
   width: 100%;
   padding: 1.5rem 2rem;
-  background-color: #ffffff;
-  border-bottom: 1px solid #e0e0e0;
+  background-color: var(--header-background-color);
+  border-bottom: 1px solid var(--border-color);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   display: flex;
   justify-content: space-between;
@@ -38,14 +38,14 @@ lucide-icon {
       margin: 0 0 0.25rem 0;
       font-size: 1.5rem;
       font-weight: 700;
-      color: #1f2937;
+      color: var(--text-primary);
       line-height: 1.2;
     }
 
     .page-subtitle {
       margin: 0;
       font-size: 0.875rem;
-      color: #6b7280;
+      color: var(--text-secondary);
       line-height: 1.4;
     }
   }
@@ -102,14 +102,14 @@ lucide-icon {
       display: inline-flex;
       align-items: center;
       white-space: nowrap;
-      background-color: #1f2937;
-      color: white;
+      background-color: var(--primary-color) !important;
+      color: white !important;
       border: none;
       cursor: pointer;
       transition: background-color 0.2s ease;
 
       &:hover {
-        background-color: #374151;
+        background-color: var(--primary-hover-color) !important;
       }
 
       .button-icon {

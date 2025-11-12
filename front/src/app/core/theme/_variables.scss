@@ -1,18 +1,28 @@
 :root,
 [data-theme="light"] {
   --primary-color: #0066ff;
+  --primary-hover-color: #0052cc;
   --secondary-color: #6c757d;
+  --success-color: #4caf50;
   --background-color: #f8f9fa;
   --text-color: #212529;
+  --text-primary: #1f2937;
+  --text-secondary: #6b7280;
   --card-background-color: #ffffff;
+  --header-background-color: #fafbfc;
   --border-color: #dee2e6;
 }
 
 [data-theme="dark"] {
   --primary-color: #0066ff;
+  --primary-hover-color: #0052cc;
   --secondary-color: #6c757d;
+  --success-color: #66bb6a;
   --background-color: #121212;
   --text-color: #f8f9fa;
+  --text-primary: #f8f9fa;
+  --text-secondary: #9ca3af;
   --card-background-color: #1e1e1e;
+  --header-background-color: #262626;
   --border-color: #495057;
 }

@@ -64,7 +64,7 @@
 
 .access-control-content {
   flex: 1;
-  background-color: #f8fafc;
+  background-color: var(--background-color);
   min-height: calc(100vh - 80px); /* Ajustar según altura del header */
 
   // El padding se aplicará solo a elementos que tengan la clase page-layout
