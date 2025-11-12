@@ -1,13 +1,9 @@
 using AccessControl.Application.Interfaces;
 using AccessControl.Common.DTOs;
-using AccessControl.Common.DTOs.User;
 using AccessControl.Common.DTOs.Common;
-using AccessControl.Shared.Enums;
+using AccessControl.Common.DTOs.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace AccessControl.API.Controllers
 {
