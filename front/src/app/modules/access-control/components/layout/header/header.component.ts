@@ -7,14 +7,15 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, Search, Menu } from 'lucide-angular';
-import { AuthService } from '../../../../core/services/auth.service';
-import { User } from '../../../../core/models/user.model';
+import { AuthService } from '../../../../../core/services/auth.service';
+import { User } from '../../../../../core/models/user.model';
 import { Subscription } from 'rxjs';
+import { ThemeToggleComponent } from '../theme-toggle/theme-toggle.component';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [LucideAngularModule, CommonModule],
+  imports: [LucideAngularModule, CommonModule, ThemeToggleComponent],
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss',
 })

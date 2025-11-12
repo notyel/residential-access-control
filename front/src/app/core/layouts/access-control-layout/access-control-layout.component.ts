@@ -1,8 +1,8 @@
 import { Component, HostListener, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { HeaderComponent } from '../../../modules/access-control/components/header/header.component';
-import { SidebarComponent } from '../../../modules/access-control/components/sidebar/sidebar.component';
+import { HeaderComponent } from '../../../modules/access-control/components/layout/header/header.component';
+import { SidebarComponent } from '../../../modules/access-control/components/layout/sidebar/sidebar.component';
 
 @Component({
   selector: 'app-access-control-layout',
