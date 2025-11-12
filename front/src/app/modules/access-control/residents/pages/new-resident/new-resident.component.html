@@ -1,8 +1,15 @@
+<app-page-header
+  title="Nuevo Residente"
+  subtitle="Registrar un nuevo residente en el sistema"
+  [showButton]="true"
+  buttonText="Cancelar"
+  [buttonIcon]="ArrowLeftIcon"
+  buttonColor="primary"
+  [buttonRoute]="['/access-control/residents']"
+></app-page-header>
+
 <div class="page-layout">
   <mat-card>
-    <mat-card-header>
-      <mat-card-title>Nuevo Residente</mat-card-title>
-    </mat-card-header>
     <mat-card-content>
       <form [formGroup]="residentForm" (ngSubmit)="onSubmit()">
         <mat-form-field class="form-field-full">

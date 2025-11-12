@@ -1,8 +1,15 @@
+<app-page-header
+  title="Editar Residente"
+  subtitle="Modificar información del residente seleccionado"
+  [showButton]="true"
+  buttonText="Volver"
+  [buttonIcon]="ArrowLeftIcon"
+  buttonColor="primary"
+  [buttonRoute]="['/access-control/residents']"
+></app-page-header>
+
 <div class="p-6">
   <mat-card>
-    <mat-card-header>
-      <mat-card-title>Editar Residente</mat-card-title>
-    </mat-card-header>
     <mat-card-content>
       <form [formGroup]="residentForm" (ngSubmit)="onSubmit()">
         <mat-form-field class="w-full">

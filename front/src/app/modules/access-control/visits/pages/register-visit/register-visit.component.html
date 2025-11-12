@@ -1,8 +1,15 @@
+<app-page-header
+  title="Registrar Visita"
+  subtitle="Registrar una nueva visita al conjunto residencial"
+  [showButton]="true"
+  buttonText="Cancelar"
+  [buttonIcon]="ArrowLeftIcon"
+  buttonColor="primary"
+  [buttonRoute]="['/access-control/visits']"
+></app-page-header>
+
 <div class="page-layout">
   <mat-card>
-    <mat-card-header>
-      <mat-card-title>Registrar Visita</mat-card-title>
-    </mat-card-header>
     <mat-card-content>
       <form [formGroup]="visitForm" (ngSubmit)="onSubmit()">
         <mat-form-field class="form-field-full">
