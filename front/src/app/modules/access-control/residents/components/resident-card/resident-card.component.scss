@@ -108,17 +108,8 @@ lucide-icon {
         }
       }
 
-      .role-badge {
-        display: inline-block;
-        background: var(--success-color);
-        color: white;
-        padding: 0.375rem 0.75rem;
-        border-radius: 16px;
-        font-size: 0.8rem;
-        font-weight: 500;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-      }
+      // El role-badge ahora usa las clases del sistema de badges global
+      // Usar las clases .badge .badge-{variant} del tema
     }
   }
 

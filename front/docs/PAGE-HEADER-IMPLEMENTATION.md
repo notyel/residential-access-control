@@ -11,8 +11,10 @@ Se ha implementado de manera coherente el componente `app-page-header` en todas 
 #### 1. **residents.component.html** - Lista Principal
 
 ```html
-<app-page-header title="Residentes" subtitle="Gestión y administración de residentes registrados" [showButton]="true" buttonText="Nuevo Residente" [buttonIcon]="PlusCircleIcon" buttonColor="primary" [buttonRoute]="['/access-control/residents/new']"></app-page-header>
+<app-page-header title="Dashboard" subtitle="Panel de control principal" [showBadge]="true" badgeText="En línea" badgeColor="success" [showButton]="true" buttonText="Nueva Acción" [buttonIcon]="PlusCircleIcon" buttonColor="primary" [buttonRoute]="['/action']"> </app-page-header>
 ```
+
+**Nota**: Los badges ahora utilizan el sistema de diseño global. Ver [BADGES-SYSTEM.md](./BADGES-SYSTEM.md) para más información.
 
 #### 2. **new-resident.component.html** - Crear Nuevo
 
