@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace AccessControl.API.Controllers
 {
@@ -25,7 +26,15 @@ namespace AccessControl.API.Controllers
         {
             try
             {
-                var latestVisits = await _dashboardService.GetLatestVisitsAsync(10);
+                var latestVisitsRaw = await _dashboardService.GetLatestVisitsAsync(10);
+
+                // Ensure DateTime.Kind is UTC before sending to PostgreSQL (timestamp with time zone requires UTC)
+                var latestVisits = latestVisitsRaw?.Select(v =>
+                {
+                    v.EntryTime = DateTime.SpecifyKind(v.EntryTime, DateTimeKind.Utc);
+                    return v;
+                }).ToList();
+
                 var totalVisitsThisMonth = await _dashboardService.GetTotalVisitsThisMonthAsync();
 
                 var dashboardDto = new DashboardDto
