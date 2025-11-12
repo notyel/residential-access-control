@@ -1,11 +1,3 @@
-// Estilos específicos para la vista de residentes
-.page-layout {
-  // El padding ahora lo maneja el layout padre
-  min-height: calc(
-    100vh - 160px
-  ); // Restar altura del header del layout + page-header
-}
-
 .residents-container {
   .loading-state {
     display: flex;
