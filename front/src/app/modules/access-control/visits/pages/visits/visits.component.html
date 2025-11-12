@@ -1,6 +1,6 @@
-<div class="p-6">
-  <div class="flex justify-between items-center mb-6">
-    <h1 class="text-2xl font-bold">Visitas</h1>
+<div class="page-container">
+  <div class="page-header">
+    <h1 class="page-title">Visitas</h1>
     <button
       mat-flat-button
       color="primary"
@@ -11,8 +11,8 @@
     </button>
   </div>
 
-  <form [formGroup]="filterForm" (ngSubmit)="onFilter()" class="mb-6">
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+  <form [formGroup]="filterForm" (ngSubmit)="onFilter()" class="filter-form">
+    <div class="filter-grid">
       <mat-form-field>
         <mat-label>Fecha de Inicio</mat-label>
         <input
@@ -45,7 +45,7 @@
   <table
     mat-table
     [dataSource]="visits().items"
-    class="mat-elevation-z8 w-full"
+    class="mat-elevation-z8 data-table"
   >
     <!-- Visitor Column -->
     <ng-container matColumnDef="visitor">
