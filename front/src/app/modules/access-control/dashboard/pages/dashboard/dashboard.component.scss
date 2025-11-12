@@ -1,12 +1,19 @@
-.dashboard-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1rem;
-  padding: 1rem;
+// Estilos específicos del dashboard
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--secondary-color);
+
+  p {
+    font-size: 1rem;
+    margin: 0;
+  }
 }
 
-.card {
-  padding: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+// Responsive específico para el dashboard grid
+@media (max-width: 768px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
 }

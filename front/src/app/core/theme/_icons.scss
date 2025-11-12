@@ -1,6 +1,25 @@
-/* SOLUCIÓN SIMPLE PARA ICONOS - SOLO EN BOTONES */
+/* SOLUCIÓN COMPLETA PARA ICONOS LUCIDE */
 
-// Alineación básica de iconos Lucide SOLO en botones
+// Estilos globales para todos los iconos Lucide - Solución para problemas de alineación
+lucide-icon {
+  // Usar flexbox para alineación perfecta con el texto
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  // Fallback con vertical-align para casos especiales
+  vertical-align: middle !important;
+
+  svg {
+    // Asegurar que el SVG se comporte como un bloque
+    display: block !important;
+
+    // Asegurar que el SVG mantenga sus dimensiones
+    flex-shrink: 0;
+  }
+}
+
+// Alineación específica de iconos Lucide en botones (mantener compatibilidad)
 .mat-mdc-button lucide-icon,
 .mat-mdc-unelevated-button lucide-icon,
 .mat-mdc-raised-button lucide-icon,

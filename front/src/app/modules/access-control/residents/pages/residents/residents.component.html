@@ -1,47 +1,39 @@
-<div class="p-6">
-  <div class="flex justify-between items-center mb-6">
-    <h1 class="text-2xl font-bold">Residentes</h1>
-    <button
-      mat-flat-button
-      color="primary"
-      [routerLink]="['/access-control/residents/new']"
-    >
-      <lucide-icon [img]="PlusCircleIcon"></lucide-icon>
-      Nuevo Residente
-    </button>
+<app-page-header
+  title="Residentes"
+  subtitle="Gestión y administración de residentes registrados"
+  [showButton]="true"
+  buttonText="Nuevo Residente"
+  [buttonIcon]="PlusCircleIcon"
+  buttonColor="primary"
+  [buttonRoute]="['/access-control/residents/new']"
+></app-page-header>
+
+<div class="page-layout">
+  <div class="residents-container">
+    <div *ngIf="isLoading()" class="loading-state">
+      <div class="loading-spinner"></div>
+      <p>Cargando residentes...</p>
+    </div>
+
+    <div *ngIf="!isLoading() && residents().length === 0" class="empty-state">
+      <lucide-icon [img]="UserIcon" size="64"></lucide-icon>
+      <h2>No hay residentes registrados</h2>
+      <p>Comienza agregando el primer residente al sistema</p>
+      <button
+        mat-flat-button
+        color="primary"
+        [routerLink]="['/access-control/residents/new']"
+      >
+        <lucide-icon [img]="PlusCircleIcon"></lucide-icon>
+        Agregar Primer Residente
+      </button>
+    </div>
+
+    <div class="residents-grid" *ngIf="!isLoading() && residents().length > 0">
+      <app-resident-card
+        *ngFor="let resident of residents(); trackBy: trackByResident"
+        [resident]="resident"
+      ></app-resident-card>
+    </div>
   </div>
-
-  <table mat-table [dataSource]="residents()" class="mat-elevation-z8 w-full">
-    <!-- Name Column -->
-    <ng-container matColumnDef="name">
-      <th mat-header-cell *matHeaderCellDef>Nombre</th>
-      <td mat-cell *matCellDef="let resident">
-        {{ resident.firstName }} {{ resident.lastName }}
-      </td>
-    </ng-container>
-
-    <!-- Apartment Column -->
-    <ng-container matColumnDef="apartment">
-      <th mat-header-cell *matHeaderCellDef>Apartamento</th>
-      <td mat-cell *matCellDef="let resident">
-        {{ resident.apartmentNumber }}
-      </td>
-    </ng-container>
-
-    <!-- Actions Column -->
-    <ng-container matColumnDef="actions">
-      <th mat-header-cell *matHeaderCellDef>Acciones</th>
-      <td mat-cell *matCellDef="let resident">
-        <button
-          mat-icon-button
-          [routerLink]="['/access-control/residents/edit', resident.id]"
-        >
-          <lucide-icon [img]="EditIcon"></lucide-icon>
-        </button>
-      </td>
-    </ng-container>
-
-    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-  </table>
 </div>

@@ -1,18 +1,16 @@
-<div class="p-6">
-  <div class="flex justify-between items-center mb-6">
-    <h1 class="text-2xl font-bold">Visitas</h1>
-    <button
-      mat-flat-button
-      color="primary"
-      [routerLink]="['/access-control/visits/register']"
-    >
-      <lucide-icon [img]="PlusCircleIcon"></lucide-icon>
-      Registrar Visita
-    </button>
-  </div>
+<app-page-header
+  title="Visitas"
+  subtitle="Registro y seguimiento de visitas al conjunto residencial"
+  [showButton]="true"
+  buttonText="Registrar Visita"
+  [buttonIcon]="PlusCircleIcon"
+  buttonColor="primary"
+  [buttonRoute]="['/access-control/visits/register']"
+></app-page-header>
 
-  <form [formGroup]="filterForm" (ngSubmit)="onFilter()" class="mb-6">
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+<div class="page-layout">
+  <form [formGroup]="filterForm" (ngSubmit)="onFilter()" class="filter-form">
+    <div class="filter-grid">
       <mat-form-field>
         <mat-label>Fecha de Inicio</mat-label>
         <input
@@ -45,7 +43,7 @@
   <table
     mat-table
     [dataSource]="visits().items"
-    class="mat-elevation-z8 w-full"
+    class="mat-elevation-z8 data-table"
   >
     <!-- Visitor Column -->
     <ng-container matColumnDef="visitor">

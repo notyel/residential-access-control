@@ -54,6 +54,195 @@ a {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 }
 
+// Grid system
+.dashboard-grid {
+  display: grid;
+  gap: 24px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (min-width: 1200px) {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  // Asegurar que todos los elementos del grid tengan la misma altura
+  > * {
+    height: 100%;
+  }
+}
+
+// Common page layout - Clase base estándar para todas las páginas
+.page-layout {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+
+  @media (max-width: 768px) {
+    padding: 16px;
+  }
+}
+
+// Backward compatibility - mantener .page-container como alias
+.page-container {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+
+  @media (max-width: 768px) {
+    padding: 16px;
+  }
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 16px;
+    align-items: flex-start;
+  }
+}
+
+.page-title {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: var(--text-color);
+  margin: 0;
+}
+
+// Form utilities
+.form-field-full {
+  width: 100%;
+  display: block;
+  margin-bottom: 16px;
+}
+
+// Data table full width
+.data-table {
+  width: 100%;
+}
+
+// Error message styling
+.error-message {
+  color: #ef4444;
+  margin: 16px 0;
+  font-size: 0.875rem;
+}
+
+// Filter form
+.filter-form {
+  margin-bottom: 24px;
+}
+
+.filter-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 16px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// Data table
+.data-table {
+  width: 100%;
+}
+
+// Recent visits section
+.recent-visits {
+  background-color: var(--card-background-color);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  margin-top: 32px;
+}
+
+.recent-visits-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+
+  h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-color);
+  }
+
+  .icon {
+    color: var(--primary-color);
+  }
+}
+
+.visits-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.visit-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  background-color: var(--background-color);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  transition: background-color 0.2s ease-in-out;
+
+  &:hover {
+    background-color: var(--card-background-color);
+  }
+}
+
+.visit-info {
+  display: flex;
+  flex-direction: column;
+
+  .visitor-name {
+    font-weight: 600;
+    color: var(--text-color);
+    margin-bottom: 4px;
+  }
+
+  .visit-time {
+    font-size: 0.875rem;
+    color: var(--secondary-color);
+  }
+}
+
+.visit-status {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+
+  &.active {
+    background-color: rgba(34, 197, 94, 0.1);
+    color: #22c55e;
+  }
+
+  &.completed {
+    background-color: rgba(156, 163, 175, 0.1);
+    color: #6b7280;
+  }
+}
+
 .form-group {
   margin-bottom: 1rem;
 }

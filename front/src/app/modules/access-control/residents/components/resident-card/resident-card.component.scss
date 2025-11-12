@@ -1,0 +1,151 @@
+// Resetear estilos de iconos para este componente
+lucide-icon {
+  // Usar flexbox para alineación perfecta con el texto
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  // Fallback con vertical-align para casos especiales
+  vertical-align: middle !important;
+
+  svg {
+    // Asegurar que el SVG se comporte como un bloque
+    display: block !important;
+
+    // Asegurar que el SVG mantenga sus dimensiones
+    flex-shrink: 0;
+  }
+}
+
+.resident-card {
+  background-color: var(--card-background-color);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  padding: 1.5rem;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    border-color: var(--primary-color);
+  }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+
+    .resident-avatar {
+      background: linear-gradient(
+        135deg,
+        var(--primary-color),
+        var(--primary-color)
+      );
+      color: white;
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      flex-shrink: 0;
+      margin-right: 1rem;
+    }
+
+    .resident-info {
+      flex: 1;
+
+      .resident-name {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin: 0 0 0.25rem 0;
+        line-height: 1.3;
+      }
+
+      .apartment-info {
+        display: flex;
+        align-items: center;
+        color: var(--primary-color);
+        font-weight: 500;
+        font-size: 0.95rem;
+        line-height: 1.2;
+
+        lucide-icon {
+          margin-right: 0.5rem;
+          // Eliminar vertical-align ya que ahora usa flexbox
+        }
+
+        span {
+          line-height: 1.2;
+        }
+      }
+    }
+  }
+
+  .card-content {
+    margin-bottom: 1rem;
+
+    .resident-details {
+      .detail-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+        color: var(--text-secondary);
+        line-height: 1.2;
+
+        lucide-icon {
+          margin-right: 0.75rem;
+          color: var(--text-secondary);
+          flex-shrink: 0;
+          // Eliminar vertical-align y dimensiones fijas ya que ahora usa flexbox
+        }
+
+        .detail-text {
+          font-size: 0.95rem;
+          line-height: 1.2;
+        }
+      }
+
+      // El role-badge ahora usa las clases del sistema de badges global
+      // Usar las clases .badge .badge-{variant} del tema
+    }
+  }
+
+  .card-actions {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border-color);
+  }
+}
+
+// Responsive design para móviles
+@media (max-width: 768px) {
+  .resident-card {
+    .card-header {
+      flex-direction: column;
+      align-items: flex-start;
+
+      .resident-avatar {
+        margin-right: 0;
+        margin-bottom: 0.75rem;
+      }
+
+      .resident-info {
+        .resident-name {
+          font-size: 1.1rem;
+        }
+      }
+    }
+
+    .card-content {
+      margin-bottom: 0.75rem;
+    }
+
+    .card-actions {
+      padding-top: 0.75rem;
+    }
+  }
+}

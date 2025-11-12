@@ -1,0 +1,38 @@
+<div class="resident-card">
+  <div class="card-header">
+    <div class="resident-avatar">
+      <lucide-icon [img]="UserIcon" size="32"></lucide-icon>
+    </div>
+    <div class="resident-info">
+      <h3 class="resident-name">
+        {{ resident.firstName }} {{ resident.lastName }}
+      </h3>
+      <div class="apartment-info">
+        <lucide-icon [img]="BuildingIcon" size="16"></lucide-icon>
+        <span>Apartamento {{ resident.apartmentNumber }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card-content">
+    <div class="resident-details">
+      <div class="detail-item">
+        <lucide-icon [img]="MailIcon" size="16"></lucide-icon>
+        <span class="detail-text">{{ resident.email }}</span>
+      </div>
+      <div class="badge badge-success">Propietario</div>
+    </div>
+  </div>
+
+  <div class="card-actions">
+    <button
+      mat-button
+      color="primary"
+      [routerLink]="['/access-control/residents/edit', resident.id]"
+      matTooltip="Editar residente"
+    >
+      <lucide-icon [img]="EditIcon" size="16"></lucide-icon>
+      Editar
+    </button>
+  </div>
+</div>

@@ -13,8 +13,9 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { LucideAngularModule, User, Save } from 'lucide-angular';
+import { LucideAngularModule, User, Save, ArrowLeft } from 'lucide-angular';
 import { AuthService } from '../../../../../core/services/auth.service';
+import { PageHeaderComponent } from '../../../components/page-header/page-header.component';
 
 @Component({
   selector: 'app-edit-resident',
@@ -29,6 +30,7 @@ import { AuthService } from '../../../../../core/services/auth.service';
     MatButtonModule,
     MatIconModule,
     LucideAngularModule,
+    PageHeaderComponent,
   ],
   templateUrl: './edit-resident.component.html',
   styleUrls: ['./edit-resident.component.scss'],
@@ -42,6 +44,7 @@ export class EditResidentComponent implements OnInit {
   // Icons
   UserIcon = User;
   SaveIcon = Save;
+  ArrowLeftIcon = ArrowLeft;
 
   private fb = inject(FormBuilder);
   private residentsService = inject(ResidentsService);

@@ -19,6 +19,7 @@ import {
 } from 'lucide-angular';
 import { PaginatedResultDto } from '../../../../../core/types/paginated-result.dto';
 import { Visit } from '../../../../../core/models/visit.model';
+import { PageHeaderComponent } from '../../../components/page-header/page-header.component';
 
 @Component({
   selector: 'app-visits',
@@ -36,6 +37,7 @@ import { Visit } from '../../../../../core/models/visit.model';
     MatNativeDateModule,
     MatPaginatorModule,
     LucideAngularModule,
+    PageHeaderComponent,
   ],
   templateUrl: './visits.component.html',
   styleUrls: ['./visits.component.scss'],

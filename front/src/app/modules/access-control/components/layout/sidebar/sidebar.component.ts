@@ -2,9 +2,9 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { LucideAngularModule, LogOut, Box } from 'lucide-angular';
-import { MenuService } from '../../../../core/services/menu.service';
-import { AuthService } from '../../../../core/services/auth.service';
-import { IconService } from '../../../../core/services/icon.service';
+import { MenuService } from '../../../../../core/services/menu.service';
+import { AuthService } from '../../../../../core/services/auth.service';
+import { IconService } from '../../../../../core/services/icon.service';
 
 @Component({
   selector: 'app-sidebar',

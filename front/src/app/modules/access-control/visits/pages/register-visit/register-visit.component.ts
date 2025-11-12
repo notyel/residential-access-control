@@ -14,10 +14,11 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
-import { LucideAngularModule, User, Save } from 'lucide-angular';
+import { LucideAngularModule, User, Save, ArrowLeft } from 'lucide-angular';
 import { ResidentsService } from '../../../residents/services/residents.service';
 import { User as Resident } from '../../../../../core/models/user.model';
 import { AuthService } from '../../../../../core/services/auth.service';
+import { PageHeaderComponent } from '../../../components/page-header/page-header.component';
 
 @Component({
   selector: 'app-register-visit',
@@ -33,6 +34,7 @@ import { AuthService } from '../../../../../core/services/auth.service';
     MatIconModule,
     MatSelectModule,
     LucideAngularModule,
+    PageHeaderComponent,
   ],
   templateUrl: './register-visit.component.html',
   styleUrls: ['./register-visit.component.scss'],
@@ -46,6 +48,7 @@ export class RegisterVisitComponent implements OnInit {
   // Icons
   UserIcon = User;
   SaveIcon = Save;
+  ArrowLeftIcon = ArrowLeft;
 
   private fb = inject(FormBuilder);
   private visitsService = inject(VisitsService);

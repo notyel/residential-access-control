@@ -1,0 +1,198 @@
+// Estilos para badges del sistema de diseño
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.375rem 0.75rem;
+  border-radius: 16px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  // Variantes de color
+  &.badge-primary {
+    background: linear-gradient(
+      135deg,
+      var(--primary-color),
+      var(--accent-color)
+    );
+    color: white;
+  }
+
+  &.badge-success {
+    background: linear-gradient(
+      135deg,
+      var(--success-color),
+      var(--success-light-color)
+    );
+    color: white;
+  }
+
+  &.badge-warning {
+    background: linear-gradient(
+      135deg,
+      var(--warning-color),
+      var(--warning-light-color)
+    );
+    color: white;
+  }
+
+  &.badge-danger {
+    background: linear-gradient(
+      135deg,
+      var(--danger-color),
+      var(--danger-light-color)
+    );
+    color: white;
+  }
+
+  &.badge-secondary {
+    background: linear-gradient(
+      135deg,
+      var(--secondary-color),
+      var(--secondary-light-color)
+    );
+    color: white;
+  }
+
+  &.badge-info {
+    background: linear-gradient(
+      135deg,
+      var(--info-color),
+      var(--info-light-color)
+    );
+    color: white;
+  }
+
+  &.badge-light {
+    background: linear-gradient(
+      135deg,
+      var(--light-color),
+      var(--light-secondary-color)
+    );
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+  }
+
+  &.badge-dark {
+    background: linear-gradient(
+      135deg,
+      var(--dark-color),
+      var(--dark-secondary-color)
+    );
+    color: white;
+  }
+
+  // Variantes de tamaño
+  &.badge-small {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.7rem;
+    border-radius: 12px;
+  }
+
+  &.badge-large {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    border-radius: 20px;
+  }
+
+  // Badge con icono
+  &.badge-with-icon {
+    gap: 0.375rem;
+
+    .badge-icon {
+      width: 14px;
+      height: 14px;
+      vertical-align: text-bottom;
+    }
+  }
+
+  // Badge outline
+  &.badge-outline {
+    background: transparent;
+    border: 1.5px solid;
+
+    &.badge-primary {
+      border-color: var(--primary-color);
+      color: var(--primary-color);
+    }
+
+    &.badge-success {
+      border-color: var(--success-color);
+      color: var(--success-color);
+    }
+
+    &.badge-warning {
+      border-color: var(--warning-color);
+      color: var(--warning-color);
+    }
+
+    &.badge-danger {
+      border-color: var(--danger-color);
+      color: var(--danger-color);
+    }
+
+    &.badge-secondary {
+      border-color: var(--secondary-color);
+      color: var(--secondary-color);
+    }
+
+    &.badge-info {
+      border-color: var(--info-color);
+      color: var(--info-color);
+    }
+  }
+
+  // Badge con estado de notificación (dot)
+  &.badge-dot {
+    position: relative;
+
+    &::before {
+      content: "";
+      position: absolute;
+      top: -2px;
+      right: -2px;
+      width: 8px;
+      height: 8px;
+      background: var(--danger-color);
+      border: 2px solid white;
+      border-radius: 50%;
+    }
+  }
+
+  // Badge para contadores
+  &.badge-counter {
+    min-width: 1.5rem;
+    height: 1.5rem;
+    padding: 0;
+    border-radius: 50%;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+}
+
+// Responsive badges para móviles
+@media (max-width: 768px) {
+  .badge {
+    font-size: 0.75rem;
+    padding: 0.3rem 0.6rem;
+
+    &.badge-small {
+      font-size: 0.65rem;
+      padding: 0.2rem 0.4rem;
+    }
+
+    &.badge-large {
+      font-size: 0.8rem;
+      padding: 0.4rem 0.8rem;
+    }
+  }
+}

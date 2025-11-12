@@ -1,0 +1,25 @@
+<div class="access-control-layout" [class.mobile]="isMobile">
+  <!-- Overlay para cerrar sidebar en móvil -->
+  <div
+    class="sidebar-overlay"
+    *ngIf="isMobile && sidebarVisible"
+    (click)="toggleSidebar()"
+  ></div>
+
+  <!-- Sidebar -->
+  <aside
+    class="sidebar-container"
+    [class.visible]="sidebarVisible"
+    [class.mobile]="isMobile"
+  >
+    <app-sidebar></app-sidebar>
+  </aside>
+
+  <!-- Contenido principal -->
+  <main class="access-control-main">
+    <app-header (toggleSidebar)="toggleSidebar()"></app-header>
+    <div class="access-control-content">
+      <router-outlet></router-outlet>
+    </div>
+  </main>
+</div>

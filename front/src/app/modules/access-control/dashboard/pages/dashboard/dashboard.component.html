@@ -1,32 +1,62 @@
-<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-  <mat-card>
-    <mat-card-header>
-      <mat-card-title>
-        <lucide-icon [img]="UsersIcon" class="icon"></lucide-icon>
-        Total de Visitas Este Mes
-      </mat-card-title>
-    </mat-card-header>
-    <mat-card-content>
-      <p class="text-4xl font-bold">{{ totalVisitsThisMonth() }}</p>
-    </mat-card-content>
-  </mat-card>
+<div class="page-layout">
+  <!-- Statistics Grid -->
+  <div class="dashboard-grid">
+    <app-stats-card
+      title="Visitantes Activos"
+      [value]="1"
+      description="Actualmente en el conjunto"
+      [icon]="UsersIcon"
+    >
+    </app-stats-card>
 
-  <mat-card>
-    <mat-card-header>
-      <mat-card-title>
-        <lucide-icon [img]="CalendarIcon" class="icon"></lucide-icon>
-        Últimas Visitas
-      </mat-card-title>
-    </mat-card-header>
-    <mat-card-content>
-      <mat-list>
-        @for (visit of latestVisits(); track $index) {
-        <mat-list-item>
-          <span matListItemTitle>{{ visit.visitorFullName }}</span>
-          <span matListItemLine>{{ visit.entryTime | date : "short" }}</span>
-        </mat-list-item>
-        }
-      </mat-list>
-    </mat-card-content>
-  </mat-card>
+    <app-stats-card
+      title="Visitas Hoy"
+      [value]="2"
+      description="Total de ingresos"
+      [icon]="CalendarIcon"
+    >
+    </app-stats-card>
+
+    <app-stats-card
+      title="Tiempo Promedio"
+      [value]="'30m'"
+      description="Duración de visitas"
+      [icon]="ClockIcon"
+    >
+    </app-stats-card>
+
+    <app-stats-card
+      title="Total Registros"
+      [value]="totalVisitsThisMonth()"
+      description="Visitas este mes"
+      [icon]="TrendingUpIcon"
+    >
+    </app-stats-card>
+  </div>
+
+  <!-- Recent Visits Section -->
+  <div class="recent-visits">
+    <div class="recent-visits-header">
+      <lucide-icon [img]="CalendarIcon" class="icon" [size]="24"></lucide-icon>
+      <h2>Últimas Visitas</h2>
+    </div>
+
+    <div class="visits-list">
+      @for (visit of latestVisits(); track $index) {
+      <div class="visit-item">
+        <div class="visit-info">
+          <span class="visitor-name">{{ visit.visitorFullName }}</span>
+          <span class="visit-time">{{
+            visit.entryTime | date : "short" : "es-CO"
+          }}</span>
+        </div>
+        <div class="visit-status active">Activo</div>
+      </div>
+      } @empty {
+      <div class="empty-state">
+        <p>No hay visitas recientes para mostrar</p>
+      </div>
+      }
+    </div>
+  </div>
 </div>

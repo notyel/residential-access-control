@@ -1,0 +1,35 @@
+<header class="dashboard-header">
+  <div class="header-content">
+    <!-- Botón de menú para móvil -->
+    <button
+      class="menu-toggle"
+      (click)="onToggleSidebar()"
+      type="button"
+      aria-label="Toggle sidebar"
+    >
+      <lucide-icon [img]="MenuIcon" [size]="24"></lucide-icon>
+    </button>
+
+    <div class="search-bar">
+      <lucide-icon [img]="SearchIcon" [size]="20"></lucide-icon>
+      <input type="text" placeholder="Buscar..." class="form-control" />
+    </div>
+
+    <div class="header-actions">
+      <!-- Theme Toggle Component -->
+      <app-theme-toggle></app-theme-toggle>
+
+      <div class="user-profile">
+        <img
+          src="/placeholder/user-profile.webp"
+          alt="Avatar del Usuario"
+          class="avatar"
+        />
+        <div class="user-info">
+          <span class="user-name">{{ displayName }}</span>
+          <span class="user-role">{{ userRole || "Usuario" }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>

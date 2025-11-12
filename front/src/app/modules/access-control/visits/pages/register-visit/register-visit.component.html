@@ -1,21 +1,28 @@
-<div class="p-6">
+<app-page-header
+  title="Registrar Visita"
+  subtitle="Registrar una nueva visita al conjunto residencial"
+  [showButton]="true"
+  buttonText="Cancelar"
+  [buttonIcon]="ArrowLeftIcon"
+  buttonColor="primary"
+  [buttonRoute]="['/access-control/visits']"
+></app-page-header>
+
+<div class="page-layout">
   <mat-card>
-    <mat-card-header>
-      <mat-card-title>Registrar Visita</mat-card-title>
-    </mat-card-header>
     <mat-card-content>
       <form [formGroup]="visitForm" (ngSubmit)="onSubmit()">
-        <mat-form-field class="w-full">
+        <mat-form-field class="form-field-full">
           <mat-label>Nombre del Visitante</mat-label>
           <input matInput formControlName="visitorName" />
         </mat-form-field>
 
-        <mat-form-field class="w-full">
+        <mat-form-field class="form-field-full">
           <mat-label>Motivo de la Visita</mat-label>
           <input matInput formControlName="reason" />
         </mat-form-field>
 
-        <mat-form-field class="w-full">
+        <mat-form-field class="form-field-full">
           <mat-label>Residente</mat-label>
           <mat-select formControlName="residentId">
             @for (resident of residents; track resident.id) {
@@ -27,7 +34,7 @@
           </mat-select>
         </mat-form-field>
 
-        <div *ngIf="errorMessage" class="text-red-500 my-4">
+        <div *ngIf="errorMessage" class="error-message">
           {{ errorMessage }}
         </div>
 

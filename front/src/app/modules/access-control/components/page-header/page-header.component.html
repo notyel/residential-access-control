@@ -1,0 +1,36 @@
+<div class="page-header">
+  <div class="header-left">
+    <h1 class="page-title">{{ title }}</h1>
+    <p class="page-subtitle" *ngIf="subtitle">{{ subtitle }}</p>
+  </div>
+
+  <div class="header-right">
+    <!-- Badge/Etiqueta -->
+    <div
+      class="badge"
+      *ngIf="showBadge && badgeText"
+      [ngClass]="'badge-' + badgeColor"
+    >
+      {{ badgeText }}
+    </div>
+
+    <!-- Botón -->
+    <button
+      *ngIf="showButton && buttonText"
+      mat-flat-button
+      [color]="buttonColor"
+      [routerLink]="buttonRoute"
+      class="header-button"
+    >
+      <lucide-icon
+        *ngIf="buttonIcon"
+        [img]="buttonIcon"
+        class="button-icon"
+      ></lucide-icon>
+      {{ buttonText }}
+    </button>
+
+    <!-- Content projection para botones personalizados -->
+    <ng-content select="[slot=button]"></ng-content>
+  </div>
+</div>
