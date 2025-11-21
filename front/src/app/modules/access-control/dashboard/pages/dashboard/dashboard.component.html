@@ -1,4 +1,28 @@
 <div class="page-layout">
+  <div class="dashboard-header">
+    <h1 class="page-title">Panel de Control</h1>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="quick-actions">
+    <div
+      class="action-card primary"
+      (click)="registerVisit()"
+      role="button"
+      tabindex="0"
+    >
+      <div class="action-icon">
+        <lucide-icon [img]="PlusIcon" [size]="32"></lucide-icon>
+      </div>
+      <div class="action-content">
+        <h3>Registrar Visita</h3>
+        <p>Dar acceso a un nuevo visitante</p>
+      </div>
+      <div class="action-arrow">
+        <lucide-icon [img]="ArrowRightIcon" [size]="24"></lucide-icon>
+      </div>
+    </div>
+  </div>
   <!-- Statistics Grid -->
   <div class="dashboard-grid">
     <app-stats-card
