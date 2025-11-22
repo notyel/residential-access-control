@@ -6,6 +6,7 @@ import { Visit } from '../../../../core/models/visit.model';
 import { AuthService } from '../../../../core/services/auth.service';
 import { ResponseModel } from '../../../../core/types/response.model';
 import { PaginatedResultDto } from '../../../../core/types/paginated-result.dto';
+import { CreateVisit } from '../../../../core/models/create-visit.model';
 
 export interface VisitFilter {
   pageNumber: number;
@@ -49,7 +50,7 @@ export class VisitsService {
     );
   }
 
-  createVisit(visit: Partial<Visit>): Observable<Visit> {
+  createVisit(visit: CreateVisit): Observable<Visit> {
     return this.http.post<ResponseModel<Visit>>(this.apiUrl, visit).pipe(
       map((response) => response.data!)
     );

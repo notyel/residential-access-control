@@ -1,7 +1,8 @@
+import { Person } from "./person.model";
+
 export interface Visit {
   id: string;
-  visitorName: string;
-  visitorId: string;
+  person: Person;
   vehiclePlate?: string;
   checkOut?: Date;
   residenceId: string;

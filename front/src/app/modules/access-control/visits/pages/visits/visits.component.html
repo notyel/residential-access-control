@@ -6,6 +6,7 @@
   [buttonIcon]="PlusCircleIcon"
   buttonColor="primary"
   [buttonRoute]="['/access-control/visits/register']"
+  *appIfRole="['Admin', 'Guard']"
 ></app-page-header>
 
 <div class="page-layout">
@@ -48,7 +49,17 @@
     <!-- Visitor Column -->
     <ng-container matColumnDef="visitor">
       <th mat-header-cell *matHeaderCellDef>Visitante</th>
-      <td mat-cell *matCellDef="let visit">{{ visit.visitorName }}</td>
+      <td mat-cell *matCellDef="let visit">
+        {{ visit.person.firstName }} {{ visit.person.lastName }}
+      </td>
+    </ng-container>
+
+    <!-- Document Column -->
+    <ng-container matColumnDef="document">
+      <th mat-header-cell *matHeaderCellDef>Documento</th>
+      <td mat-cell *matCellDef="let visit">
+        {{ visit.person.documentNumber }}
+      </td>
     </ng-container>
 
     <!-- Date Column -->

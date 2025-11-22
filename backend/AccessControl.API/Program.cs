@@ -55,6 +55,7 @@ builder.Services.AddScoped<IMenuService, MenuService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddScoped<IOwnersService, OwnersService>();
 builder.Services.AddScoped<IUsersService, UsersService>();
+builder.Services.AddScoped<IPersonService, PersonService>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
 // Add CORS services

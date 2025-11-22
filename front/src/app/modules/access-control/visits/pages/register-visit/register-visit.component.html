@@ -1,52 +1,118 @@
 <app-page-header
   title="Registrar Visita"
-  subtitle="Registrar una nueva visita al conjunto residencial"
-  [showButton]="true"
-  buttonText="Cancelar"
-  [buttonIcon]="ArrowLeftIcon"
-  buttonColor="primary"
-  [buttonRoute]="['/access-control/visits']"
+  subtitle="Registra una nueva visita a la residencia"
+  [showBackButton]="true"
+  backButtonUrl="/access-control/visits"
 ></app-page-header>
 
-<div class="page-layout">
+<div class="page-content">
   <mat-card>
     <mat-card-content>
       <form [formGroup]="visitForm" (ngSubmit)="onSubmit()">
-        <mat-form-field class="form-field-full">
-          <mat-label>Nombre del Visitante</mat-label>
-          <input matInput formControlName="visitorName" />
-        </mat-form-field>
-
-        <mat-form-field class="form-field-full">
-          <mat-label>Motivo de la Visita</mat-label>
-          <input matInput formControlName="reason" />
-        </mat-form-field>
-
-        <mat-form-field class="form-field-full">
-          <mat-label>Residente</mat-label>
-          <mat-select formControlName="residentId">
-            @for (resident of residents; track resident.id) {
-            <mat-option [value]="resident.id">
-              {{ resident.firstName }} {{ resident.lastName }} -
-              {{ resident.apartmentNumber }}
-            </mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
-
-        <div *ngIf="errorMessage" class="error-message">
-          {{ errorMessage }}
+        <!-- Person Search -->
+        <div class="search-container">
+          <mat-form-field appearance="outline" class="search-field">
+            <mat-label>Documento de Identidad</mat-label>
+            <input
+              matInput
+              formControlName="documentNumber"
+              placeholder="Buscar por documento"
+            />
+          </mat-form-field>
+          <button
+            mat-icon-button
+            color="primary"
+            (click)="onSearch()"
+            [disabled]="!visitForm.get('documentNumber')?.valid"
+          >
+            <mat-icon>search</mat-icon>
+          </button>
         </div>
 
-        <button
-          mat-flat-button
-          color="primary"
-          type="submit"
-          [disabled]="!visitForm.valid"
-        >
-          <lucide-icon [img]="SaveIcon"></lucide-icon>
-          Registrar Visita
-        </button>
+        <!-- Person Details (if found) -->
+        <div *ngIf="foundPerson" class="person-details">
+          <p>
+            <strong>Nombre:</strong> {{ foundPerson.firstName }} {{ foundPerson.lastName }}
+          </p>
+          <p><strong>Documento:</strong> {{ foundPerson.documentNumber }}</p>
+          <button mat-button color="warn" (click)="onClear()">
+            Limpiar
+          </button>
+        </div>
+
+        <!-- New Person Form (if not found) -->
+        <div *ngIf="showNewPersonForm" formGroupName="newPerson">
+          <div class="form-row">
+            <mat-form-field appearance="outline">
+              <mat-label>Nombres</mat-label>
+              <input matInput formControlName="firstName" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Apellidos</mat-label>
+              <input matInput formControlName="lastName" />
+            </mat-form-field>
+          </div>
+          <div class="form-row">
+            <mat-form-field appearance="outline">
+              <mat-label>Tipo de Documento</mat-label>
+              <input matInput formControlName="documentType" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Número de Teléfono</mat-label>
+              <input matInput formControlName="phone" />
+            </mat-form-field>
+          </div>
+          <div class="form-row">
+            <mat-form-field appearance="outline">
+              <mat-label>Email</mat-label>
+              <input matInput formControlName="email" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Tipo de Persona</mat-label>
+              <input matInput formControlName="personType" type="number" />
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- Visit Details -->
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Placa del Vehículo</mat-label>
+            <input matInput formControlName="vehiclePlate" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Residencia</mat-label>
+            <mat-select formControlName="residenceId">
+              <mat-option *ngFor="let resident of residents" [value]="resident.id">
+                {{ resident.firstName }} {{ resident.lastName }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <!-- Error Message -->
+        <p *ngIf="errorMessage" class="error-message">{{ errorMessage }}</p>
+
+        <!-- Actions -->
+        <div class="actions">
+          <a mat-stroked-button routerLink="/access-control/visits">
+            <mat-icon>
+              <lucide-icon name="arrow-left"></lucide-icon>
+            </mat-icon>
+            Cancelar
+          </a>
+          <button
+            mat-flat-button
+            color="primary"
+            type="submit"
+            [disabled]="!visitForm.valid || !canRegister"
+          >
+            <mat-icon>
+              <lucide-icon name="save"></lucide-icon>
+            </mat-icon>
+            Guardar
+          </button>
+        </div>
       </form>
     </mat-card-content>
   </mat-card>
