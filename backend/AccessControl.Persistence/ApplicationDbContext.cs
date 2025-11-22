@@ -16,6 +16,7 @@ namespace AccessControl.Persistence
         public DbSet<User> Users { get; set; }
         public DbSet<Residence> Residences { get; set; }
         public DbSet<Visit> Visits { get; set; }
+        public DbSet<Person> Persons { get; set; }
         public DbSet<Menu> Menus { get; set; }
         public DbSet<RoleMenu> RoleMenus { get; set; }
 
@@ -70,6 +71,13 @@ namespace AccessControl.Persistence
                 b.HasKey(v => v.Id);
                 b.HasOne(v => v.Residence).WithMany().HasForeignKey(v => v.ResidenceId);
                 b.HasOne(v => v.RegisteredBy).WithMany().HasForeignKey(v => v.RegisteredById);
+                b.HasOne(v => v.Person).WithMany().HasForeignKey(v => v.PersonId);
+            });
+
+            modelBuilder.Entity<Person>(b =>
+            {
+                b.HasKey(p => p.Id);
+                b.HasIndex(p => p.DocumentNumber).IsUnique();
             });
 
             modelBuilder.Entity<Menu>(b =>

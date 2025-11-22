@@ -1,5 +1,6 @@
 using AccessControl.Application.Interfaces;
 using AccessControl.Common.DTOs.Common;
+using AccessControl.Common.DTOs.Person;
 using AccessControl.Common.DTOs.Visit;
 using AccessControl.Domain.Entities;
 using AccessControl.Persistence.Generics;
@@ -14,18 +15,50 @@ namespace AccessControl.Application.Services
     public class VisitService : IVisitService
     {
         private readonly IRepository<Visit> _visitRepository;
+        private readonly IRepository<Person> _personRepository;
 
-        public VisitService(IRepository<Visit> visitRepository)
+        public VisitService(IRepository<Visit> visitRepository, IRepository<Person> personRepository)
         {
             _visitRepository = visitRepository;
+            _personRepository = personRepository;
         }
 
         public async Task<VisitDto> RegisterVisitAsync(CreateVisitDto dto, Guid userId)
         {
+            var personId = dto.PersonId;
+            if (personId == null)
+            {
+                if (dto.NewPerson == null)
+                {
+                    throw new ArgumentException("Either PersonId or NewPerson must be provided.");
+                }
+
+                var existingPerson = await _personRepository.GetQueryable()
+                    .FirstOrDefaultAsync(p => p.DocumentNumber == dto.NewPerson.DocumentNumber);
+
+                if (existingPerson != null)
+                {
+                    throw new InvalidOperationException("A person with this document number already exists.");
+                }
+
+                var newPerson = new Person
+                {
+                    FirstName = dto.NewPerson.FirstName,
+                    LastName = dto.NewPerson.LastName,
+                    DocumentType = dto.NewPerson.DocumentType,
+                    DocumentNumber = dto.NewPerson.DocumentNumber,
+                    Phone = dto.NewPerson.Phone,
+                    Email = dto.NewPerson.Email,
+                    PersonType = dto.NewPerson.PersonType
+                };
+
+                await _personRepository.AddAsync(newPerson);
+                personId = newPerson.Id;
+            }
+
             var visit = new Visit
             {
-                VisitorName = dto.VisitorName,
-                VisitorId = dto.VisitorId,
+                PersonId = personId.Value,
                 VehiclePlate = dto.VehiclePlate,
                 ResidenceId = dto.ResidenceId,
                 RegisteredById = userId
@@ -38,17 +71,20 @@ namespace AccessControl.Application.Services
 
         public async Task<VisitDto?> GetVisitByIdAsync(Guid visitId)
         {
-            var visit = await _visitRepository.GetByIdAsync(visitId);
+            var visit = await _visitRepository.GetQueryable()
+                .Include(v => v.Person)
+                .FirstOrDefaultAsync(v => v.Id == visitId);
             return visit != null ? MapVisitToDto(visit) : null;
         }
 
         public async Task<VisitDto?> UpdateVisitAsync(Guid visitId, UpdateVisitDto dto)
         {
-            var visit = await _visitRepository.GetByIdAsync(visitId);
+            var visit = await _visitRepository.GetQueryable()
+                .Include(v => v.Person)
+                .FirstOrDefaultAsync(v => v.Id == visitId);
             if (visit != null)
             {
-                visit.VisitorName = dto.VisitorName;
-                visit.VisitorId = dto.VisitorId;
+                visit.PersonId = dto.PersonId;
                 visit.VehiclePlate = dto.VehiclePlate;
                 await _visitRepository.SaveChangesAsync();
             }
@@ -69,7 +105,9 @@ namespace AccessControl.Application.Services
 
         public async Task<VisitDto?> CheckoutAsync(Guid visitId)
         {
-            var visit = await _visitRepository.GetByIdAsync(visitId);
+            var visit = await _visitRepository.GetQueryable()
+                .Include(v => v.Person)
+                .FirstOrDefaultAsync(v => v.Id == visitId);
             if (visit != null)
             {
                 visit.CheckOut = DateTime.UtcNow;
@@ -95,10 +133,32 @@ namespace AccessControl.Application.Services
             var totalCount = await query.CountAsync();
 
             var pagedVisits = await query
+                .Include(v => v.Person)
                 .OrderByDescending(v => v.CreatedAt)
                 .Skip((filter.PageNumber - 1) * filter.PageSize)
                 .Take(filter.PageSize)
-                .Select(v => MapVisitToDto(v))
+                .Select(v => new VisitDto
+                {
+                    Id = v.Id,
+                    Person = new PersonDto
+                    {
+                        Id = v.Person.Id,
+                        FirstName = v.Person.FirstName,
+                        LastName = v.Person.LastName,
+                        DocumentType = v.Person.DocumentType,
+                        DocumentNumber = v.Person.DocumentNumber,
+                        Phone = v.Person.Phone,
+                        Email = v.Person.Email,
+                        PersonType = v.Person.PersonType
+                    },
+                    VehiclePlate = v.VehiclePlate,
+                    CheckOut = v.CheckOut,
+                    ResidenceId = v.ResidenceId,
+                    ResidenceIdentifier = v.Residence.Identifier,
+                    RegisteredById = v.RegisteredById,
+                    RegisteredByFullName = $"{v.RegisteredBy.FirstName} {v.RegisteredBy.LastName}",
+                    CreatedAt = v.CreatedAt
+                })
                 .ToListAsync();
 
             return new PaginatedResultDto<VisitDto>
@@ -115,8 +175,17 @@ namespace AccessControl.Application.Services
             return new VisitDto
             {
                 Id = visit.Id,
-                VisitorName = visit.VisitorName,
-                VisitorId = visit.VisitorId,
+                Person = new PersonDto
+                {
+                    Id = visit.Person.Id,
+                    FirstName = visit.Person.FirstName,
+                    LastName = visit.Person.LastName,
+                    DocumentType = visit.Person.DocumentType,
+                    DocumentNumber = visit.Person.DocumentNumber,
+                    Phone = visit.Person.Phone,
+                    Email = visit.Person.Email,
+                    PersonType = visit.Person.PersonType
+                },
                 VehiclePlate = visit.VehiclePlate,
                 CheckOut = visit.CheckOut,
                 ResidenceId = visit.ResidenceId,

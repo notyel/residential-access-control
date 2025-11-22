@@ -1,11 +1,12 @@
 using System;
+using AccessControl.Common.DTOs.Person;
 
-namespace AccessControl.Shared.Dtos.Visit
+namespace AccessControl.Common.DTOs.Visit
 {
     public class CreateVisitDto
     {
-        public string VisitorName { get; set; } = null!;
-        public string VisitorId { get; set; } = null!;
+        public Guid? PersonId { get; set; }
+        public CreatePersonDto? NewPerson { get; set; }
         public string? VehiclePlate { get; set; }
         public Guid ResidenceId { get; set; }
     }

@@ -22,13 +22,14 @@ namespace AccessControl.Application.Services
         public async Task<IEnumerable<LatestVisitDto>> GetLatestVisitsAsync(int count)
         {
             return await _visitRepository.GetQueryable()
+                .Include(v => v.Person)
                 .Include(v => v.Residence)
                 .ThenInclude(r => r.Owner)
                 .OrderByDescending(v => v.CreatedAt)
                 .Take(count)
                 .Select(v => new LatestVisitDto
                 {
-                    VisitorFullName = v.VisitorName,
+                    VisitorFullName = $"{v.Person.FirstName} {v.Person.LastName}",
                     ResidentFullName = $"{v.Residence.Owner.FirstName} {v.Residence.Owner.LastName}",
                     EntryTime = DateTime.SpecifyKind(v.CreatedAt, DateTimeKind.Utc)
                 })
