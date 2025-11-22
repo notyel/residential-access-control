@@ -20,6 +20,7 @@ import {
 import { PaginatedResultDto } from '../../../../../core/types/paginated-result.dto';
 import { Visit } from '../../../../../core/models/visit.model';
 import { PageHeaderComponent } from '../../../components/page-header/page-header.component';
+import { IfRoleDirective } from '../../../../../shared/directives/if-role.directive';
 
 @Component({
   selector: 'app-visits',
@@ -38,6 +39,7 @@ import { PageHeaderComponent } from '../../../components/page-header/page-header
     MatPaginatorModule,
     LucideAngularModule,
     PageHeaderComponent,
+    IfRoleDirective,
   ],
   templateUrl: './visits.component.html',
   styleUrls: ['./visits.component.scss'],
@@ -48,7 +50,7 @@ export class VisitsComponent implements OnInit {
     totalCount: 0,
   });
   filterForm: FormGroup;
-  displayedColumns: string[] = ['visitor', 'date', 'actions'];
+  displayedColumns: string[] = ['visitor', 'document', 'date', 'actions'];
 
   // Paginator properties
   totalCount = 0;

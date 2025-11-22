@@ -25,14 +25,18 @@ namespace AccessControl.Application.Services
 
         public async Task<VisitDto> RegisterVisitAsync(CreateVisitDto dto, Guid userId)
         {
-            var personId = dto.PersonId;
-            if (personId == null)
-            {
-                if (dto.NewPerson == null)
-                {
-                    throw new ArgumentException("Either PersonId or NewPerson must be provided.");
-                }
+            Person person;
 
+            if (dto.PersonId.HasValue)
+            {
+                person = await _personRepository.GetByIdAsync(dto.PersonId.Value);
+                if (person == null)
+                {
+                    throw new ArgumentException("Invalid PersonId.");
+                }
+            }
+            else if (dto.NewPerson != null)
+            {
                 var existingPerson = await _personRepository.GetQueryable()
                     .FirstOrDefaultAsync(p => p.DocumentNumber == dto.NewPerson.DocumentNumber);
 
@@ -41,7 +45,7 @@ namespace AccessControl.Application.Services
                     throw new InvalidOperationException("A person with this document number already exists.");
                 }
 
-                var newPerson = new Person
+                person = new Person
                 {
                     FirstName = dto.NewPerson.FirstName,
                     LastName = dto.NewPerson.LastName,
@@ -51,14 +55,16 @@ namespace AccessControl.Application.Services
                     Email = dto.NewPerson.Email,
                     PersonType = dto.NewPerson.PersonType
                 };
-
-                await _personRepository.AddAsync(newPerson);
-                personId = newPerson.Id;
+                await _personRepository.AddAsync(person);
+            }
+            else
+            {
+                throw new ArgumentException("Either PersonId or NewPerson must be provided.");
             }
 
             var visit = new Visit
             {
-                PersonId = personId.Value,
+                Person = person,
                 VehiclePlate = dto.VehiclePlate,
                 ResidenceId = dto.ResidenceId,
                 RegisteredById = userId
@@ -66,6 +72,7 @@ namespace AccessControl.Application.Services
 
             await _visitRepository.AddAsync(visit);
             await _visitRepository.SaveChangesAsync();
+
             return MapVisitToDto(visit);
         }
 
@@ -73,6 +80,8 @@ namespace AccessControl.Application.Services
         {
             var visit = await _visitRepository.GetQueryable()
                 .Include(v => v.Person)
+                .Include(v => v.Residence)
+                .Include(v => v.RegisteredBy)
                 .FirstOrDefaultAsync(v => v.Id == visitId);
             return visit != null ? MapVisitToDto(visit) : null;
         }
