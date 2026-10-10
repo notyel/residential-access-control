@@ -1,17 +1,17 @@
 # Residential Access Control
 
-Solución para gestionar el ingreso y salida de personas en conjuntos residenciales o comunidades cerradas. Incluye una API desarrollada con .NET 8 y un frontend web (en desarrollo). Diseñado para ser usado en porterías o sistemas automatizados de vigilancia.
+Solución para gestionar el ingreso y salida de personas en conjuntos residenciales o comunidades cerradas. Incluye una API desarrollada con .NET 10 y un frontend web (en desarrollo). Diseñado para ser usado en porterías o sistemas automatizados de vigilancia.
 
 ## Características
 
 - Registro de residentes, visitantes, empleados y proveedores.
 - Historial centralizado de accesos.
-- API RESTful construida con .NET 8.
+- API RESTful construida con .NET 10.
 - Preparado para integración con Nginx y despliegue en entornos Linux.
 
 ## Tecnologías
 
-- **Backend:** .NET 8 Web API
+- **Backend:** .NET 10 Web API
 - **Base de datos:** PostgreSQL
 - **Frontend:** (en desarrollo)
 - **Despliegue:** Linux con Nginx y systemd
