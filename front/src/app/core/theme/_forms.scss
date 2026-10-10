@@ -25,6 +25,8 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: var(--app-space-4);
+  // Los campos con etiqueta externa (selector) alinean su caja con los demás
+  align-items: end;
 
   mat-form-field {
     width: 100%;
