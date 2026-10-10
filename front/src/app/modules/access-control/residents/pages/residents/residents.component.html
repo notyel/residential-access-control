@@ -1,39 +1,78 @@
-<app-page-header
-  title="Residentes"
-  subtitle="Gestión y administración de residentes registrados"
-  [showButton]="true"
-  buttonText="Nuevo Residente"
-  [buttonIcon]="PlusCircleIcon"
-  buttonColor="primary"
-  [buttonRoute]="['/access-control/residents/new']"
-></app-page-header>
+<ng-template appPageActions>
+  <a
+    mat-flat-button
+    routerLink="/access-control/residents/new"
+    aria-label="Nuevo residente"
+  >
+    <lucide-icon [img]="PlusIcon" [size]="18"></lucide-icon>
+    <span class="hide-compact">Nuevo residente</span>
+  </a>
+</ng-template>
 
-<div class="page-layout">
-  <div class="residents-container">
-    <div *ngIf="isLoading()" class="loading-state">
-      <div class="loading-spinner"></div>
-      <p>Cargando residentes...</p>
-    </div>
+<div class="app-page">
+  <app-data-table
+    [loading]="isLoading()"
+    [empty]="residents().length === 0"
+    [error]="error()"
+    emptyTitle="No hay residentes registrados"
+    emptyMessage="Comienza agregando el primer residente al sistema."
+    (retry)="loadResidents()"
+  >
+    <a
+      tableEmptyAction
+      mat-flat-button
+      routerLink="/access-control/residents/new"
+    >
+      <lucide-icon [img]="PlusIcon" [size]="18"></lucide-icon>
+      Agregar residente
+    </a>
 
-    <div *ngIf="!isLoading() && residents().length === 0" class="empty-state">
-      <lucide-icon [img]="UserIcon" size="64"></lucide-icon>
-      <h2>No hay residentes registrados</h2>
-      <p>Comienza agregando el primer residente al sistema</p>
-      <button
-        mat-flat-button
-        color="primary"
-        [routerLink]="['/access-control/residents/new']"
-      >
-        <lucide-icon [img]="PlusCircleIcon"></lucide-icon>
-        Agregar Primer Residente
-      </button>
-    </div>
+    <table class="app-table">
+      <thead>
+        <tr>
+          <th scope="col">Residente</th>
+          <th scope="col">Apartamento</th>
+          <th scope="col">Correo electrónico</th>
+          <th scope="col"><span class="sr-only">Acciones</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (resident of residents(); track resident.id) {
+        <tr>
+          <td class="cell-primary">
+            <div class="cell-person">
+              <span class="app-avatar" aria-hidden="true">{{
+                initials(resident.firstName, resident.lastName)
+              }}</span>
+              <span class="cell-ellipsis"
+                >{{ resident.firstName }} {{ resident.lastName }}</span
+              >
+            </div>
+          </td>
+          <td class="text-mono">{{ resident.apartmentNumber }}</td>
+          <td class="text-muted cell-ellipsis">{{ resident.email }}</td>
+          <td class="cell-actions cell-aside">
+            <a
+              class="app-icon-btn"
+              [routerLink]="['/access-control/residents/edit', resident.id]"
+              [attr.aria-label]="
+                'Editar a ' + resident.firstName + ' ' + resident.lastName
+              "
+            >
+              <lucide-icon [img]="EditIcon" [size]="18"></lucide-icon>
+            </a>
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
 
-    <div class="residents-grid" *ngIf="!isLoading() && residents().length > 0">
-      <app-resident-card
-        *ngFor="let resident of residents(); trackBy: trackByResident"
-        [resident]="resident"
-      ></app-resident-card>
-    </div>
-  </div>
+    <app-paginator
+      tableFooter
+      [length]="totalCount()"
+      [pageIndex]="pageIndex()"
+      [pageSize]="pageSize()"
+      (page)="onPageChange($event)"
+    ></app-paginator>
+  </app-data-table>
 </div>

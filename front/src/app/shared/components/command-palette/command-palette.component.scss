@@ -1,0 +1,122 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.palette {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.palette__search {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: var(--app-space-3);
+  height: 56px;
+  padding: 0 var(--app-space-4);
+  border-bottom: 1px solid var(--app-border);
+  color: var(--app-text-muted);
+}
+
+.palette__input {
+  flex: 1;
+  min-width: 0;
+  height: 44px;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--app-text);
+  font-size: 16px;
+
+  &::placeholder {
+    color: var(--app-text-muted);
+  }
+}
+
+.palette__esc {
+  cursor: pointer;
+}
+
+.palette__list {
+  flex: 1;
+  min-height: 0;
+  padding: var(--app-space-2);
+}
+
+.palette__group {
+  padding: var(--app-space-2) 10px var(--app-space-1);
+  color: var(--app-text-muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.palette__option {
+  display: flex;
+  align-items: center;
+  gap: var(--app-space-3);
+  min-height: 44px;
+  padding: 6px 10px;
+  border-radius: var(--app-radius);
+  cursor: pointer;
+
+  &.is-active {
+    background: var(--app-primary-soft);
+  }
+}
+
+.palette__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius);
+  background: var(--app-surface-2);
+  color: var(--app-text-muted);
+}
+
+.palette__text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.palette__title {
+  font-weight: 500;
+
+  mark {
+    background: transparent;
+    color: var(--app-primary-text);
+    font-weight: 600;
+  }
+}
+
+.palette__subtitle {
+  color: var(--app-text-muted);
+  font-size: 12px;
+}
+
+.palette__empty {
+  padding: var(--app-space-6) var(--app-space-4);
+  color: var(--app-text-muted);
+  text-align: center;
+}
+
+.palette__footer {
+  display: flex;
+  flex-shrink: 0;
+  gap: var(--app-space-4);
+  padding: 10px var(--app-space-4);
+  border-top: 1px solid var(--app-border);
+  background: var(--app-surface-2);
+  color: var(--app-text-muted);
+  font-size: 12px;
+}

@@ -1,0 +1,119 @@
+// Tabla de datos. Se usa sobre un <table class="app-table"> dentro de
+// <app-data-table>, que aporta el contenedor con scroll y el container query.
+
+.app-table {
+  width: 100%;
+  min-width: 720px;
+  border-collapse: separate;
+  border-spacing: 0;
+  text-align: left;
+
+  th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    height: 40px;
+    padding: 0 var(--app-space-4);
+    border-bottom: 1px solid var(--app-border);
+    background: var(--app-surface-2);
+    color: var(--app-text-muted);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    vertical-align: middle;
+    white-space: nowrap;
+  }
+
+  td {
+    height: 56px;
+    padding: 0 var(--app-space-4);
+    border-bottom: 1px solid var(--app-border);
+    vertical-align: middle;
+  }
+
+  tbody tr {
+    transition: background-color var(--app-transition);
+
+    &:hover {
+      background: var(--app-surface-2);
+    }
+  }
+
+  .cell-person {
+    display: flex;
+    align-items: center;
+    gap: var(--app-space-3);
+    min-width: 0;
+    font-weight: 500;
+  }
+
+  .cell-ellipsis {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .cell-numeric {
+    color: var(--app-text-muted);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .cell-actions {
+    width: 1%;
+    padding-right: var(--app-space-2);
+    text-align: right;
+    white-space: nowrap;
+  }
+}
+
+// En contenedores estrechos cada fila se presenta como tarjeta de dos columnas
+@container (max-width: 720px) {
+  .app-table {
+    display: block;
+    min-width: 0;
+
+    thead {
+      display: none;
+    }
+
+    tbody {
+      display: block;
+    }
+
+    tbody tr {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: var(--app-space-2) var(--app-space-3);
+      padding: 14px var(--app-space-4);
+      border-bottom: 1px solid var(--app-border);
+    }
+
+    td {
+      display: block;
+      order: 2;
+      height: auto;
+      padding: 0;
+      border: 0;
+    }
+
+    // Primera línea de la tarjeta: dato principal y, a su derecha, el secundario
+    .cell-primary {
+      order: 0;
+    }
+
+    .cell-aside {
+      order: 1;
+    }
+
+    .cell-optional {
+      display: none;
+    }
+
+    .cell-actions {
+      width: auto;
+    }
+  }
+}

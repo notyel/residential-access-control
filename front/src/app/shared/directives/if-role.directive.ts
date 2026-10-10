@@ -11,6 +11,7 @@ import { AuthService } from '../../core/services/auth.service';
 
 @Directive({
   selector: '[appIfRole]',
+  standalone: true,
 })
 export class IfRoleDirective implements OnInit, OnDestroy {
   @Input('appIfRole') roles!: string[];

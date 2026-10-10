@@ -1,0 +1,19 @@
+<header class="side-panel__header">
+  <h2 class="side-panel__title">{{ title() }}</h2>
+  <button
+    type="button"
+    class="app-icon-btn"
+    aria-label="Cerrar"
+    (click)="close()"
+  >
+    <lucide-icon [img]="CloseIcon" [size]="18"></lucide-icon>
+  </button>
+</header>
+
+<div class="side-panel__body app-scroll-y">
+  <ng-content></ng-content>
+</div>
+
+<footer class="side-panel__footer">
+  <ng-content select="[sidePanelFooter]"></ng-content>
+</footer>

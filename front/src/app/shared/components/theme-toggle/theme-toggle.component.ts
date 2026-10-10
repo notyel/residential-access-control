@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { ThemeService } from '../../../core/services/theme.service';
 import { LucideAngularModule, Sun, Moon } from 'lucide-angular';
 
@@ -7,18 +7,11 @@ import { LucideAngularModule, Sun, Moon } from 'lucide-angular';
   standalone: true,
   imports: [LucideAngularModule],
   templateUrl: './theme-toggle.component.html',
-  styleUrl: './theme-toggle.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ThemeToggleComponent {
-  themeService = inject(ThemeService);
+  readonly themeService = inject(ThemeService);
 
   readonly SunIcon = Sun;
   readonly MoonIcon = Moon;
-
-  toggleTheme() {
-    this.themeService.toggleTheme();
-  }
-  getIcon() {
-    return this.themeService.isDarkTheme() ? this.SunIcon : this.MoonIcon;
-  }
 }

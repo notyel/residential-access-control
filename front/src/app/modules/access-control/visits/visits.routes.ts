@@ -8,12 +8,19 @@ const VISITS_ROUTES: Routes = [
   {
     path: '',
     component: VisitsComponent,
+    title: 'Visitas',
+    data: { subtitle: 'Registro y seguimiento de ingresos' },
   },
   {
     path: 'register',
     component: RegisterVisitComponent,
     canActivate: [roleGuard],
-    data: { requiredRoles: [Role.Admin, Role.Guard] },
+    title: 'Registrar visita',
+    data: {
+      requiredRoles: [Role.Admin, Role.Guard],
+      backUrl: '/access-control/visits',
+      parent: { label: 'Visitas', url: '/access-control/visits' },
+    },
   },
 ];
 

@@ -1,0 +1,46 @@
+// Barras de desplazamiento discretas y coherentes con el tema.
+// El documento nunca hace scroll: solo las regiones internas.
+
+@mixin app-scroll($axis: both) {
+  @if $axis == y {
+    overflow-x: hidden;
+    overflow-y: auto;
+  } @else if $axis == x {
+    overflow-x: auto;
+    overflow-y: hidden;
+  } @else {
+    overflow: auto;
+  }
+
+  overscroll-behavior: contain;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--app-scrollbar) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--app-scrollbar);
+  background-clip: padding-box;
+  border: 3px solid transparent;
+  border-radius: 999px;
+}
+
+.app-scroll {
+  @include app-scroll;
+}
+
+.app-scroll-y {
+  @include app-scroll(y);
+}

@@ -1,0 +1,43 @@
+:host {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.side-panel__header {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: var(--app-space-3);
+  height: var(--app-topbar-height);
+  padding: 0 var(--app-space-2) 0 var(--app-space-5);
+  border-bottom: 1px solid var(--app-border);
+}
+
+.side-panel__title {
+  flex: 1;
+  font-size: 16px;
+}
+
+.side-panel__body {
+  flex: 1;
+  min-height: 0;
+  padding: var(--app-space-5);
+}
+
+.side-panel__footer {
+  display: flex;
+  flex-shrink: 0;
+  gap: 10px;
+  padding: var(--app-space-3) var(--app-space-5);
+  border-top: 1px solid var(--app-border);
+
+  &:empty {
+    display: none;
+  }
+
+  ::ng-deep > * {
+    flex: 1;
+  }
+}

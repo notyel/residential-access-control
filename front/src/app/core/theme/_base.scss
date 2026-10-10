@@ -1,9 +1,16 @@
+html,
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
-    Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-  background-color: var(--background-color);
-  color: var(--text-color);
-  line-height: 1.5;
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: var(--app-font);
+  font-size: 14px;
+  line-height: 1.45;
+  background-color: var(--app-bg);
+  color: var(--app-text);
+  -webkit-font-smoothing: antialiased;
 }
 
 h1,
@@ -12,12 +19,15 @@ h3,
 h4,
 h5,
 h6 {
-  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+strong {
   font-weight: 600;
 }
 
 a {
-  color: var(--primary-color);
+  color: var(--app-primary-text);
   text-decoration: none;
 
   &:hover {
@@ -25,243 +35,180 @@ a {
   }
 }
 
-.btn {
-  display: inline-block;
-  padding: 0.75rem 1.5rem;
-  border-radius: 0.5rem;
-  background-color: var(--primary-color);
-  color: #ffffff;
-  border: none;
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--app-focus-ring);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+// Texto solo para lectores de pantalla
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+// Se oculta en pantallas compactas (móvil)
+.hide-compact {
+  @media (max-width: 820px) {
+    display: none !important;
+  }
+}
+
+// Empuja lo que sigue hacia el final de una fila flex
+.app-spacer {
+  flex: 1;
+}
+
+.text-mono {
+  font-family: var(--app-font-mono);
+  font-size: 13px;
+}
+
+.text-muted {
+  color: var(--app-text-muted);
+}
+
+// Botón de icono propio (44px de área táctil)
+.app-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: var(--app-radius);
+  background: transparent;
+  color: var(--app-text-muted);
   cursor: pointer;
+  transition: background-color var(--app-transition),
+    color var(--app-transition);
+
+  &:hover {
+    background: var(--app-surface-2);
+    color: var(--app-text);
+    text-decoration: none;
+  }
+}
+
+// Contador sobre un botón de icono (p. ej. filtros activos)
+.app-icon-btn--badged {
+  position: relative;
+  color: var(--app-text);
+
+  .app-icon-btn__badge {
+    position: absolute;
+    top: 5px;
+    right: 3px;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    border-radius: 8px;
+    background: var(--app-primary);
+    color: var(--app-on-primary);
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 16px;
+    text-align: center;
+  }
+}
+
+// Avatar con iniciales
+.app-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--app-border);
+  border-radius: 50%;
+  background: var(--app-surface-2);
+  color: var(--app-text-muted);
+  font-size: 12px;
   font-weight: 600;
-  text-align: center;
-  transition: background-color 0.2s ease-in-out;
-
-  &:hover {
-    opacity: 0.9;
-  }
-
-  &.btn-secondary {
-    background-color: var(--secondary-color);
-  }
-}
-
-.card {
-  background-color: var(--card-background-color);
-  border: 1px solid var(--border-color);
-  border-radius: 0.5rem;
-  padding: 1.5rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-}
-
-// Grid system
-.dashboard-grid {
-  display: grid;
-  gap: 24px;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-
-  @media (min-width: 768px) {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  @media (min-width: 1200px) {
-    grid-template-columns: repeat(4, 1fr);
-  }
-
-  // Asegurar que todos los elementos del grid tengan la misma altura
-  > * {
-    height: 100%;
-  }
-}
-
-// Common page layout - Clase base estándar para todas las páginas
-.page-layout {
-  padding: 24px;
-  max-width: 1200px;
-  margin: 0 auto;
-  width: 100%;
-  box-sizing: border-box;
-
-  @media (max-width: 768px) {
-    padding: 16px;
-  }
-}
-
-// Backward compatibility - mantener .page-container como alias
-.page-container {
-  padding: 24px;
-  max-width: 1200px;
-  margin: 0 auto;
-  width: 100%;
-  box-sizing: border-box;
-
-  @media (max-width: 768px) {
-    padding: 16px;
-  }
-}
-
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-
-  @media (max-width: 768px) {
-    flex-direction: column;
-    gap: 16px;
-    align-items: flex-start;
-  }
-}
-
-.page-title {
-  font-size: 1.875rem;
-  font-weight: 700;
-  color: var(--text-color);
-  margin: 0;
-}
-
-// Form utilities
-.form-field-full {
-  width: 100%;
-  display: block;
-  margin-bottom: 16px;
-}
-
-// Data table full width
-.data-table {
-  width: 100%;
-}
-
-// Error message styling
-.error-message {
-  color: #ef4444;
-  margin: 16px 0;
-  font-size: 0.875rem;
-}
-
-// Filter form
-.filter-form {
-  margin-bottom: 24px;
-}
-
-.filter-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr auto;
-  gap: 16px;
-
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-  }
-}
-
-// Data table
-.data-table {
-  width: 100%;
-}
-
-// Recent visits section
-.recent-visits {
-  background-color: var(--card-background-color);
-  border: 1px solid var(--border-color);
-  border-radius: 12px;
-  padding: 24px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  margin-top: 32px;
-}
-
-.recent-visits-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 20px;
-
-  h2 {
-    margin: 0;
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: var(--text-color);
-  }
-
-  .icon {
-    color: var(--primary-color);
-  }
-}
-
-.visits-list {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.visit-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px;
-  background-color: var(--background-color);
-  border-radius: 8px;
-  border: 1px solid var(--border-color);
-  transition: background-color 0.2s ease-in-out;
-
-  &:hover {
-    background-color: var(--card-background-color);
-  }
-}
-
-.visit-info {
-  display: flex;
-  flex-direction: column;
-
-  .visitor-name {
-    font-weight: 600;
-    color: var(--text-color);
-    margin-bottom: 4px;
-  }
-
-  .visit-time {
-    font-size: 0.875rem;
-    color: var(--secondary-color);
-  }
-}
-
-.visit-status {
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 0.75rem;
-  font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+}
 
-  &.active {
-    background-color: rgba(34, 197, 94, 0.1);
-    color: #22c55e;
-  }
+// Tecla de atajo
+.app-kbd {
+  padding: 2px 6px;
+  border: 1px solid var(--app-border);
+  border-radius: 5px;
+  background: var(--app-surface);
+  color: var(--app-text-muted);
+  font-family: var(--app-font-mono);
+  font-size: 11px;
+  line-height: 1.4;
+  white-space: nowrap;
+}
 
-  &.completed {
-    background-color: rgba(156, 163, 175, 0.1);
-    color: #6b7280;
+// Filtro activo removible
+.app-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 28px;
+  padding: 0 4px 0 10px;
+  border-radius: 14px;
+  background: var(--app-primary-soft);
+  color: var(--app-primary-text);
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+
+  button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+
+    &:hover {
+      background: var(--app-surface);
+    }
   }
 }
 
-.form-group {
-  margin-bottom: 1rem;
+// Mensaje de error de servidor
+.app-alert {
+  display: flex;
+  align-items: center;
+  gap: var(--app-space-3);
+  padding: var(--app-space-3) var(--app-space-4);
+  border-radius: var(--app-radius);
+  background: var(--app-danger-bg);
+  color: var(--app-danger-text);
+  font-weight: 500;
 }
 
-.form-control {
-  display: block;
-  width: 100%;
-  padding: 0.75rem 1rem;
-  font-size: 1rem;
-  line-height: 1.5;
-  color: var(--text-color);
-  background-color: var(--background-color);
-  border: 1px solid var(--border-color);
-  border-radius: 0.5rem;
-  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-
-  &:focus {
-    outline: 0;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 0.2rem rgba(0, 102, 255, 0.25);
-  }
+// Tarjeta genérica
+.app-card {
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius-lg);
+  background: var(--app-surface);
 }

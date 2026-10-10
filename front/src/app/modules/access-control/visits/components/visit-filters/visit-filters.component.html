@@ -1,0 +1,47 @@
+<app-side-panel title="Filtros">
+  <form
+    id="visit-filters-form"
+    class="app-form-grid app-form-grid--single"
+    [formGroup]="form"
+    (ngSubmit)="apply()"
+  >
+    <mat-form-field>
+      <mat-label>Fecha de inicio</mat-label>
+      <input
+        matInput
+        [matDatepicker]="pickerStart"
+        [max]="form.controls.endDate.value"
+        formControlName="startDate"
+      />
+      <mat-datepicker-toggle
+        matIconSuffix
+        [for]="pickerStart"
+      ></mat-datepicker-toggle>
+      <mat-datepicker #pickerStart></mat-datepicker>
+      <mat-error>Fecha no válida</mat-error>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Fecha de fin</mat-label>
+      <input
+        matInput
+        [matDatepicker]="pickerEnd"
+        [min]="form.controls.startDate.value"
+        formControlName="endDate"
+      />
+      <mat-datepicker-toggle
+        matIconSuffix
+        [for]="pickerEnd"
+      ></mat-datepicker-toggle>
+      <mat-datepicker #pickerEnd></mat-datepicker>
+      <mat-error>Debe ser igual o posterior a la fecha de inicio</mat-error>
+    </mat-form-field>
+  </form>
+
+  <ng-container sidePanelFooter>
+    <button mat-stroked-button type="button" (click)="clear()">Limpiar</button>
+    <button mat-flat-button type="submit" form="visit-filters-form">
+      Aplicar filtros
+    </button>
+  </ng-container>
+</app-side-panel>

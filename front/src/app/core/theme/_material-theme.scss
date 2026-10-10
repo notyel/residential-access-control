@@ -2,78 +2,121 @@
 
 @use "@angular/material" as mat;
 
-// Definir tema Material 3 (Angular 18+)
-$my-theme: mat.define-theme(
+$app-font-family: "IBM Plex Sans, system-ui, -apple-system, Segoe UI, sans-serif";
+
+// Tema Material 3 (Angular 18+), claro y oscuro
+$light-theme: mat.define-theme(
   (
     color: (
       theme-type: light,
       primary: mat.$blue-palette,
       tertiary: mat.$orange-palette,
     ),
+    typography: (
+      plain-family: $app-font-family,
+      brand-family: $app-font-family,
+    ),
   )
 );
 
-// Aplicar el tema a todos los componentes
+$dark-theme: mat.define-theme(
+  (
+    color: (
+      theme-type: dark,
+      primary: mat.$blue-palette,
+      tertiary: mat.$orange-palette,
+    ),
+  )
+);
+
+$compact-fields: mat.define-theme(
+  (
+    density: (
+      scale: -2,
+    ),
+  )
+);
+
+@include mat.core();
+
 html {
-  @include mat.all-component-themes($my-theme);
+  @include mat.all-component-themes($light-theme);
+  @include mat.form-field-density($compact-fields);
+}
 
-  /************** COLOR SYSTEM OVERRIDES **************/
-  --mat-sys-primary: #0066ff;
-  --mat-sys-on-primary: #ffffff;
-  --mat-sys-primary-container: #e3f0ff;
-  --mat-sys-on-primary-container: #001258;
+html[data-theme="dark"] {
+  @include mat.all-component-colors($dark-theme);
+}
 
-  /************** Material Button Overrides **************/
+// Los componentes de Material toman sus colores de los tokens de la aplicación,
+// así siguen el tema activo sin reglas adicionales.
+html,
+html[data-theme="dark"] {
+  --mat-app-background-color: var(--app-bg);
+  --mat-app-text-color: var(--app-text);
 
-  /* mat-flat-button (Filled Button) */
-  --mat-filled-button-container-color: #0066ff;
-  --mat-filled-button-label-text-color: #ffffff;
-  --mat-filled-button-hover-state-layer-color: #0056d6;
-  --mat-filled-button-pressed-state-layer-color: #0044ad;
-  --mat-filled-button-disabled-container-color: #d0d7e2;
-  --mat-filled-button-disabled-label-text-color: rgba(255, 255, 255, 0.4);
+  /************** Botones **************/
+  --mdc-filled-button-container-color: var(--app-primary);
+  --mdc-filled-button-label-text-color: var(--app-on-primary);
+  --mdc-filled-button-disabled-container-color: var(--app-neutral-bg);
+  --mdc-filled-button-disabled-label-text-color: var(--app-text-muted);
+  --mdc-filled-button-container-shape: var(--app-radius);
+  --mat-filled-button-state-layer-color: var(--app-on-primary);
 
-  /* mat-raised-button (Elevated Button) */
-  --mat-elevated-button-container-color: #0066ff;
-  --mat-elevated-button-label-text-color: #ffffff;
+  --mdc-protected-button-container-color: var(--app-primary);
+  --mdc-protected-button-label-text-color: var(--app-on-primary);
+  --mdc-protected-button-container-shape: var(--app-radius);
 
-  /* mat-outlined-button */
-  --mat-outlined-button-outline-color: #0066ff;
-  --mat-outlined-button-label-text-color: #0066ff;
-  --mat-outlined-button-hover-state-layer-color: rgba(0, 102, 255, 0.08);
-  --mat-outlined-button-pressed-state-layer-color: rgba(0, 102, 255, 0.12);
+  --mdc-outlined-button-outline-color: var(--app-border-strong);
+  --mdc-outlined-button-label-text-color: var(--app-text);
+  --mdc-outlined-button-container-shape: var(--app-radius);
+  --mat-outlined-button-state-layer-color: var(--app-text);
 
-  /* mat-button (Text Button) */
-  --mat-text-button-label-text-color: #0066ff;
-  --mat-text-button-hover-state-layer-color: rgba(0, 102, 255, 0.08);
-  --mat-text-button-pressed-state-layer-color: rgba(0, 102, 255, 0.12);
+  --mdc-text-button-label-text-color: var(--app-primary-text);
+  --mdc-text-button-container-shape: var(--app-radius);
+  --mat-text-button-state-layer-color: var(--app-primary-text);
 
-  /* mat-icon-button */
-  --mat-icon-button-icon-color: #0066ff;
-  --mat-icon-button-hover-state-layer-color: rgba(0, 102, 255, 0.08);
+  --mdc-icon-button-icon-color: var(--app-text-muted);
+  --mat-icon-button-state-layer-color: var(--app-text);
 
-  /* Ripple & Focus */
-  --mat-mdc-button-focus-outline-color: #0066ff;
-  --mat-mdc-button-persistent-ripple-color: #0066ff;
+  /************** Campos de formulario **************/
+  --mdc-outlined-text-field-container-shape: var(--app-radius);
+  --mdc-outlined-text-field-outline-color: var(--app-border-strong);
+  --mdc-outlined-text-field-hover-outline-color: var(--app-text-muted);
+  --mdc-outlined-text-field-focus-outline-color: var(--app-primary);
+  --mdc-outlined-text-field-label-text-color: var(--app-text-muted);
+  --mdc-outlined-text-field-hover-label-text-color: var(--app-text);
+  --mdc-outlined-text-field-focus-label-text-color: var(--app-primary-text);
+  --mdc-outlined-text-field-input-text-color: var(--app-text);
+  --mdc-outlined-text-field-input-text-placeholder-color: var(--app-text-muted);
+  --mdc-outlined-text-field-caret-color: var(--app-primary);
+  --mdc-outlined-text-field-error-outline-color: var(--app-danger-text);
+  --mdc-outlined-text-field-error-focus-outline-color: var(--app-danger-text);
+  --mdc-outlined-text-field-error-hover-outline-color: var(--app-danger-text);
+  --mdc-outlined-text-field-error-label-text-color: var(--app-danger-text);
+  --mdc-outlined-text-field-error-focus-label-text-color: var(--app-danger-text);
+  --mdc-outlined-text-field-error-hover-label-text-color: var(--app-danger-text);
+  --mat-form-field-error-text-color: var(--app-danger-text);
+  --mat-form-field-leading-icon-color: var(--app-text-muted);
+  --mat-form-field-trailing-icon-color: var(--app-text-muted);
 
-  /************** BUTTON SHAPE (Border Radius) OVERRIDES **************/
-
-  /* Filled/Elevated Buttons Border Radius */
-  --mdc-filled-button-container-shape: 8px;
-  --mdc-elevated-button-container-shape: 8px;
-
-  /* Outlined Button Border Radius */
-  --mdc-outlined-button-container-shape: 8px;
-
-  /* Text Button Border Radius */
-  --mdc-text-button-container-shape: 8px;
-
-  /* Icon Button Border Radius */
-  --mdc-icon-button-state-layer-shape: 8px;
-
-  /************** FORM FIELD OVERRIDES **************/
-  --mdc-outlined-text-field-focus-outline-color: #0066ff;
-  --mdc-outlined-text-field-focus-label-text-color: #0066ff;
-  --mdc-filled-text-field-focus-active-indicator-color: #0066ff;
-  --mdc-filled-text-field-focus-label-text-color: #0066ff;
+  /************** Superficies emergentes **************/
+  --mat-select-panel-background-color: var(--app-surface);
+  --mat-select-enabled-trigger-text-color: var(--app-text);
+  --mat-select-enabled-arrow-color: var(--app-text-muted);
+  --mat-option-label-text-color: var(--app-text);
+  --mat-option-selected-state-label-text-color: var(--app-primary-text);
+  --mat-option-selected-state-layer-color: var(--app-primary-soft);
+  --mat-menu-container-color: var(--app-surface);
+  --mat-menu-item-label-text-color: var(--app-text);
+  --mat-datepicker-calendar-container-background-color: var(--app-surface);
+  --mat-datepicker-calendar-container-text-color: var(--app-text);
+  --mat-datepicker-calendar-date-text-color: var(--app-text);
+  --mat-datepicker-calendar-date-selected-state-background-color: var(
+    --app-primary
+  );
+  --mat-datepicker-calendar-date-selected-state-text-color: var(
+    --app-on-primary
+  );
+  --mat-datepicker-toggle-icon-color: var(--app-text-muted);
 }

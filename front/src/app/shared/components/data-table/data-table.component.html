@@ -1,0 +1,34 @@
+<div class="data-table__toolbar"><ng-content select="[tableToolbar]"></ng-content></div>
+
+<div class="data-table__body app-scroll" [attr.aria-busy]="loading()">
+  @if (error(); as message) {
+  <div class="data-table__state" role="alert">
+    <lucide-icon [img]="ErrorIcon" [size]="40"></lucide-icon>
+    <h2>No se pudo cargar la información</h2>
+    <p>{{ message }}</p>
+    <button mat-stroked-button type="button" (click)="retry.emit()">
+      Reintentar
+    </button>
+  </div>
+  } @else if (loading() && empty()) {
+  <div class="data-table__skeleton" aria-hidden="true">
+    @for (row of skeletonRows; track row) {
+    <div class="data-table__skeleton-row"><span></span><span></span><span></span></div>
+    }
+  </div>
+  <span class="sr-only" role="status">Cargando…</span>
+  } @else if (empty()) {
+  <div class="data-table__state">
+    <lucide-icon [img]="EmptyIcon" [size]="40"></lucide-icon>
+    <h2>{{ emptyTitle() }}</h2>
+    @if (emptyMessage()) {
+    <p>{{ emptyMessage() }}</p>
+    }
+    <ng-content select="[tableEmptyAction]"></ng-content>
+  </div>
+  } @else {
+  <ng-content></ng-content>
+  }
+</div>
+
+<div class="data-table__footer"><ng-content select="[tableFooter]"></ng-content></div>

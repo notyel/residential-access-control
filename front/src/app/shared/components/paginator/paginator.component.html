@@ -1,0 +1,38 @@
+<nav class="paginator" aria-label="Paginación">
+  <span class="paginator__range">{{ rangeLabel() }}</span>
+
+  <label class="paginator__size hide-compact">
+    Filas por página
+    <select [value]="pageSize()" (change)="changePageSize($event)">
+      @for (option of pageSizeOptions(); track option) {
+      <option [value]="option" [selected]="option === pageSize()">
+        {{ option }}
+      </option>
+      }
+    </select>
+  </label>
+
+  <div class="paginator__nav">
+    <button
+      type="button"
+      class="app-icon-btn"
+      aria-label="Página anterior"
+      [disabled]="!hasPrevious()"
+      (click)="goTo(pageIndex() - 1)"
+    >
+      <lucide-icon [img]="PreviousIcon" [size]="18"></lucide-icon>
+    </button>
+    <span class="paginator__page"
+      >Página {{ pageIndex() + 1 }} de {{ pageCount() }}</span
+    >
+    <button
+      type="button"
+      class="app-icon-btn"
+      aria-label="Página siguiente"
+      [disabled]="!hasNext()"
+      (click)="goTo(pageIndex() + 1)"
+    >
+      <lucide-icon [img]="NextIcon" [size]="18"></lucide-icon>
+    </button>
+  </div>
+</nav>

@@ -1,0 +1,41 @@
+:host {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 24px;
+  padding: 0 10px;
+  border-radius: 12px;
+  background: var(--app-neutral-bg);
+  color: var(--app-neutral-text);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border: 1.5px solid currentColor;
+  border-radius: 50%;
+}
+
+:host(.status-badge--success) {
+  background: var(--app-success-bg);
+  color: var(--app-success-text);
+}
+
+:host(.status-badge--warning) {
+  background: var(--app-warning-bg);
+  color: var(--app-warning-text);
+}
+
+:host(.status-badge--danger) {
+  background: var(--app-danger-bg);
+  color: var(--app-danger-text);
+}
+
+:host(.status-badge--success) .dot,
+:host(.status-badge--warning) .dot,
+:host(.status-badge--danger) .dot {
+  background: currentColor;
+}

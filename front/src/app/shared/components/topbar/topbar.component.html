@@ -1,0 +1,57 @@
+<header class="topbar" [class.topbar--has-back]="pageHeader.backUrl()">
+  <button
+    type="button"
+    class="app-icon-btn topbar__menu"
+    aria-label="Mostrar u ocultar el menú"
+    aria-controls="app-sidebar"
+    [attr.aria-expanded]="sidebarOpen()"
+    (click)="menuToggle.emit()"
+  >
+    <lucide-icon [img]="MenuIcon" [size]="18"></lucide-icon>
+  </button>
+
+  @if (pageHeader.backUrl(); as backUrl) {
+  <a class="app-icon-btn" [routerLink]="backUrl" aria-label="Volver">
+    <lucide-icon [img]="BackIcon" [size]="18"></lucide-icon>
+  </a>
+  }
+
+  <div class="topbar__titles">
+    @if (pageHeader.parent(); as parent) {
+    <a class="topbar__parent hide-compact" [routerLink]="parent.url">{{
+      parent.label
+    }}</a>
+    <span class="topbar__separator hide-compact" aria-hidden="true">/</span>
+    }
+    <h1 class="topbar__title">{{ pageHeader.title() }}</h1>
+    @if (pageHeader.subtitle(); as subtitle) {
+    <p class="topbar__subtitle">{{ subtitle }}</p>
+    }
+  </div>
+
+  <button
+    type="button"
+    class="topbar__search"
+    aria-label="Buscar"
+    aria-keyshortcuts="Control+K"
+    (click)="commandPalette.open()"
+  >
+    <lucide-icon [img]="SearchIcon" [size]="16"></lucide-icon>
+    <span class="topbar__search-text">Buscar…</span>
+    <kbd class="app-kbd">Ctrl K</kbd>
+  </button>
+
+  <div class="topbar__actions">
+    <ng-container [ngTemplateOutlet]="pageHeader.actions()"></ng-container>
+  </div>
+
+  <app-theme-toggle class="topbar__theme"></app-theme-toggle>
+
+  <div class="topbar__user">
+    <span class="app-avatar" aria-hidden="true">{{ userInitials() }}</span>
+    <span class="topbar__user-info">
+      <span class="topbar__user-name">{{ displayName() }}</span>
+      <span class="topbar__user-role">{{ userRole() }}</span>
+    </span>
+  </div>
+</header>

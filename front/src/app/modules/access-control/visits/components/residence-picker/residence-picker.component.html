@@ -1,0 +1,47 @@
+<app-side-panel title="Buscar residencia">
+  <div class="picker__search">
+    <lucide-icon [img]="SearchIcon" [size]="16"></lucide-icon>
+    <input
+      type="text"
+      aria-label="Buscar por apartamento o residente"
+      placeholder="Apartamento o residente"
+      autocomplete="off"
+      [value]="term()"
+      (input)="onInput($event)"
+    />
+  </div>
+
+  <p class="picker__count text-muted" role="status">
+    {{ results().length }}
+    {{ results().length === 1 ? "resultado" : "resultados" }}
+  </p>
+
+  <ul class="picker__list">
+    @for (resident of results(); track resident.id) {
+    <li>
+      <button
+        type="button"
+        class="picker__option"
+        [class.is-selected]="resident.id === data.selectedId"
+        [attr.aria-pressed]="resident.id === data.selectedId"
+        (click)="select(resident)"
+      >
+        <span class="picker__unit text-mono" aria-hidden="true">{{
+          resident.apartmentNumber
+        }}</span>
+        <span class="picker__text">
+          <span class="picker__title"
+            >Apartamento {{ resident.apartmentNumber }}</span
+          >
+          <span class="text-muted"
+            >{{ resident.firstName }} {{ resident.lastName }}</span
+          >
+        </span>
+        @if (resident.id === data.selectedId) {
+        <lucide-icon [img]="CheckIcon" [size]="18"></lucide-icon>
+        }
+      </button>
+    </li>
+    }
+  </ul>
+</app-side-panel>

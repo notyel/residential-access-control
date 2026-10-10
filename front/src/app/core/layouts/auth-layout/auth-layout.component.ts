@@ -13,8 +13,9 @@ import { RouterOutlet } from '@angular/router';
   styles: [
     `
       .auth-layout {
-        min-height: 100vh;
+        height: 100dvh;
         width: 100%;
+        overflow-y: auto;
       }
     `,
   ],

@@ -1,0 +1,100 @@
+// Tokens semánticos de diseño. Los componentes solo deben usar estas variables,
+// nunca colores literales.
+
+:root {
+  // Dimensiones
+  --app-topbar-height: 56px;
+  --app-sidebar-width: 232px;
+  --app-side-panel-width: 420px;
+  --app-control-height: 44px;
+
+  // Radios
+  --app-radius-sm: 6px;
+  --app-radius: 8px;
+  --app-radius-lg: 12px;
+  --app-radius-xl: 14px;
+
+  // Espaciado
+  --app-space-1: 4px;
+  --app-space-2: 8px;
+  --app-space-3: 12px;
+  --app-space-4: 16px;
+  --app-space-5: 20px;
+  --app-space-6: 24px;
+
+  // Tipografía
+  --app-font: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --app-font-mono: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas,
+    monospace;
+
+  --app-transition: 160ms ease;
+}
+
+:root,
+[data-theme="light"] {
+  color-scheme: light;
+
+  --app-bg: #f5f6f8;
+  --app-surface: #ffffff;
+  --app-surface-2: #f0f2f5;
+  --app-border: #e2e5ea;
+  --app-border-strong: #c3c9d2;
+  --app-text: #1a2230;
+  --app-text-muted: #5a6473;
+
+  --app-primary: #0066ff;
+  --app-primary-hover: #0052cc;
+  --app-on-primary: #ffffff;
+  --app-primary-text: #0052cc;
+  --app-primary-soft: #e8f0ff;
+
+  --app-success-bg: #e3f4e8;
+  --app-success-text: #17693a;
+  --app-neutral-bg: #eceef1;
+  --app-neutral-text: #4a5361;
+  --app-warning-bg: #fff3dc;
+  --app-warning-text: #8a5300;
+  --app-danger-bg: #fdeceb;
+  --app-danger-text: #b3261e;
+
+  --app-focus-ring: #0066ff;
+  --app-scrim: rgba(16, 22, 34, 0.45);
+  --app-shadow-sm: 0 1px 2px rgba(16, 22, 34, 0.06);
+  --app-shadow-lg: 0 18px 50px rgba(16, 22, 34, 0.18);
+  --app-scrollbar: #c5cad3;
+  --app-skeleton: #e6e9ee;
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --app-bg: #0e1014;
+  --app-surface: #16191e;
+  --app-surface-2: #1d2127;
+  --app-border: #2b3038;
+  --app-border-strong: #454c57;
+  --app-text: #e9ebef;
+  --app-text-muted: #9ca4b1;
+
+  --app-primary: #0066ff;
+  --app-primary-hover: #2b7fff;
+  --app-on-primary: #ffffff;
+  --app-primary-text: #7fb0ff;
+  --app-primary-soft: #14294d;
+
+  --app-success-bg: #12331f;
+  --app-success-text: #7ad69a;
+  --app-neutral-bg: #262b33;
+  --app-neutral-text: #b3bac5;
+  --app-warning-bg: #3a2a0c;
+  --app-warning-text: #ffc46b;
+  --app-danger-bg: #3a1614;
+  --app-danger-text: #ff8a80;
+
+  --app-focus-ring: #7fb0ff;
+  --app-scrim: rgba(0, 0, 0, 0.6);
+  --app-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --app-shadow-lg: 0 18px 50px rgba(0, 0, 0, 0.55);
+  --app-scrollbar: #3a414c;
+  --app-skeleton: #232830;
+}

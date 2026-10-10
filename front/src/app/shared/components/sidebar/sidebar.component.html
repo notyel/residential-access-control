@@ -1,0 +1,38 @@
+<div class="sidebar">
+  <a
+    class="sidebar__brand"
+    routerLink="/access-control/dashboard"
+    (click)="navigate.emit()"
+  >
+    <span class="sidebar__logo">
+      <lucide-icon [img]="Box" [size]="18"></lucide-icon>
+    </span>
+    <span>ZENTRYAL</span>
+  </a>
+
+  <nav class="sidebar__nav app-scroll-y" aria-label="Principal">
+    <ul>
+      @for (item of menuService.menuItems(); track item.path) {
+      <li>
+        <a
+          class="sidebar__link"
+          [routerLink]="item.path"
+          routerLinkActive="is-active"
+          ariaCurrentWhenActive="page"
+          (click)="navigate.emit()"
+        >
+          <lucide-icon [img]="getMenuIcon(item.icon)" [size]="18"></lucide-icon>
+          <span>{{ item.name }}</span>
+        </a>
+      </li>
+      }
+    </ul>
+  </nav>
+
+  <div class="sidebar__footer">
+    <button type="button" class="sidebar__link" (click)="logout()">
+      <lucide-icon [img]="LogOut" [size]="18"></lucide-icon>
+      <span>Cerrar sesión</span>
+    </button>
+  </div>
+</div>

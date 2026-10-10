@@ -1,40 +1,49 @@
-import { Injectable, signal } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
+import { Injectable, inject, signal } from '@angular/core';
+
+const STORAGE_KEY = 'isDarkTheme';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ThemeService {
-  isDarkTheme = signal<boolean>(false);
+  private readonly document = inject(DOCUMENT);
+
+  readonly isDarkTheme = signal<boolean>(this.readPreference());
 
   constructor() {
-    this.initializeTheme();
+    this.applyTheme();
   }
 
-  initializeTheme() {
-    if (typeof window !== 'undefined') {
-      const storedTheme = localStorage.getItem('isDarkTheme');
-      if (storedTheme) {
-        this.isDarkTheme.set(JSON.parse(storedTheme));
+  toggleTheme(): void {
+    this.isDarkTheme.update((dark) => !dark);
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(this.isDarkTheme()));
+    } catch {
+      // Sin almacenamiento disponible el tema solo dura la sesión
+    }
+    this.applyTheme();
+  }
+
+  private readPreference(): boolean {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored !== null) {
+        return JSON.parse(stored) === true;
       }
-      this.updateTheme();
+    } catch {
+      // Se usa la preferencia del sistema
     }
+    return (
+      this.document.defaultView?.matchMedia('(prefers-color-scheme: dark)')
+        .matches ?? false
+    );
   }
 
-  toggleTheme() {
-    this.isDarkTheme.set(!this.isDarkTheme());
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('isDarkTheme', JSON.stringify(this.isDarkTheme()));
-    }
-    this.updateTheme();
-  }
-
-  private updateTheme() {
-    if (typeof window !== 'undefined') {
-      if (this.isDarkTheme()) {
-        document.body.setAttribute('data-theme', 'dark');
-      } else {
-        document.body.setAttribute('data-theme', 'light');
-      }
-    }
+  private applyTheme(): void {
+    this.document.documentElement.setAttribute(
+      'data-theme',
+      this.isDarkTheme() ? 'dark' : 'light'
+    );
   }
 }

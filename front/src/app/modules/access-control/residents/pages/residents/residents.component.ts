@@ -1,62 +1,78 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
-import { User } from '../../../../../core/models/user.model';
-import { ResidentsService } from '../../services/residents.service';
-import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
 import {
-  LucideAngularModule,
-  User as UserIconLucide,
-  CirclePlus,
-} from 'lucide-angular';
-import { ResidentCardComponent } from '../../components/resident-card/resident-card.component';
-import { PageHeaderComponent } from '../../../components/page-header/page-header.component';
+  ChangeDetectionStrategy,
+  Component,
+  OnInit,
+  inject,
+  signal,
+} from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { MatButtonModule } from '@angular/material/button';
+import { LucideAngularModule, Plus, SquarePen } from 'lucide-angular';
+import { User } from '../../../../../core/models/user.model';
+import { DataTableComponent } from '../../../../../shared/components/data-table/data-table.component';
+import {
+  PageChange,
+  PaginatorComponent,
+} from '../../../../../shared/components/paginator/paginator.component';
+import { PageActionsDirective } from '../../../../../shared/directives/page-actions.directive';
+import { initials } from '../../../../../shared/utils/initials';
+import { ResidentsService } from '../../services/residents.service';
 
 @Component({
   selector: 'app-residents',
   standalone: true,
   imports: [
-    CommonModule,
-    RouterModule,
+    RouterLink,
     MatButtonModule,
-    MatIconModule,
     LucideAngularModule,
-    ResidentCardComponent,
-    PageHeaderComponent,
+    DataTableComponent,
+    PaginatorComponent,
+    PageActionsDirective,
   ],
   templateUrl: './residents.component.html',
-  styleUrls: ['./residents.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ResidentsComponent implements OnInit {
-  residents = signal<User[]>([]);
-  isLoading = signal(true);
+  private readonly residentsService = inject(ResidentsService);
 
-  // Icons
-  UserIcon = UserIconLucide;
-  PlusCircleIcon = CirclePlus;
+  readonly residents = signal<User[]>([]);
+  readonly totalCount = signal(0);
+  readonly pageIndex = signal(0);
+  readonly pageSize = signal(10);
+  readonly isLoading = signal(true);
+  readonly error = signal<string | null>(null);
 
-  private residentsService = inject(ResidentsService);
+  readonly PlusIcon = Plus;
+  readonly EditIcon = SquarePen;
+  readonly initials = initials;
 
   ngOnInit(): void {
     this.loadResidents();
   }
 
-  private loadResidents(): void {
-    this.isLoading.set(true);
-    this.residentsService.getResidents().subscribe({
-      next: (items) => {
-        this.residents.set(items);
-        this.isLoading.set(false);
-      },
-      error: (error) => {
-        console.error('Error loading residents:', error);
-        this.isLoading.set(false);
-      },
-    });
+  onPageChange(change: PageChange): void {
+    this.pageIndex.set(change.pageIndex);
+    this.pageSize.set(change.pageSize);
+    this.loadResidents();
   }
 
-  trackByResident(index: number, resident: User): string {
-    return resident.id;
+  loadResidents(): void {
+    this.isLoading.set(true);
+    this.error.set(null);
+
+    this.residentsService
+      .getResidentsPage(this.pageIndex() + 1, this.pageSize())
+      .subscribe({
+        next: (page) => {
+          this.residents.set(page.items);
+          this.totalCount.set(page.totalCount);
+          this.isLoading.set(false);
+        },
+        error: (error) => {
+          console.error('Error loading residents:', error);
+          this.error.set('Revisa tu conexión e inténtalo de nuevo.');
+          this.isLoading.set(false);
+        },
+      });
   }
 }

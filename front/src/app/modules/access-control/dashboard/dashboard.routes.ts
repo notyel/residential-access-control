@@ -5,6 +5,7 @@ const DASHBOARD_ROUTES: Routes = [
   {
     path: '',
     component: DashboardComponent,
+    title: 'Panel de control',
   },
 ];
 

@@ -1,0 +1,147 @@
+// Estructura estándar de formularios: grilla de página (contenido + columna
+// lateral opcional) y grilla de campos. Ambas se adaptan al ancho de su
+// contenedor, no al de la ventana.
+
+.app-form-page {
+  container: form-page / inline-size;
+}
+
+.app-form-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--app-space-5);
+  align-items: start;
+}
+
+.app-form-main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-space-5);
+  min-width: 0;
+  container: form-main / inline-size;
+}
+
+.app-form-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--app-space-4);
+
+  mat-form-field {
+    width: 100%;
+  }
+}
+
+@container form-page (min-width: 900px) {
+  .app-form-layout--aside {
+    grid-template-columns: minmax(0, 1fr) 320px;
+  }
+
+  .app-form-aside {
+    position: sticky;
+    top: 0;
+  }
+}
+
+@container form-main (min-width: 480px) {
+  .app-form-grid:not(.app-form-grid--single) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    > .span-2,
+    > .span-3 {
+      grid-column: 1 / -1;
+    }
+  }
+}
+
+@container form-main (min-width: 760px) {
+  .app-form-grid:not(.app-form-grid--single) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+
+    > .span-2 {
+      grid-column: span 2;
+    }
+  }
+}
+
+// Campo que abre un selector en el panel lateral
+.app-picker-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: var(--app-space-2);
+
+  &__label {
+    color: var(--app-text-muted);
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  &__button {
+    display: flex;
+    align-items: center;
+    gap: var(--app-space-3);
+    width: 100%;
+    height: 48px;
+    padding: 0 var(--app-space-3);
+    border: 1px solid var(--app-border-strong);
+    border-radius: var(--app-radius);
+    background: transparent;
+    color: var(--app-text);
+    font-size: 14px;
+    text-align: left;
+    cursor: pointer;
+
+    &:hover {
+      border-color: var(--app-text-muted);
+    }
+
+    &:disabled {
+      cursor: default;
+      opacity: 0.6;
+    }
+
+    > span {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    lucide-icon {
+      color: var(--app-text-muted);
+    }
+  }
+
+  &__placeholder {
+    color: var(--app-text-muted);
+  }
+}
+
+// Lista de pares etiqueta/valor (resumen)
+.app-summary {
+  padding: var(--app-space-2) var(--app-space-5) var(--app-space-4);
+
+  > div {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--app-space-4);
+    padding: 10px 0;
+    border-bottom: 1px solid var(--app-border);
+
+    &:last-child {
+      border-bottom: 0;
+    }
+  }
+
+  dt {
+    color: var(--app-text-muted);
+  }
+
+  dd {
+    min-width: 0;
+    font-weight: 500;
+    text-align: right;
+    overflow-wrap: anywhere;
+  }
+}

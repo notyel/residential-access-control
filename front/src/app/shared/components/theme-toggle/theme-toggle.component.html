@@ -1,3 +1,13 @@
-<button (click)="toggleTheme()" class="theme-toggle-btn">
-  <lucide-icon [img]="getIcon()" [size]="24"></lucide-icon>
+<button
+  type="button"
+  class="app-icon-btn"
+  (click)="themeService.toggleTheme()"
+  [attr.aria-label]="
+    themeService.isDarkTheme() ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'
+  "
+>
+  <lucide-icon
+    [img]="themeService.isDarkTheme() ? SunIcon : MoonIcon"
+    [size]="18"
+  ></lucide-icon>
 </button>

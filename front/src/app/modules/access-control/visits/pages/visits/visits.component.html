@@ -1,91 +1,120 @@
-<app-page-header
-  title="Visitas"
-  subtitle="Registro y seguimiento de visitas al conjunto residencial"
-  [showButton]="true"
-  buttonText="Registrar Visita"
-  [buttonIcon]="PlusCircleIcon"
-  buttonColor="primary"
-  [buttonRoute]="['/access-control/visits/register']"
-  *appIfRole="['Admin', 'Guard']"
-></app-page-header>
-
-<div class="page-layout">
-  <form [formGroup]="filterForm" (ngSubmit)="onFilter()" class="filter-form">
-    <div class="filter-grid">
-      <mat-form-field>
-        <mat-label>Fecha de Inicio</mat-label>
-        <input
-          matInput
-          [matDatepicker]="pickerStart"
-          formControlName="startDate"
-        />
-        <mat-datepicker-toggle
-          matSuffix
-          [for]="pickerStart"
-        ></mat-datepicker-toggle>
-        <mat-datepicker #pickerStart></mat-datepicker>
-      </mat-form-field>
-      <mat-form-field>
-        <mat-label>Fecha de Fin</mat-label>
-        <input matInput [matDatepicker]="pickerEnd" formControlName="endDate" />
-        <mat-datepicker-toggle
-          matSuffix
-          [for]="pickerEnd"
-        ></mat-datepicker-toggle>
-        <mat-datepicker #pickerEnd></mat-datepicker>
-      </mat-form-field>
-      <button mat-flat-button color="primary" type="submit">
-        <lucide-icon [img]="FilterIcon"></lucide-icon>
-        Filtrar
-      </button>
-    </div>
-  </form>
-
-  <table
-    mat-table
-    [dataSource]="visits().items"
-    class="mat-elevation-z8 data-table"
+<ng-template appPageActions>
+  <button
+    type="button"
+    class="app-icon-btn app-icon-btn--badged"
+    [attr.aria-label]="
+      filterChips().length
+        ? 'Abrir filtros, ' + filterChips().length + ' activos'
+        : 'Abrir filtros'
+    "
+    (click)="openFilters()"
   >
-    <!-- Visitor Column -->
-    <ng-container matColumnDef="visitor">
-      <th mat-header-cell *matHeaderCellDef>Visitante</th>
-      <td mat-cell *matCellDef="let visit">
-        {{ visit.person.firstName }} {{ visit.person.lastName }}
-      </td>
-    </ng-container>
-
-    <!-- Document Column -->
-    <ng-container matColumnDef="document">
-      <th mat-header-cell *matHeaderCellDef>Documento</th>
-      <td mat-cell *matCellDef="let visit">
-        {{ visit.person.documentNumber }}
-      </td>
-    </ng-container>
-
-    <!-- Date Column -->
-    <ng-container matColumnDef="date">
-      <th mat-header-cell *matHeaderCellDef>Fecha</th>
-      <td mat-cell *matCellDef="let visit">
-        {{ visit.createdAt | date : "short" }}
-      </td>
-    </ng-container>
-
-    <!-- Actions Column -->
-    <ng-container matColumnDef="actions">
-      <th mat-header-cell *matHeaderCellDef>Acciones</th>
-      <td mat-cell *matCellDef="let visit"></td>
-    </ng-container>
-
-    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-  </table>
-
-  <mat-paginator
-    [length]="totalCount"
-    [pageSize]="pageSize"
-    [pageIndex]="pageIndex"
-    (page)="onPageChange($event)"
-    aria-label="Seleccionar página"
+    <lucide-icon [img]="FilterIcon" [size]="18"></lucide-icon>
+    @if (filterChips().length) {
+    <span class="app-icon-btn__badge" aria-hidden="true">{{
+      filterChips().length
+    }}</span>
+    }
+  </button>
+  <a
+    mat-flat-button
+    routerLink="/access-control/visits/register"
+    aria-label="Registrar visita"
+    *appIfRole="['Admin', 'Guard']"
   >
-  </mat-paginator>
+    <lucide-icon [img]="PlusIcon" [size]="18"></lucide-icon>
+    <span class="hide-compact">Registrar visita</span>
+  </a>
+</ng-template>
+
+<div class="app-page">
+  <app-data-table
+    [loading]="loading()"
+    [empty]="visits().length === 0"
+    [error]="error()"
+    emptyTitle="No hay visitas"
+    [emptyMessage]="
+      filterChips().length
+        ? 'Ninguna visita coincide con los filtros aplicados.'
+        : 'Las visitas registradas aparecerán aquí.'
+    "
+    (retry)="loadVisits()"
+  >
+    <ng-container tableToolbar>
+      @if (filterChips().length) {
+      <span class="text-muted">Filtros</span>
+      @for (chip of filterChips(); track chip.key) {
+      <span class="app-chip">
+        {{ chip.label }}
+        <button
+          type="button"
+          [attr.aria-label]="'Quitar filtro ' + chip.label"
+          (click)="removeFilter(chip.key)"
+        >
+          <lucide-icon [img]="RemoveIcon" [size]="12"></lucide-icon>
+        </button>
+      </span>
+      } } @else {
+      <span class="text-muted">Sin filtros</span>
+      }
+      <span class="app-spacer"></span>
+      <span class="text-muted">
+        {{ totalCount() }} {{ totalCount() === 1 ? "visita" : "visitas" }}
+      </span>
+    </ng-container>
+
+    <table class="app-table">
+      <thead>
+        <tr>
+          <th scope="col">Visitante</th>
+          <th scope="col">Documento</th>
+          <th scope="col">Residencia</th>
+          <th scope="col">Placa</th>
+          <th scope="col">Ingreso</th>
+          <th scope="col">Estado</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (visit of visits(); track visit.id) {
+        <tr>
+          <td class="cell-primary">
+            <div class="cell-person">
+              <span class="app-avatar" aria-hidden="true">{{
+                initials(visit.person.firstName, visit.person.lastName)
+              }}</span>
+              <span class="cell-ellipsis"
+                >{{ visit.person.firstName }} {{ visit.person.lastName }}</span
+              >
+            </div>
+          </td>
+          <td class="cell-optional text-mono text-muted">
+            {{ visit.person.documentType }} {{ visit.person.documentNumber }}
+          </td>
+          <td>{{ visit.residenceIdentifier || "—" }}</td>
+          <td class="cell-optional text-mono">
+            {{ visit.vehiclePlate || "—" }}
+          </td>
+          <td class="cell-numeric">
+            {{ visit.createdAt | date : "d MMM, h:mm a" }}
+          </td>
+          <td class="cell-aside">
+            @if (visit.checkOut) {
+            <app-status-badge variant="neutral">Finalizada</app-status-badge>
+            } @else {
+            <app-status-badge variant="success">En sitio</app-status-badge>
+            }
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+
+    <app-paginator
+      tableFooter
+      [length]="totalCount()"
+      [pageIndex]="pageIndex()"
+      [pageSize]="pageSize()"
+      (page)="onPageChange($event)"
+    ></app-paginator>
+  </app-data-table>
 </div>

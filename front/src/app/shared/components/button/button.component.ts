@@ -32,7 +32,7 @@ import { CommonModule } from '@angular/common';
       }
 
       .btn-primary {
-        background-color: var(--primary-color);
+        background-color: var(--app-primary);
         color: white;
       }
 

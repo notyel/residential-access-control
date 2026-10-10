@@ -1,0 +1,77 @@
+<div class="palette">
+  <div class="palette__search">
+    <lucide-icon [img]="SearchIcon" [size]="18"></lucide-icon>
+    <input
+      type="text"
+      role="combobox"
+      class="palette__input"
+      placeholder="Buscar residentes, documentos o acciones…"
+      aria-label="Buscar"
+      aria-autocomplete="list"
+      aria-expanded="true"
+      aria-controls="palette-list"
+      [attr.aria-activedescendant]="activeId()"
+      autocomplete="off"
+      spellcheck="false"
+      [value]="term()"
+      (input)="onInput($event)"
+      (keydown)="onKeydown($event)"
+    />
+    <button type="button" class="app-kbd palette__esc" (click)="close()">
+      Esc
+    </button>
+  </div>
+
+  <div
+    #list
+    id="palette-list"
+    class="palette__list app-scroll-y"
+    role="listbox"
+    aria-label="Resultados"
+  >
+    @for (group of groups(); track group.name) {
+    <div role="group" [attr.aria-label]="group.name">
+      <div class="palette__group" aria-hidden="true">{{ group.name }}</div>
+      @for (item of group.items; track item.result.id) {
+      <div
+        class="palette__option"
+        role="option"
+        [id]="optionId(item.result)"
+        [class.is-active]="item.index === activeIndex()"
+        [attr.aria-selected]="item.index === activeIndex()"
+        (click)="run(item.result)"
+        (mousemove)="activeIndex.set(item.index)"
+      >
+        <span class="palette__icon">
+          <lucide-icon [img]="item.result.icon" [size]="16"></lucide-icon>
+        </span>
+        <span class="palette__text">
+          <span class="palette__title"
+            >{{ item.parts.before
+            }}<mark>{{ item.parts.match }}</mark
+            >{{ item.parts.after }}</span
+          >
+          @if (item.result.subtitle) {
+          <span class="palette__subtitle">{{ item.result.subtitle }}</span>
+          }
+        </span>
+        @if (item.index === activeIndex()) {
+        <kbd class="app-kbd hide-compact">Enter</kbd>
+        }
+      </div>
+      }
+    </div>
+    } @empty {
+    <p class="palette__empty" role="status">
+      @if (loading()) { Buscando… } @else { Sin resultados para «{{ term() }}».
+      Para encontrar una persona escribe su número de documento completo. }
+    </p>
+    }
+  </div>
+
+  <div class="palette__footer hide-compact">
+    <span><kbd class="app-kbd">↑↓</kbd> navegar</span>
+    <span><kbd class="app-kbd">Enter</kbd> abrir</span>
+    <span><kbd class="app-kbd">Esc</kbd> cerrar</span>
+  </div>
+</div>

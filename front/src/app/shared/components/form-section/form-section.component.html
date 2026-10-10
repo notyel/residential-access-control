@@ -1,0 +1,11 @@
+<section class="form-section app-card" [attr.aria-labelledby]="titleId">
+  <header class="form-section__header">
+    @if (step() !== null) {
+    <span class="form-section__step" aria-hidden="true">{{ step() }}</span>
+    }
+    <h2 class="form-section__title" [id]="titleId">{{ title() }}</h2>
+  </header>
+  <div class="form-section__body">
+    <ng-content></ng-content>
+  </div>
+</section>

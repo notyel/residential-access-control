@@ -5,6 +5,7 @@ const LOGIN_ROUTES: Routes = [
   {
     path: '',
     component: LoginComponent,
+    title: 'Iniciar sesión',
   },
 ];
 export default LOGIN_ROUTES;

@@ -1,25 +1,33 @@
-<div class="access-control-layout" [class.mobile]="isMobile">
-  <!-- Overlay para cerrar sidebar en móvil -->
-  <div
-    class="sidebar-overlay"
-    *ngIf="isMobile && sidebarVisible"
-    (click)="toggleSidebar()"
-  ></div>
+<a class="skip-link" href="#" (click)="skipToContent($event)"
+  >Saltar al contenido</a
+>
 
-  <!-- Sidebar -->
+<div
+  class="shell"
+  [class.shell--compact]="isCompact()"
+  [class.shell--sidebar-open]="sidebarOpen()"
+>
+  @if (isCompact() && sidebarOpen()) {
+  <div class="shell__scrim" (click)="closeOverlay()"></div>
+  }
+
   <aside
-    class="sidebar-container"
-    [class.visible]="sidebarVisible"
-    [class.mobile]="isMobile"
+    id="app-sidebar"
+    class="shell__sidebar"
+    [attr.inert]="sidebarOpen() ? null : ''"
+    [cdkTrapFocus]="isCompact() && sidebarOpen()"
+    [cdkTrapFocusAutoCapture]="isCompact() && sidebarOpen()"
   >
-    <app-sidebar></app-sidebar>
+    <app-sidebar (navigate)="closeOverlay()"></app-sidebar>
   </aside>
 
-  <!-- Contenido principal -->
-  <main class="access-control-main">
-    <app-header (toggleSidebar)="toggleSidebar()"></app-header>
-    <div class="access-control-content">
+  <div class="shell__main">
+    <app-topbar
+      [sidebarOpen]="sidebarOpen()"
+      (menuToggle)="toggleSidebar()"
+    ></app-topbar>
+    <main #main id="main-content" class="shell__content app-main" tabindex="-1">
       <router-outlet></router-outlet>
-    </div>
-  </main>
+    </main>
+  </div>
 </div>

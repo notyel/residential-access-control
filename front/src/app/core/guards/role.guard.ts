@@ -1,29 +1,23 @@
 import { inject } from '@angular/core';
 import { ActivatedRouteSnapshot, CanActivateFn, Router } from '@angular/router';
-import { map, take } from 'rxjs/operators';
-import { AuthService } from '../services/auth/auth.service';
+import { AuthService } from '../services/auth.service';
+import { Role } from '../models/user.model';
 
-export const roleGuard: CanActivateFn = (route: ActivatedRouteSnapshot, state) => {
+export const roleGuard: CanActivateFn = (route: ActivatedRouteSnapshot) => {
   const authService = inject(AuthService);
   const router = inject(Router);
-  const requiredRole = route.data['requiredRole'] as string;
+  const requiredRoles = route.data['requiredRoles'] as Role[] | undefined;
 
-  if (!requiredRole) {
-    console.error('Role guard requires a role to be specified');
+  if (!requiredRoles?.length) {
+    console.error('Role guard requires at least one role to be specified');
     return false;
   }
 
-  return authService.currentUser$.pipe(
-    take(1),
-    map(user => {
-      const hasRole = user?.roles.includes(requiredRole) ?? false;
-      
-      if (!hasRole) {
-        router.navigate(['/dashboard']);
-        return false;
-      }
-      
-      return true;
-    })
-  );
+  const user = authService.getUser();
+
+  if (!user || !requiredRoles.includes(user.role)) {
+    return router.createUrlTree(['/access-control/dashboard']);
+  }
+
+  return true;
 };

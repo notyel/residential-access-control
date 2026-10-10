@@ -1,0 +1,36 @@
+// Estructura de las páginas dentro de la shell.
+// El <main> de la shell es una columna flex de alto fijo: cada página decide
+// qué región interna hace scroll.
+
+.app-main > :not(router-outlet) {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+
+// Página cuyo contenido llena el alto disponible (p. ej. una tabla)
+.app-page {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--app-space-4);
+  min-height: 0;
+  padding: var(--app-space-4) var(--app-space-5) var(--app-space-5);
+
+  @media (max-width: 820px) {
+    padding: var(--app-space-3);
+  }
+}
+
+// Página que hace scroll completa (formularios, dashboard)
+.app-page--scroll {
+  display: block;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+
+  > * + * {
+    margin-top: var(--app-space-5);
+  }
+}
