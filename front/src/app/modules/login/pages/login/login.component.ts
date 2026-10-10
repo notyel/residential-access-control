@@ -11,7 +11,6 @@ import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   LucideAngularModule,
@@ -24,6 +23,7 @@ import {
 } from 'lucide-angular';
 import { AuthService } from '../../../../core/services/auth.service';
 import { apiErrorMessage } from '../../../../core/utils/api-error';
+import { NotificationService } from '../../../../shared/services/notifications/notification.service';
 
 @Component({
   selector: 'app-login',
@@ -36,7 +36,6 @@ import { apiErrorMessage } from '../../../../core/utils/api-error';
     MatInputModule,
     MatButtonModule,
     MatIconModule,
-    MatSnackBarModule,
     LucideAngularModule,
   ],
   templateUrl: './login.component.html',
@@ -60,7 +59,7 @@ export class LoginComponent {
     private router: Router,
     private route: ActivatedRoute,
     private authService: AuthService,
-    private snackBar: MatSnackBar
+    private notifications: NotificationService
   ) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -88,10 +87,8 @@ export class LoginComponent {
           this.router.navigateByUrl(this.returnUrl());
         },
         error: (error: any) => {
-          this.snackBar.open(
-            apiErrorMessage(error, 'No se pudo iniciar sesión.'),
-            'Cerrar',
-            { duration: 5000 }
+          this.notifications.error(
+            apiErrorMessage(error, 'No se pudo iniciar sesión.')
           );
           this.isLoading = false;
         },

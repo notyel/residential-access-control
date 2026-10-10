@@ -1,0 +1,505 @@
+// Avisos del sistema. Los tonos van como variables del host: en claro, los oscuros de cada
+// color; en oscuro, los claros. La superficie, el texto y el borde son los del tema
+// (`core/theme/_tokens.scss`). La banda usa el mismo relleno sólido en los dos temas, con
+// texto blanco.
+
+:host {
+  --nk-toast-surface: var(--app-surface, #ffffff);
+  --nk-toast-hover: var(--app-surface-2, #f0f2f5);
+  --nk-toast-border: var(--app-border, #e2e5ea);
+  --nk-toast-text: var(--app-text, #1a2230);
+  --nk-toast-muted: var(--app-text-muted, #5a6473);
+  --nk-toast-shadow: 0 16px 36px -14px rgba(16, 22, 34, 0.28), 0 2px 6px rgba(16, 22, 34, 0.08);
+
+  --nk-toast-success: #17693a;
+  --nk-toast-success-soft: var(--app-success-bg, #e3f4e8);
+  --nk-toast-error: #b3261e;
+  --nk-toast-error-soft: var(--app-danger-bg, #fdeceb);
+  --nk-toast-warning: #8a5300;
+  --nk-toast-warning-soft: var(--app-warning-bg, #fff3dc);
+  --nk-toast-info: #0052cc;
+  --nk-toast-info-soft: var(--app-primary-soft, #e8f0ff);
+  --nk-toast-primary: #0066ff;
+  --nk-toast-primary-soft: var(--app-primary-soft, #e8f0ff);
+
+  --nk-banner-success: #17693a;
+  --nk-banner-error: #b3261e;
+  --nk-banner-warning: #8a5300;
+  --nk-banner-info: #0052cc;
+  --nk-banner-primary: #0066ff;
+
+  --nk-toast-gap: 12px;
+  --nk-toast-edge: 16px;
+  --nk-toast-ease-out: cubic-bezier(0.21, 1.02, 0.73, 1);
+  --nk-toast-ease-pop: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  // Por encima de los diálogos de Material y del resto de overlays.
+  display: block;
+  height: 0;
+  position: relative;
+  z-index: 100000;
+}
+
+:host-context([data-theme='dark']) {
+  --nk-toast-surface: var(--app-surface, #16191e);
+  --nk-toast-hover: var(--app-surface-2, #1d2127);
+  --nk-toast-border: var(--app-border, #2b3038);
+  --nk-toast-text: var(--app-text, #e9ebef);
+  --nk-toast-muted: var(--app-text-muted, #9ca4b1);
+  --nk-toast-shadow: 0 18px 40px -14px rgba(0, 0, 0, 0.7), 0 2px 6px rgba(0, 0, 0, 0.35);
+
+  --nk-toast-success: #7ad69a;
+  --nk-toast-success-soft: rgba(122, 214, 154, 0.14);
+  --nk-toast-error: #ff8a80;
+  --nk-toast-error-soft: rgba(255, 138, 128, 0.15);
+  --nk-toast-warning: #ffc46b;
+  --nk-toast-warning-soft: rgba(255, 196, 107, 0.14);
+  --nk-toast-info: #7fb0ff;
+  --nk-toast-info-soft: rgba(127, 176, 255, 0.14);
+  --nk-toast-primary: #7fb0ff;
+  --nk-toast-primary-soft: rgba(127, 176, 255, 0.16);
+
+  --nk-banner-success: #1d7a49;
+  --nk-banner-error: #c63a32;
+  --nk-banner-warning: #96610d;
+  --nk-banner-info: #0b62c4;
+  --nk-banner-primary: #0057e0;
+}
+
+// Cada aviso lleva siempre la clase de su tono: la base no fija ninguno para no pisarlas.
+@each $kind in success, error, warning, info, primary {
+  .nk-toast--#{$kind} {
+    --tone: var(--nk-toast-#{$kind});
+    --tone-soft: var(--nk-toast-#{$kind}-soft);
+  }
+
+  .nk-banner--#{$kind} {
+    --solid: var(--nk-banner-#{$kind});
+  }
+}
+
+p {
+  margin: 0;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+}
+
+svg {
+  display: block;
+}
+
+// ─── Pila de la esquina ────────────────────────────────────────────────────
+
+.nk-toast-stack {
+  position: fixed;
+  top: var(--nk-toast-edge);
+  right: var(--nk-toast-edge);
+  width: min(380px, calc(100vw - 2 * var(--nk-toast-edge)));
+  display: flex;
+  flex-direction: column;
+  pointer-events: none;
+  transition: top 0.35s var(--nk-toast-ease-out);
+
+  // Con la banda arriba, la pila baja para no quedar debajo de ella.
+  &--below-banner {
+    top: calc(var(--nk-toast-edge) + 8px + 56px + var(--nk-toast-gap));
+  }
+}
+
+// La ranura es la que se pliega al salir: la rejilla pasa de 1fr a 0fr y la pila cierra el hueco.
+.nk-toast-slot {
+  display: grid;
+  grid-template-rows: 1fr;
+  padding-bottom: var(--nk-toast-gap);
+  pointer-events: auto;
+}
+
+.nk-toast {
+  position: relative;
+  min-height: 0;
+  box-sizing: border-box;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 10px 17px 14px;
+  border: 1px solid var(--nk-toast-border);
+  border-radius: 8px;
+  background: var(--nk-toast-surface);
+  box-shadow: var(--nk-toast-shadow);
+  color: var(--nk-toast-text);
+  overflow: hidden;
+}
+
+.nk-toast__icon {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 6px;
+  background: var(--tone-soft);
+  color: var(--tone);
+  // Salta cuando la tarjeta ya ha frenado contra el borde.
+  animation: nk-toast-pop 0.5s 0.4s var(--nk-toast-ease-pop) both;
+
+  svg {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.nk-toast-check {
+  stroke-dasharray: 24;
+  animation: nk-toast-draw 0.35s 0.65s ease-out both;
+}
+
+.nk-toast__body {
+  flex: 1;
+  min-width: 0;
+  padding-top: 1px;
+}
+
+.nk-toast__title {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  letter-spacing: 0.1px;
+}
+
+.nk-toast__message {
+  font-size: 13px;
+  line-height: 19px;
+  color: var(--nk-toast-muted);
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+.nk-toast__title + .nk-toast__message {
+  margin-top: 2px;
+}
+
+.nk-toast__action {
+  margin: 8px 0 0 -8px;
+  height: 30px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--tone);
+  font-size: 13px;
+  font-weight: 500;
+  transition: background-color 0.15s;
+
+  &:hover {
+    background: var(--tone-soft);
+  }
+}
+
+.nk-toast__close {
+  flex: none;
+  width: 32px;
+  height: 32px;
+  margin-top: -6px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--nk-toast-muted);
+  transition:
+    background-color 0.15s,
+    color 0.15s;
+
+  &:hover {
+    background: var(--nk-toast-hover);
+    color: var(--nk-toast-text);
+  }
+}
+
+.nk-toast__track {
+  position: absolute;
+  inset: auto 0 0;
+  height: 3px;
+  background: var(--tone-soft);
+}
+
+.nk-toast__bar {
+  position: absolute;
+  inset: 0;
+  background: var(--tone);
+  transform-origin: left;
+  animation: nk-toast-bar linear forwards;
+}
+
+.nk-toast--paused .nk-toast__bar,
+.nk-banner--paused .nk-banner__bar {
+  animation-play-state: paused;
+}
+
+// La marcha: la tarjeta sale disparada mientras la ranura se pliega y la pila cierra el hueco.
+.nk-toast-slot--leave {
+  overflow: hidden;
+  animation: nk-toast-slot-fold 0.3s forwards;
+
+  .nk-toast {
+    animation: nk-toast-bounce-out 0.3s forwards;
+  }
+}
+
+// ─── Banda central ─────────────────────────────────────────────────────────
+
+.nk-banner-zone {
+  position: fixed;
+  left: 0;
+  right: 0;
+  display: grid;
+  justify-items: center;
+  padding: 0 var(--nk-toast-edge);
+  pointer-events: none;
+
+  // La que sale y la que entra ocupan la misma celda: se cruzan en vez de empujarse.
+  > * {
+    grid-area: 1 / 1;
+  }
+
+  &--top {
+    top: calc(var(--nk-toast-edge) + 8px);
+    --from-y: -20px;
+  }
+
+  &--bottom {
+    bottom: calc(var(--nk-toast-edge) + 12px);
+    --from-y: 20px;
+  }
+}
+
+.nk-banner {
+  position: relative;
+  width: min(760px, 100%);
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 10px 12px 12px;
+  border-radius: 16px;
+  background: var(--solid);
+  color: #ffffff;
+  box-shadow: 0 20px 44px -16px rgba(0, 0, 0, 0.6);
+  overflow: hidden;
+  pointer-events: auto;
+}
+
+.nk-banner__icon {
+  flex: none;
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.18);
+  animation: nk-toast-pop 0.5s 0.15s var(--nk-toast-ease-pop) both;
+
+  svg {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.nk-banner__message {
+  flex: 1;
+  min-width: 0;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+
+  strong {
+    font-weight: 700;
+    margin-right: 4px;
+  }
+}
+
+.nk-banner__action {
+  flex: none;
+  height: 34px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+  transition: background-color 0.15s;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.28);
+  }
+}
+
+.nk-banner__close {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.85);
+  transition:
+    background-color 0.15s,
+    color 0.15s;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.14);
+    color: #ffffff;
+  }
+}
+
+.nk-banner__bar {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.55);
+  transform-origin: left;
+  animation: nk-toast-bar linear forwards;
+}
+
+.nk-banner--leave {
+  animation: nk-banner-out 0.28s cubic-bezier(0.4, 0, 1, 1) forwards;
+}
+
+.nk-toast__action:focus-visible,
+.nk-toast__close:focus-visible {
+  outline: 2px solid var(--tone);
+  outline-offset: 1px;
+}
+
+.nk-banner__action:focus-visible,
+.nk-banner__close:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 1px;
+}
+
+// En un teléfono la banda deja de ser una fila: el mensaje arriba, los botones debajo.
+@media (max-width: 520px) {
+  .nk-banner {
+    flex-wrap: wrap;
+  }
+
+  .nk-banner__message {
+    flex-basis: calc(100% - 46px - 48px);
+  }
+
+  .nk-banner__action {
+    order: 1;
+    margin-left: 46px;
+  }
+}
+
+// ─── Movimiento ────────────────────────────────────────────────────────────
+
+// Salida (bounceOutRight): toma impulso 20 px hacia dentro y sale disparada; después la ranura
+// se pliega para que la pila cierre el hueco.
+@keyframes nk-toast-bounce-out {
+  0% {
+    opacity: 1;
+    transform: none;
+  }
+  15% {
+    opacity: 1;
+    transform: translate3d(-20px, 0, 0);
+  }
+  55% {
+    opacity: 0;
+    transform: translate3d(120%, 0, 0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(120%, 0, 0);
+  }
+}
+
+@keyframes nk-toast-slot-fold {
+  0%,
+  55% {
+    grid-template-rows: 1fr;
+    padding-bottom: var(--nk-toast-gap);
+  }
+  100% {
+    grid-template-rows: 0fr;
+    padding-bottom: 0;
+  }
+}
+
+@keyframes nk-banner-out {
+  to {
+    opacity: 0;
+    transform: translateY(var(--from-y)) scale(0.98);
+  }
+}
+
+@keyframes nk-toast-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.12);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes nk-toast-draw {
+  from {
+    stroke-dashoffset: 24;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes nk-toast-bar {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+
+// Sin rebotes: la marcha es un fundido. La barra sigue contando.
+@media (prefers-reduced-motion: reduce) {
+  .nk-toast__icon,
+  .nk-banner__icon,
+  .nk-toast-check {
+    animation: none;
+  }
+
+  .nk-toast-slot--leave {
+    animation: none;
+
+    .nk-toast {
+      animation: nk-toast-fade-out 0.2s ease-in forwards;
+    }
+  }
+
+  .nk-banner--leave {
+    animation: nk-toast-fade-out 0.2s ease-in forwards;
+  }
+}
+
+@keyframes nk-toast-fade-out {
+  to {
+    opacity: 0;
+  }
+}
