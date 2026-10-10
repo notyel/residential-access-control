@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "skills": {
+    "angular-developer": {
+      "source": "angular/skills",
+      "sourceType": "github",
+      "skillPath": "angular-developer/SKILL.md",
+      "computedHash": "89eddb95251bd7bbccf54dda1a7b5ecae1630c00ca8b23bebd9fda1f48e2dfcb"
+    },
+    "dotnet-best-practices": {
+      "source": "github/awesome-copilot",
+      "sourceType": "github",
+      "skillPath": "skills/dotnet-best-practices/SKILL.md",
+      "computedHash": "9ef94db7f06c167d544369817e5a4415eeb7886dcff0d47026837a1aada260e3"
+    },
+    "dotnet-timezone": {
+      "source": "github/awesome-copilot",
+      "sourceType": "github",
+      "skillPath": "skills/dotnet-timezone/SKILL.md",
+      "computedHash": "e40ba5b26bc8b37e7d73a1d8b2e2e934657559948cd2eacd42916d4f6833a886"
+    }
+  }
+}
