@@ -106,6 +106,26 @@ filtros, búsqueda por comando, Registrar visita, Residentes (lista, alta, edici
 claro y oscuro y a 1440/1280/390px. El recorrido usó datos simulados en el navegador porque el
 navegador de pruebas no acepta el certificado local del API; falta una pasada contra el backend real.
 
+## Ajuste posterior: acciones flotantes y búsqueda como comando
+
+Diseño de referencia: https://claude.ai/artifact/Q4jwGb8NZJXfDeGbFhzDY8
+
+Sustituye lo descrito en HU-04 y HU-05 sobre dónde viven las acciones y cómo se ve la búsqueda:
+
+- **Acciones de página** (`appPageActions`): ya no se pintan en el navbar sino en una barra
+  flotante dentro del contenido, abajo a la derecha (`core/theme/_action-dock.scss`, montada en
+  `access-control-layout`). Con paginador en la página, la barra se coloca por encima de él. Una
+  acción se muestra como botón sólido; con varias aparece un contenedor, la principal (la última
+  del template) queda a la derecha y las demás se despliegan desde ella con una animación
+  escalonada, que se desactiva con `prefers-reduced-motion`.
+- **Herramientas del navbar** (`appPageTools`): directiva nueva para lo que sí se queda en la
+  barra superior, hoy el botón de filtros de las tablas.
+- **Búsqueda**: el navbar muestra un botón compacto (lupa + `Ctrl K`), sin apariencia de campo
+  de texto; en móvil, solo el icono.
+
+Pendiente de este ajuste: con tres o más acciones el diseño lleva las sobrantes a un menú "más";
+no está implementado porque ninguna pantalla tiene hoy más de dos.
+
 ## Definición de terminado (aplica a todas)
 
 - `ng build` sin errores ni advertencias nuevas.
