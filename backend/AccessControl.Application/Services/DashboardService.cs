@@ -13,10 +13,12 @@ namespace AccessControl.Application.Services
     public class DashboardService : IDashboardService
     {
         private readonly IRepository<Visit> _visitRepository;
+        private readonly IDateTimeService _dateTimeService;
 
-        public DashboardService(IRepository<Visit> visitRepository)
+        public DashboardService(IRepository<Visit> visitRepository, IDateTimeService dateTimeService)
         {
             _visitRepository = visitRepository;
+            _dateTimeService = dateTimeService;
         }
 
         public async Task<IEnumerable<LatestVisitDto>> GetLatestVisitsAsync(int count)
@@ -31,22 +33,18 @@ namespace AccessControl.Application.Services
                 {
                     VisitorFullName = $"{v.Person.FirstName} {v.Person.LastName}",
                     ResidentFullName = $"{v.Residence.Owner.FirstName} {v.Residence.Owner.LastName}",
-                    EntryTime = DateTime.SpecifyKind(v.CreatedAt, DateTimeKind.Utc)
+                    EntryTime = v.CreatedAt
                 })
                 .ToListAsync();
         }
 
         public async Task<int> GetTotalVisitsThisMonthAsync()
         {
-            var today = DateTime.UtcNow;
-            // construct month range with explicit Utc kind to avoid Npgsql rejecting unspecified DateTime kinds
-            var firstDayOfMonthUtc = new DateTime(today.Year, today.Month, 1, 0, 0, 0, DateTimeKind.Utc);
-            var firstDayOfNextMonthUtc = firstDayOfMonthUtc.AddMonths(1);
-            // last moment of current month
-            var lastMomentOfMonthUtc = firstDayOfNextMonthUtc.AddTicks(-1);
+            // month boundaries follow the configured business time zone, compared in UTC
+            var (startUtc, endUtc) = _dateTimeService.GetCurrentMonthRangeUtc();
 
             return await _visitRepository.GetQueryable()
-                .CountAsync(v => v.CreatedAt >= firstDayOfMonthUtc && v.CreatedAt <= lastMomentOfMonthUtc);
+                .CountAsync(v => v.CreatedAt >= startUtc && v.CreatedAt < endUtc);
         }
     }
 }

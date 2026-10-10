@@ -7,6 +7,9 @@ namespace AccessControl.Persistence
 {
     public static class DataSeeder
     {
+        // fixed UTC value: DateTime.UtcNow here would change the model on every build
+        private static readonly DateTime SeedDate = new DateTime(2025, 11, 21, 0, 0, 0, DateTimeKind.Utc);
+
         public static void Seed(ModelBuilder modelBuilder)
         {
             var adminUserId = Guid.NewGuid();
@@ -24,7 +27,7 @@ namespace AccessControl.Persistence
                     PasswordHash = BCrypt.Net.BCrypt.HashPassword("AdminPass123!"),
                     Role = Role.Admin,
                     ApartmentNumber = "001",
-                    CreatedAt = DateTime.UtcNow
+                    CreatedAt = SeedDate
                 },
                 new User
                 {
@@ -35,7 +38,7 @@ namespace AccessControl.Persistence
                     PasswordHash = BCrypt.Net.BCrypt.HashPassword("OwnerPass123!"),
                     Role = Role.Owner,
                     ApartmentNumber = "101",
-                    CreatedAt = DateTime.UtcNow
+                    CreatedAt = SeedDate
                 },
                 new User
                 {
@@ -46,7 +49,7 @@ namespace AccessControl.Persistence
                     PasswordHash = BCrypt.Net.BCrypt.HashPassword("GuardPass123!"),
                     Role = Role.Guard,
                     ApartmentNumber = "002",
-                    CreatedAt = DateTime.UtcNow
+                    CreatedAt = SeedDate
                 }
             );
 
@@ -56,7 +59,7 @@ namespace AccessControl.Persistence
                     Id = residenceId,
                     Identifier = "RES-001",
                     OwnerId = ownerUserId,
-                    CreatedAt = DateTime.UtcNow
+                    CreatedAt = SeedDate
                 }
             );
 
@@ -65,9 +68,9 @@ namespace AccessControl.Persistence
             var menuId3 = Guid.NewGuid();
 
             modelBuilder.Entity<Menu>().HasData(
-                new Menu { Id = menuId1, Name = "Dashboard", Path = "/dashboard", Icon = "LayoutDashboard", Order = 1, CreatedAt = DateTime.UtcNow },
-                new Menu { Id = menuId2, Name = "Visits", Path = "/visits", Icon = "CarFront", Order = 2, CreatedAt = DateTime.UtcNow },
-                new Menu { Id = menuId3, Name = "Users", Path = "/users", Icon = "Users", Order = 3, CreatedAt = DateTime.UtcNow }
+                new Menu { Id = menuId1, Name = "Dashboard", Path = "/dashboard", Icon = "LayoutDashboard", Order = 1, CreatedAt = SeedDate },
+                new Menu { Id = menuId2, Name = "Visits", Path = "/visits", Icon = "CarFront", Order = 2, CreatedAt = SeedDate },
+                new Menu { Id = menuId3, Name = "Users", Path = "/users", Icon = "Users", Order = 3, CreatedAt = SeedDate }
             );
 
             modelBuilder.Entity<RoleMenu>().HasData(

@@ -16,11 +16,13 @@ namespace AccessControl.Application.Services
     {
         private readonly IRepository<Visit> _visitRepository;
         private readonly IRepository<Person> _personRepository;
+        private readonly IDateTimeService _dateTimeService;
 
-        public VisitService(IRepository<Visit> visitRepository, IRepository<Person> personRepository)
+        public VisitService(IRepository<Visit> visitRepository, IRepository<Person> personRepository, IDateTimeService dateTimeService)
         {
             _visitRepository = visitRepository;
             _personRepository = personRepository;
+            _dateTimeService = dateTimeService;
         }
 
         public async Task<VisitDto> RegisterVisitAsync(CreateVisitDto dto, Guid userId)
@@ -119,7 +121,7 @@ namespace AccessControl.Application.Services
                 .FirstOrDefaultAsync(v => v.Id == visitId);
             if (visit != null)
             {
-                visit.CheckOut = DateTime.UtcNow;
+                visit.CheckOut = _dateTimeService.UtcNow;
                 await _visitRepository.SaveChangesAsync();
             }
             return visit != null ? MapVisitToDto(visit) : null;
@@ -131,12 +133,14 @@ namespace AccessControl.Application.Services
 
             if (filter.StartDate.HasValue)
             {
-                query = query.Where(v => v.CreatedAt >= filter.StartDate.Value);
+                var startUtc = _dateTimeService.ToUtc(filter.StartDate.Value);
+                query = query.Where(v => v.CreatedAt >= startUtc);
             }
 
             if (filter.EndDate.HasValue)
             {
-                query = query.Where(v => v.CreatedAt <= filter.EndDate.Value);
+                var endUtc = _dateTimeService.ToUtc(filter.EndDate.Value);
+                query = query.Where(v => v.CreatedAt <= endUtc);
             }
 
             var totalCount = await query.CountAsync();

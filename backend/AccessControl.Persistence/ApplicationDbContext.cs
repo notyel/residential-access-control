@@ -20,36 +20,26 @@ namespace AccessControl.Persistence
         public DbSet<Menu> Menus { get; set; }
         public DbSet<RoleMenu> RoleMenus { get; set; }
 
+        // Every DateTime/DateTime? column is stored as UTC in "timestamp with time zone"
+        protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+        {
+            configurationBuilder.Properties<DateTime>()
+                .HaveConversion<UtcDateTimeConverter>()
+                .HaveColumnType("timestamp with time zone");
+        }
+
+        // Local values are converted to UTC (not just relabeled); values without Kind are assumed to already be UTC
+        private sealed class UtcDateTimeConverter : ValueConverter<DateTime, DateTime>
+        {
+            public UtcDateTimeConverter() : base(
+                v => v.Kind == DateTimeKind.Local ? v.ToUniversalTime() : DateTime.SpecifyKind(v, DateTimeKind.Utc),
+                v => DateTime.SpecifyKind(v, DateTimeKind.Utc))
+            {
+            }
+        }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Global converters to ensure DateTime kinds are Utc when sent to/received from the database
-            var dateTimeConverter = new ValueConverter<DateTime, DateTime>(
-                v => v.Kind == DateTimeKind.Utc ? v : DateTime.SpecifyKind(v, DateTimeKind.Utc),
-                v => DateTime.SpecifyKind(v, DateTimeKind.Utc));
-
-            var nullableDateTimeConverter = new ValueConverter<DateTime?, DateTime?>(
-                v => v.HasValue ? (DateTime?) (v.Value.Kind == DateTimeKind.Utc ? v.Value : DateTime.SpecifyKind(v.Value, DateTimeKind.Utc)) : null,
-                v => v.HasValue ? (DateTime?) DateTime.SpecifyKind(v.Value, DateTimeKind.Utc) : null);
-
-            foreach (var entityType in modelBuilder.Model.GetEntityTypes())
-            {
-                var clrType = entityType.ClrType;
-                if (clrType == null) continue;
-
-                var entity = modelBuilder.Entity(clrType);
-                foreach (var property in entityType.GetProperties().Where(p => p.ClrType == typeof(DateTime) || p.ClrType == typeof(DateTime?)))
-                {
-                    if (property.ClrType == typeof(DateTime))
-                    {
-                        entity.Property(property.Name).HasConversion(dateTimeConverter).HasColumnType("timestamp with time zone");
-                    }
-                    else
-                    {
-                        entity.Property(property.Name).HasConversion(nullableDateTimeConverter).HasColumnType("timestamp with time zone");
-                    }
-                }
-            }
-
             modelBuilder.Entity<User>(b =>
             {
                 b.HasKey(u => u.Id);

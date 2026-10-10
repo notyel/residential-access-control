@@ -26,14 +26,7 @@ namespace AccessControl.API.Controllers
         {
             try
             {
-                var latestVisitsRaw = await _dashboardService.GetLatestVisitsAsync(10);
-
-                // Ensure DateTime.Kind is UTC before sending to PostgreSQL (timestamp with time zone requires UTC)
-                var latestVisits = latestVisitsRaw?.Select(v =>
-                {
-                    v.EntryTime = DateTime.SpecifyKind(v.EntryTime, DateTimeKind.Utc);
-                    return v;
-                }).ToList();
+                var latestVisits = (await _dashboardService.GetLatestVisitsAsync(10)).ToList();
 
                 var totalVisitsThisMonth = await _dashboardService.GetTotalVisitsThisMonthAsync();
 

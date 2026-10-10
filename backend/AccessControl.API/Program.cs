@@ -1,5 +1,6 @@
 using AccessControl.Application.Interfaces;
 using AccessControl.Application.Services;
+using AccessControl.Application.Settings;
 using AccessControl.Shared.Enums;
 using AccessControl.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -47,6 +48,15 @@ builder.Services.AddAuthorization(options =>
 });
 
 builder.Services.AddControllers();
+
+// Date/time: la BD guarda UTC, la zona horaria del negocio viene de appsettings
+builder.Services.AddOptions<DateTimeSettings>()
+    .Bind(builder.Configuration.GetSection(DateTimeSettings.SectionName))
+    .Validate(s => TimeZoneInfo.TryFindSystemTimeZoneById(s.TimeZoneId, out _),
+        $"{DateTimeSettings.SectionName}:TimeZoneId no es una zona horaria válida.")
+    .ValidateOnStart();
+builder.Services.AddSingleton(TimeProvider.System);
+builder.Services.AddSingleton<IDateTimeService, DateTimeService>();
 
 // Repos/Services DI: registrar tus repos y services (por ejemplo IAuthService, IVisitService)
 builder.Services.AddScoped<IAuthService, AuthService>();
