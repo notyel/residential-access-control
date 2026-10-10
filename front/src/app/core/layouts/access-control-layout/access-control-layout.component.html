@@ -29,5 +29,6 @@
     <main #main id="main-content" class="shell__content app-main" tabindex="-1">
       <router-outlet></router-outlet>
     </main>
+    <div class="app-action-dock" role="toolbar" aria-label="Acciones de la página"><ng-container [ngTemplateOutlet]="pageHeader.actions()"></ng-container></div>
   </div>
 </div>

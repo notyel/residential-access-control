@@ -1,4 +1,5 @@
 import { A11yModule } from '@angular/cdk/a11y';
+import { NgTemplateOutlet } from '@angular/common';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import {
   ChangeDetectionStrategy,
@@ -15,6 +16,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterOutlet } from '@angular/router';
 import { map } from 'rxjs';
 import { CommandPaletteService } from '../../services/command-palette.service';
+import { PageHeaderService } from '../../services/page-header.service';
 import { SidebarComponent } from '../../../shared/components/sidebar/sidebar.component';
 import { TopbarComponent } from '../../../shared/components/topbar/topbar.component';
 
@@ -24,12 +26,19 @@ const SIDEBAR_STORAGE_KEY = 'sidebarCollapsed';
 @Component({
   selector: 'app-access-control-layout',
   standalone: true,
-  imports: [A11yModule, RouterOutlet, TopbarComponent, SidebarComponent],
+  imports: [
+    A11yModule,
+    NgTemplateOutlet,
+    RouterOutlet,
+    TopbarComponent,
+    SidebarComponent,
+  ],
   templateUrl: './access-control-layout.component.html',
   styleUrl: './access-control-layout.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AccessControlLayoutComponent {
+  readonly pageHeader = inject(PageHeaderService);
   private readonly commandPalette = inject(CommandPaletteService);
   private readonly main = viewChild.required<ElementRef<HTMLElement>>('main');
 
