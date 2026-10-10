@@ -1,96 +1,105 @@
+using AccessControl.Application.Exceptions;
 using AccessControl.Application.Interfaces;
+using AccessControl.Application.Security;
+using AccessControl.Application.Settings;
+using AccessControl.Common.DTOs.Auth;
+using AccessControl.Common.DTOs.User;
 using AccessControl.Domain.Entities;
-using AccessControl.Shared.Enums;
-using AccessControl.Persistence.Generics;
+using AccessControl.Persistence;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
-using AccessControl.Common.DTOs.Auth;
-using AccessControl.Common.DTOs.User;
 
 namespace AccessControl.Application.Services
 {
     public class AuthService : IAuthService
     {
-        private readonly IRepository<User> _userRepository;
-        private readonly IConfiguration _config;
+        private readonly ApplicationDbContext _db;
+        private readonly IPermissionService _permissions;
+        private readonly JwtSettings _jwt;
 
-        public AuthService(IRepository<User> userRepository, IConfiguration config)
+        public AuthService(ApplicationDbContext db, IPermissionService permissions, IOptions<JwtSettings> jwt)
         {
-            _userRepository = userRepository;
-            _config = config;
+            _db = db;
+            _permissions = permissions;
+            _jwt = jwt.Value;
         }
 
         public async Task<LoginResponseDto?> AuthenticateAsync(string email, string password)
         {
-            var user = await _userRepository.GetQueryable().FirstOrDefaultAsync(u => u.Email.ToLower() == email.ToLower());
-            if (user == null) return null;
+            // Antes de iniciar sesión no hay conjunto: se busca en toda la plataforma (el correo es único)
+            var user = await _db.Users
+                .IgnoreQueryFilters()
+                .Include(u => u.Complex)
+                .FirstOrDefaultAsync(u => u.Email.ToLower() == email.ToLower());
 
-            bool ok = BCrypt.Net.BCrypt.Verify(password, user.PasswordHash);
-            if (!ok) return null;
-
-            var userDto = new UserDto
-            {
-                Id = user.Id,
-                Email = user.Email,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                ApartmentNumber = user.ApartmentNumber,
-                Role = user.Role
-            };
-
-            var token = GenerateJwtToken(user);
+            // Usuario inexistente, inactivo, de un conjunto inactivo o contraseña errada responden igual
+            if (user == null || !user.IsActive) return null;
+            if (user.Complex is { IsActive: false }) return null;
+            if (!user.IsSuperAdmin && user.Complex == null) return null;
+            if (!BCrypt.Net.BCrypt.Verify(password, user.PasswordHash)) return null;
 
             return new LoginResponseDto
             {
-                User = userDto,
-                Token = token
+                User = await GetCurrentUserAsync(user.Id),
+                Token = GenerateJwtToken(user)
             };
         }
 
-        public async Task<UserDto> CreateUserAsync(string email, string firstName, string lastName, string apartmentNumber, string password, Role role)
+        public async Task<UserDto> GetCurrentUserAsync(Guid userId)
         {
-            if (await _userRepository.GetQueryable().AnyAsync(u => u.Email == email)) throw new InvalidOperationException("Email already exists");
-            var hash = BCrypt.Net.BCrypt.HashPassword(password);
-            var user = new User { Email = email, FirstName = firstName, LastName = lastName, ApartmentNumber = apartmentNumber, PasswordHash = hash, Role = role };
-            await _userRepository.AddAsync(user);
-            await _userRepository.SaveChangesAsync();
+            var user = await _db.Users
+                .IgnoreQueryFilters()
+                .Where(u => u.Id == userId && u.IsActive)
+                .Select(UsersService.ToDtoExpression)
+                .FirstOrDefaultAsync()
+                ?? throw new NotFoundException("El usuario no existe.");
 
-            return new UserDto
-            {
-                Id = user.Id,
-                Email = user.Email,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                ApartmentNumber = user.ApartmentNumber,
-                Role = user.Role
-            };
+            // El superadministrador tiene todos los permisos del catálogo
+            user.Permissions = user.IsSuperAdmin
+                ? Permissions.AllKeys.OrderBy(k => k).ToList()
+                : (await _permissions.GetEffectivePermissionsAsync(userId)).OrderBy(k => k).ToList();
+
+            return user;
         }
 
+        // Los roles y permisos no van en el token: se resuelven en el servidor en cada petición
         public string GenerateJwtToken(User user)
         {
-            var jwt = _config.GetSection("Jwt");
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt["Key"]!));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwt.Key));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var claims = new List<Claim>{
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Name, $"{user.FirstName} {user.LastName}"),
-                new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.Role, user.Role.ToString())
+                new Claim(ClaimTypes.Email, user.Email)
             };
 
+            if (user.IsSuperAdmin)
+            {
+                claims.Add(new Claim(AppClaims.SuperAdmin, "true"));
+            }
+            if (user.ComplexId.HasValue)
+            {
+                claims.Add(new Claim(AppClaims.ComplexId, user.ComplexId.Value.ToString()));
+            }
+            if (user.Complex != null)
+            {
+                claims.Add(new Claim(AppClaims.TimeZone, user.Complex.TimeZoneId));
+            }
+
             var token = new JwtSecurityToken(
-                issuer: jwt["Issuer"],
-                audience: jwt["Audience"],
+                issuer: _jwt.Issuer,
+                audience: _jwt.Audience,
                 claims: claims,
-                expires: DateTime.UtcNow.AddMinutes(int.Parse(jwt["ExpireMinutes"]!)),
+                expires: DateTime.UtcNow.AddMinutes(_jwt.ExpireMinutes),
                 signingCredentials: creds
             );
 

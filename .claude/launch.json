@@ -6,6 +6,24 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["--prefix", "front", "start"],
       "port": 4400
+    },
+    {
+      "name": "devdb",
+      "runtimeExecutable": "dotnet",
+      "runtimeArgs": ["run", "--project", "backend/AccessControl.DevDb", "-c", "Release"],
+      "port": 5433
+    },
+    {
+      "name": "api-local",
+      "runtimeExecutable": "dotnet",
+      "runtimeArgs": ["run", "--project", "backend/AccessControl.API", "-c", "Release", "--launch-profile", "local-db"],
+      "port": 5080
+    },
+    {
+      "name": "front-local",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "front", "run", "start:local"],
+      "port": 4401
     }
   ]
 }

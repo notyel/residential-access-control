@@ -3,7 +3,7 @@
   <a
     class="action-card app-card"
     routerLink="/access-control/visits/register"
-    *appIfRole="['Admin', 'Guard']"
+    *appIfPermission="P.visitsRegister"
   >
     <span class="action-icon">
       <lucide-icon [img]="PlusIcon" [size]="24"></lucide-icon>
@@ -23,7 +23,7 @@
   <div class="dashboard-grid">
     <app-stats-card
       title="Visitantes Activos"
-      [value]="1"
+      [value]="visitorsInside()"
       description="Actualmente en el conjunto"
       [icon]="UsersIcon"
     >
@@ -31,17 +31,9 @@
 
     <app-stats-card
       title="Visitas Hoy"
-      [value]="2"
+      [value]="visitsToday()"
       description="Total de ingresos"
       [icon]="CalendarIcon"
-    >
-    </app-stats-card>
-
-    <app-stats-card
-      title="Tiempo Promedio"
-      [value]="'30m'"
-      description="Duración de visitas"
-      [icon]="ClockIcon"
     >
     </app-stats-card>
 
@@ -71,7 +63,11 @@
         <span class="recent-visits__time text-muted">{{
           visit.entryTime | date : "d MMM, h:mm a"
         }}</span>
-        <app-status-badge variant="success">Activo</app-status-badge>
+        @if (visit.checkOut) {
+        <app-status-badge variant="neutral">Finalizada</app-status-badge>
+        } @else {
+        <app-status-badge variant="success">En sitio</app-status-badge>
+        }
       </li>
       } @empty {
       <li class="recent-visits__empty text-muted">

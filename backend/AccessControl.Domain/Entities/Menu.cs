@@ -1,6 +1,5 @@
 using AccessControl.Domain.Common;
 using System;
-using System.Collections.Generic;
 
 namespace AccessControl.Domain.Entities
 {
@@ -11,6 +10,13 @@ namespace AccessControl.Domain.Entities
         public string Path { get; set; } = null!;
         public string Icon { get; set; } = null!;
         public int Order { get; set; }
-        public ICollection<RoleMenu> RoleMenus { get; set; } = new List<RoleMenu>();
+
+        /// <summary>Encabezado bajo el que se agrupa en el menú; null = sin grupo.</summary>
+        public string? Group { get; set; }
+
+        /// <summary>
+        /// Permiso que habilita la opción. Varios separados por coma = basta con tener uno.
+        /// </summary>
+        public string Permission { get; set; } = null!;
     }
 }

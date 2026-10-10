@@ -61,3 +61,17 @@ The folder structure of this project follows the standard Angular best practices
   - **`index.html`**: The main HTML file.
   - **`main.ts`**: The entry point of the application.
   - **`styles.scss`**: Global styles.
+
+## Pruebas
+
+```bash
+npm run test:ci
+```
+
+Corre las pruebas unitarias (`*.spec.ts`) una vez en Chrome sin interfaz. `npm test` las deja en
+modo observación.
+
+## API local
+
+`npm run start:local` sirve la aplicación en el puerto 4401 contra la API local
+(`http://localhost:5080/api`, ver `backend/README.md`), sin tocar la base compartida.

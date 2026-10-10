@@ -27,6 +27,19 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
+    "local-db": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "launchBrowser": false,
+      "applicationUrl": "http://localhost:5080",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ConnectionStrings__DefaultConnection": "Host=localhost;Port=5433;Username=postgres;Password=test;Database=postgres;Include Error Detail=true",
+        "Database__MigrateOnStartup": "true",
+        "Cors__AllowedOrigins__0": "http://localhost:4400",
+        "Cors__AllowedOrigins__1": "http://localhost:4401"
+      }
+    },
     "IIS Express": {
       "commandName": "IISExpress",
       "launchBrowser": true,

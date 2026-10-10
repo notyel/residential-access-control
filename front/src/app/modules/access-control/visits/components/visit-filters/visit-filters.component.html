@@ -36,6 +36,15 @@
       <mat-datepicker #pickerEnd></mat-datepicker>
       <mat-error>Debe ser igual o posterior a la fecha de inicio</mat-error>
     </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Estado</mat-label>
+      <mat-select formControlName="status">
+        <mat-option [value]="null">Todas</mat-option>
+        <mat-option value="Inside">{{ statusLabels.Inside }}</mat-option>
+        <mat-option value="CheckedOut">{{ statusLabels.CheckedOut }}</mat-option>
+      </mat-select>
+    </mat-form-field>
   </form>
 
   <ng-container sidePanelFooter>

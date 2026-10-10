@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { AuthLayoutComponent } from './core/layouts/auth-layout/auth-layout.component';
 import { AccessControlLayoutComponent } from './core/layouts/access-control-layout/access-control-layout.component';
 import { authGuard } from './core/guards/auth.guard';
+import { permissionGuard } from './core/guards/permission.guard';
 
 export const routes: Routes = [
   {
@@ -14,6 +15,7 @@ export const routes: Routes = [
     path: 'access-control',
     component: AccessControlLayoutComponent,
     canActivate: [authGuard],
+    canActivateChild: [permissionGuard],
     loadChildren: () =>
       import('./modules/access-control/access-control.routes').then(
         (m) => m.default

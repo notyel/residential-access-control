@@ -14,7 +14,9 @@ import {
   PageChange,
   PaginatorComponent,
 } from '../../../../../shared/components/paginator/paginator.component';
+import { IfPermissionDirective } from '../../../../../shared/directives/if-permission.directive';
 import { PageActionsDirective } from '../../../../../shared/directives/page-actions.directive';
+import { P } from '../../../../../core/security/permissions';
 import { initials } from '../../../../../shared/utils/initials';
 import { ResidentsService } from '../../services/residents.service';
 
@@ -28,6 +30,7 @@ import { ResidentsService } from '../../services/residents.service';
     DataTableComponent,
     PaginatorComponent,
     PageActionsDirective,
+    IfPermissionDirective,
   ],
   templateUrl: './residents.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -42,6 +45,7 @@ export class ResidentsComponent implements OnInit {
   readonly isLoading = signal(true);
   readonly error = signal<string | null>(null);
 
+  readonly P = P;
   readonly PlusIcon = Plus;
   readonly EditIcon = SquarePen;
   readonly initials = initials;

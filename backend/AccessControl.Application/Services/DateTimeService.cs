@@ -1,5 +1,6 @@
 using AccessControl.Application.Interfaces;
 using AccessControl.Application.Settings;
+using AccessControl.Domain.Common;
 using Microsoft.Extensions.Options;
 using System;
 
@@ -9,10 +10,14 @@ namespace AccessControl.Application.Services
     {
         private readonly TimeProvider _timeProvider;
 
-        public DateTimeService(IOptions<DateTimeSettings> settings, TimeProvider timeProvider)
+        // La zona horaria es la del conjunto de la sesión; la de appsettings solo aplica si no hay conjunto
+        public DateTimeService(IOptions<DateTimeSettings> settings, TimeProvider timeProvider, ICurrentUser? currentUser = null)
         {
             _timeProvider = timeProvider;
-            TimeZone = TimeZoneInfo.FindSystemTimeZoneById(settings.Value.TimeZoneId);
+            var timeZoneId = currentUser?.TimeZoneId;
+            TimeZone = !string.IsNullOrWhiteSpace(timeZoneId) && TimeZoneInfo.TryFindSystemTimeZoneById(timeZoneId, out var zone)
+                ? zone
+                : TimeZoneInfo.FindSystemTimeZoneById(settings.Value.TimeZoneId);
         }
 
         public DateTime UtcNow => _timeProvider.GetUtcNow().UtcDateTime;
@@ -35,6 +40,14 @@ namespace AccessControl.Application.Services
                     }
                     return TimeZoneInfo.ConvertTimeToUtc(value, TimeZone);
             }
+        }
+
+        public (DateTime StartUtc, DateTime EndUtc) GetTodayRangeUtc()
+        {
+            var localNow = TimeZoneInfo.ConvertTimeFromUtc(UtcNow, TimeZone);
+            var today = new DateTime(localNow.Year, localNow.Month, localNow.Day, 0, 0, 0, DateTimeKind.Unspecified);
+
+            return (ToUtc(today), ToUtc(today.AddDays(1)));
         }
 
         public (DateTime StartUtc, DateTime EndUtc) GetCurrentMonthRangeUtc()

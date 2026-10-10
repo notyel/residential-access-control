@@ -22,13 +22,14 @@ import {
 import { map, startWith } from 'rxjs';
 import { CreateVisit } from '../../../../../core/models/create-visit.model';
 import { Person } from '../../../../../core/models/person.model';
-import { User as Resident } from '../../../../../core/models/user.model';
+import { Residence } from '../../../../../core/models/residence.model';
 import { AuthService } from '../../../../../core/services/auth.service';
+import { P } from '../../../../../core/security/permissions';
+import { apiErrorMessage } from '../../../../../core/utils/api-error';
 import { PersonService } from '../../../../../core/services/person.service';
 import { SidePanelService } from '../../../../../core/services/side-panel.service';
 import { FormSectionComponent } from '../../../../../shared/components/form-section/form-section.component';
 import { PageActionsDirective } from '../../../../../shared/directives/page-actions.directive';
-import { ResidentsService } from '../../../residents/services/residents.service';
 import {
   ResidencePickerComponent,
   ResidencePickerData,
@@ -55,7 +56,6 @@ import { VisitsService } from '../../services/visits.service';
 export class RegisterVisitComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly visitsService = inject(VisitsService);
-  private readonly residentsService = inject(ResidentsService);
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
   private readonly personService = inject(PersonService);
@@ -79,12 +79,10 @@ export class RegisterVisitComponent implements OnInit {
     residenceId: ['', Validators.required],
   });
 
-  readonly canRegister =
-    this.authService.hasRole('Admin') || this.authService.hasRole('Guard');
+  readonly canRegister = this.authService.hasPermission(P.visitsRegister);
 
   readonly errorMessage = signal('');
-  readonly residents = signal<Resident[]>([]);
-  readonly selectedResident = signal<Resident | null>(null);
+  readonly selectedResidence = signal<Residence | null>(null);
   readonly foundPerson = signal<Person | null>(null);
   readonly showNewPersonForm = signal(false);
   readonly searching = signal(false);
@@ -113,7 +111,7 @@ export class RegisterVisitComponent implements OnInit {
   readonly summary = computed(() => {
     const value = this.formValue();
     const person = this.foundPerson();
-    const resident = this.selectedResident();
+    const residence = this.selectedResidence();
     const visitor = person
       ? `${person.firstName} ${person.lastName}`
       : `${value.newPerson.firstName} ${value.newPerson.lastName}`.trim();
@@ -123,9 +121,7 @@ export class RegisterVisitComponent implements OnInit {
       visitor: visitor || '—',
       document:
         `${documentType} ${value.documentNumber}`.trim() || '—',
-      residence: resident
-        ? `Apartamento ${resident.apartmentNumber}`
-        : '—',
+      residence: residence?.identifier ?? '—',
       plate: value.vehiclePlate || '—',
     };
   });
@@ -139,10 +135,6 @@ export class RegisterVisitComponent implements OnInit {
     if (!this.canRegister) {
       this.visitForm.disable();
     }
-
-    this.residentsService
-      .getResidents()
-      .subscribe((residents) => this.residents.set(residents));
 
     if (typeof this.initialDocument === 'string' && this.initialDocument) {
       this.visitForm.controls.documentNumber.setValue(this.initialDocument);
@@ -190,20 +182,19 @@ export class RegisterVisitComponent implements OnInit {
 
   openResidencePicker(): void {
     this.sidePanel
-      .open<Resident, ResidencePickerData, ResidencePickerComponent>(
+      .open<Residence, ResidencePickerData, ResidencePickerComponent>(
         ResidencePickerComponent,
         {
           ariaLabel: 'Buscar residencia',
           data: {
-            residents: this.residents(),
-            selectedId: this.selectedResident()?.id ?? null,
+            selectedId: this.selectedResidence()?.id ?? null,
           },
         }
       )
-      .closed.subscribe((resident) => {
-        if (resident) {
-          this.selectedResident.set(resident);
-          this.visitForm.controls.residenceId.setValue(resident.id);
+      .closed.subscribe((residence) => {
+        if (residence) {
+          this.selectedResidence.set(residence);
+          this.visitForm.controls.residenceId.setValue(residence.id);
         }
       });
   }
@@ -237,8 +228,9 @@ export class RegisterVisitComponent implements OnInit {
       next: () => this.router.navigate(['/access-control/visits']),
       error: (err) => {
         this.saving.set(false);
-        this.errorMessage.set('Error al crear la visita');
-        console.error(err);
+        this.errorMessage.set(
+          apiErrorMessage(err, 'No se pudo registrar la visita.')
+        );
       },
     });
   }

@@ -8,6 +8,7 @@ import {
   normalizeSearchText,
 } from '../../../../core/search/search-provider';
 import { AuthService } from '../../../../core/services/auth.service';
+import { P } from '../../../../core/security/permissions';
 import { ResidentsService } from './residents.service';
 
 const MIN_TERM_LENGTH = 2;
@@ -23,7 +24,7 @@ export class ResidentsSearchProvider implements SearchProvider {
   search(term: string): Observable<SearchResult[]> {
     const query = normalizeSearchText(term);
 
-    if (query.length < MIN_TERM_LENGTH || !this.authService.hasRole('Admin')) {
+    if (query.length < MIN_TERM_LENGTH || !this.authService.hasPermission(P.usersRead)) {
       return of([]);
     }
 

@@ -1,52 +1,44 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, tap, map } from 'rxjs';
+import { Injectable, computed, inject, signal } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
+import { Observable, catchError, map, of, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { SessionUser } from '../models/user.model';
+import { PermissionRule, grants } from '../security/permissions';
 import { ResponseModel } from '../types/response.model';
+import { ComplexContextService } from './complex-context.service';
 
 interface LoginCredentials {
   email: string;
   password: string;
 }
 
-interface User {
-  id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  apartmentNumber: string;
-  role: number;
-}
-
 interface AuthResponse {
-  user: User;
+  user: SessionUser;
   token: string;
 }
 
+/**
+ * Sesión del usuario. En el navegador solo se guarda el token; el usuario, sus roles y sus
+ * permisos viven en memoria y se piden al servidor (auth/me) al abrir la aplicación y cada vez
+ * que hay que refrescarlos, así un cambio hecho por el administrador se refleja sin cerrar sesión.
+ */
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
+  private readonly http = inject(HttpClient);
+  private readonly complexContext = inject(ComplexContextService);
+
   private readonly TOKEN_KEY = 'jwt';
-  private readonly USER_KEY = 'user';
-  private isAuthenticatedSubject = new BehaviorSubject<boolean>(
-    this.hasToken()
+
+  private readonly userState = signal<SessionUser | null>(null);
+  readonly currentUser = this.userState.asReadonly();
+  readonly user$ = toObservable(this.userState);
+
+  private readonly permissions = computed<ReadonlySet<string>>(
+    () => new Set(this.userState()?.permissions ?? [])
   );
-  public isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
-  private userSubject = new BehaviorSubject<User | null>(this.getUser());
-  public user$ = this.userSubject.asObservable();
-
-  constructor(private http: HttpClient) {}
-
-  // Mapeo de roles numéricos a strings
-  private getRoleText(role: number): string {
-    const roleMap: { [key: number]: string } = {
-      0: 'Admin',
-      1: 'Guard',
-      2: 'Owner',
-    };
-    return roleMap[role] || 'Usuario';
-  }
 
   login(credentials: LoginCredentials): Observable<AuthResponse> {
     return this.http
@@ -58,47 +50,95 @@ export class AuthService {
         map((response) => response.data!),
         tap((response) => {
           localStorage.setItem(this.TOKEN_KEY, response.token);
-          localStorage.setItem(this.USER_KEY, JSON.stringify(response.user));
-          this.isAuthenticatedSubject.next(true);
-          this.userSubject.next(response.user);
+          this.userState.set(response.user);
         })
       );
   }
 
   logout(): void {
     localStorage.removeItem(this.TOKEN_KEY);
-    localStorage.removeItem(this.USER_KEY);
-    this.isAuthenticatedSubject.next(false);
-    this.userSubject.next(null);
+    this.complexContext.clear();
+    this.userState.set(null);
   }
 
-  private hasToken(): boolean {
-    return !!localStorage.getItem(this.TOKEN_KEY);
+  /**
+   * Vuelve a pedir el usuario con sus permisos al día. Devuelve false si no hay sesión válida.
+   * Un fallo de red no cierra la sesión: se conserva lo que ya había en memoria.
+   */
+  refresh(): Observable<boolean> {
+    if (!this.hasValidToken()) {
+      this.userState.set(null);
+      return of(false);
+    }
+
+    return this.http
+      .get<ResponseModel<SessionUser>>(`${environment.apiUrl}/auth/me`)
+      .pipe(
+        map((response) => {
+          this.userState.set(response.data ?? null);
+          return response.data != null;
+        }),
+        catchError(() => of(this.userState() !== null))
+      );
   }
 
+  /** Hay token vigente y el usuario ya se cargó. */
   isAuthenticated(): boolean {
-    return this.hasToken();
+    return this.hasValidToken() && this.userState() !== null;
   }
 
   getToken(): string | null {
     return localStorage.getItem(this.TOKEN_KEY);
   }
 
-  getUser(): User | null {
-    const userData = localStorage.getItem(this.USER_KEY);
-    return userData ? JSON.parse(userData) : null;
+  getUser(): SessionUser | null {
+    return this.userState();
   }
 
-  getUserRole(): string | null {
-    const user = this.getUser();
-    return user ? this.getRoleText(user.role) : null;
+  isSuperAdmin(): boolean {
+    return this.userState()?.isSuperAdmin === true;
   }
 
-  getRole(): string | null {
-    return this.getUserRole();
+  /** Reactivo: dentro de un computed o una plantilla se actualiza al cambiar los permisos. */
+  hasPermission(rule: PermissionRule): boolean {
+    const user = this.userState();
+    if (!user) {
+      return false;
+    }
+    if (user.isSuperAdmin) {
+      return true;
+    }
+    const owned = this.permissions();
+    const anyOf = typeof rule === 'string' ? [rule] : rule;
+    return anyOf.some((permission) => grants(owned, permission));
   }
 
-  hasRole(role: string): boolean {
-    return this.getUserRole() === role;
+  /** Nombres de los roles del usuario, para mostrarlos. */
+  roleNames(): string {
+    const user = this.userState();
+    if (!user) {
+      return '';
+    }
+    return user.isSuperAdmin
+      ? 'Superadmin'
+      : user.roles.map((role) => role.name).join(', ') || 'Sin rol';
+  }
+
+  /** No valida la firma: eso lo hace el servidor en cada petición. */
+  private hasValidToken(): boolean {
+    const token = this.getToken();
+    return !!token && !this.isExpired(token);
+  }
+
+  private isExpired(token: string): boolean {
+    try {
+      const payload = token.split('.')[1];
+      const json = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
+      const exp = (JSON.parse(json) as { exp?: number }).exp;
+      return typeof exp !== 'number' || exp * 1000 <= Date.now();
+    } catch {
+      // un token que no se puede leer se trata como vencido
+      return true;
+    }
   }
 }

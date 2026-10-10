@@ -6,7 +6,13 @@ import {
   output,
 } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
-import { LucideAngularModule, LogOut, Box, Circle } from 'lucide-angular';
+import {
+  LucideAngularModule,
+  LogOut,
+  Box,
+  Circle,
+  RotateCw,
+} from 'lucide-angular';
 import { MenuService } from '../../../core/services/menu.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { IconService } from '../../../core/services/icon.service';
@@ -30,8 +36,13 @@ export class SidebarComponent implements OnInit {
 
   readonly LogOut = LogOut;
   readonly Box = Box;
+  readonly Retry = RotateCw;
 
   ngOnInit(): void {
+    this.loadMenu();
+  }
+
+  loadMenu(): void {
     this.menuService.getMenuForCurrentUser().subscribe();
   }
 

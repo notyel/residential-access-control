@@ -17,10 +17,72 @@ namespace AccessControl.Persistence.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.22")
+                .HasAnnotation("ProductVersion", "10.0.12")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("AccessControl.Domain.Entities.AppliedPermissionDefault", b =>
+                {
+                    b.Property<string>("Key")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.HasKey("Key");
+
+                    b.ToTable("AppliedPermissionDefaults");
+                });
+
+            modelBuilder.Entity("AccessControl.Domain.Entities.Complex", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Address")
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<string>("TimeZoneId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("Complexes");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("0f6a4c1e-7b52-4d0a-9e3c-5a1b2c3d4e5f"),
+                            CreatedAt = new DateTime(2025, 11, 21, 0, 0, 0, 0, DateTimeKind.Utc),
+                            IsActive = true,
+                            Name = "Conjunto principal",
+                            TimeZoneId = "America/Bogota",
+                            Type = 0
+                        });
+                });
 
             modelBuilder.Entity("AccessControl.Domain.Entities.Menu", b =>
                 {
@@ -30,6 +92,10 @@ namespace AccessControl.Persistence.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Group")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("Icon")
                         .IsRequired()
@@ -49,6 +115,11 @@ namespace AccessControl.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("Permission")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -63,32 +134,48 @@ namespace AccessControl.Persistence.Migrations
                         new
                         {
                             Id = new Guid("9452df48-5b92-40ef-829e-a315c01aadcb"),
-                            CreatedAt = new DateTime(2025, 11, 21, 23, 47, 38, 845, DateTimeKind.Utc).AddTicks(1924),
+                            CreatedAt = new DateTime(2025, 11, 21, 0, 0, 0, 0, DateTimeKind.Utc),
                             Icon = "LayoutDashboard",
                             IsActive = true,
-                            Name = "Dashboard",
+                            Name = "Panel",
                             Order = 1,
-                            Path = "/dashboard"
+                            Path = "/access-control/dashboard",
+                            Permission = "dashboard.read"
                         },
                         new
                         {
                             Id = new Guid("a509d9b3-9c77-4324-bc20-4a004b8c5abf"),
-                            CreatedAt = new DateTime(2025, 11, 21, 23, 47, 38, 845, DateTimeKind.Utc).AddTicks(1941),
+                            CreatedAt = new DateTime(2025, 11, 21, 0, 0, 0, 0, DateTimeKind.Utc),
                             Icon = "CarFront",
                             IsActive = true,
-                            Name = "Visits",
+                            Name = "Visitas",
                             Order = 2,
-                            Path = "/visits"
+                            Path = "/access-control/visits",
+                            Permission = "visits.read,visits.read_own"
                         },
                         new
                         {
                             Id = new Guid("d8fcac7d-c0ea-4cd5-8ad0-92b33953a142"),
-                            CreatedAt = new DateTime(2025, 11, 21, 23, 47, 38, 845, DateTimeKind.Utc).AddTicks(1962),
+                            CreatedAt = new DateTime(2025, 11, 21, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Group = "Usuarios y roles",
                             Icon = "Users",
                             IsActive = true,
-                            Name = "Users",
+                            Name = "Residentes",
                             Order = 3,
-                            Path = "/users"
+                            Path = "/access-control/residents",
+                            Permission = "users.read"
+                        },
+                        new
+                        {
+                            Id = new Guid("b7e2a9c4-3d1f-4e6a-8b0c-9f5d2a1c7e30"),
+                            CreatedAt = new DateTime(2025, 11, 21, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Group = "Usuarios y roles",
+                            Icon = "ShieldCheck",
+                            IsActive = true,
+                            Name = "Roles",
+                            Order = 4,
+                            Path = "/access-control/roles",
+                            Permission = "roles.read"
                         });
                 });
 
@@ -96,6 +183,9 @@ namespace AccessControl.Persistence.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ComplexId")
                         .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
@@ -134,7 +224,7 @@ namespace AccessControl.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("DocumentNumber")
+                    b.HasIndex("ComplexId", "DocumentNumber")
                         .IsUnique();
 
                     b.ToTable("Persons");
@@ -144,6 +234,9 @@ namespace AccessControl.Persistence.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ComplexId")
                         .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
@@ -164,9 +257,10 @@ namespace AccessControl.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Identifier");
-
                     b.HasIndex("OwnerId");
+
+                    b.HasIndex("ComplexId", "Identifier")
+                        .IsUnique();
 
                     b.ToTable("Residences");
 
@@ -174,77 +268,65 @@ namespace AccessControl.Persistence.Migrations
                         new
                         {
                             Id = new Guid("8c885dcd-3734-45b6-9b7e-633351852714"),
-                            CreatedAt = new DateTime(2025, 11, 21, 23, 47, 38, 845, DateTimeKind.Utc).AddTicks(1777),
+                            ComplexId = new Guid("0f6a4c1e-7b52-4d0a-9e3c-5a1b2c3d4e5f"),
+                            CreatedAt = new DateTime(2025, 11, 21, 0, 0, 0, 0, DateTimeKind.Utc),
                             Identifier = "RES-001",
                             IsActive = true,
                             OwnerId = new Guid("e790170c-4407-4cff-8358-8f6a09a46fad")
                         });
                 });
 
-            modelBuilder.Entity("AccessControl.Domain.Entities.RoleMenu", b =>
+            modelBuilder.Entity("AccessControl.Domain.Entities.Role", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("MenuId")
+                    b.Property<Guid>("ComplexId")
                         .HasColumnType("uuid");
 
-                    b.Property<int>("Role")
-                        .HasColumnType("integer");
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("SystemKey")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("MenuId");
-
-                    b.HasIndex("Role", "MenuId")
+                    b.HasIndex("ComplexId", "Name")
                         .IsUnique();
 
-                    b.ToTable("RoleMenus");
+                    b.ToTable("Roles");
+                });
 
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("9ea9bd6d-11ee-4d47-acaa-32fce37c34d0"),
-                            MenuId = new Guid("9452df48-5b92-40ef-829e-a315c01aadcb"),
-                            Role = 0
-                        },
-                        new
-                        {
-                            Id = new Guid("c70ee399-2739-4d76-a6a5-b4848f7273e3"),
-                            MenuId = new Guid("a509d9b3-9c77-4324-bc20-4a004b8c5abf"),
-                            Role = 0
-                        },
-                        new
-                        {
-                            Id = new Guid("e650bfce-65ef-416e-8f10-f56fa43a6edc"),
-                            MenuId = new Guid("d8fcac7d-c0ea-4cd5-8ad0-92b33953a142"),
-                            Role = 0
-                        },
-                        new
-                        {
-                            Id = new Guid("d2370f28-6288-4482-a93c-7849648a5991"),
-                            MenuId = new Guid("9452df48-5b92-40ef-829e-a315c01aadcb"),
-                            Role = 1
-                        },
-                        new
-                        {
-                            Id = new Guid("8c1587ae-f51b-48c6-97d6-04f31b3c057c"),
-                            MenuId = new Guid("a509d9b3-9c77-4324-bc20-4a004b8c5abf"),
-                            Role = 1
-                        },
-                        new
-                        {
-                            Id = new Guid("9b05f72c-eadb-49ec-84bf-f895d549f5cc"),
-                            MenuId = new Guid("9452df48-5b92-40ef-829e-a315c01aadcb"),
-                            Role = 2
-                        },
-                        new
-                        {
-                            Id = new Guid("bc524814-0d6b-4ff7-a227-2fa9c1ad589e"),
-                            MenuId = new Guid("a509d9b3-9c77-4324-bc20-4a004b8c5abf"),
-                            Role = 2
-                        });
+            modelBuilder.Entity("AccessControl.Domain.Entities.RolePermission", b =>
+                {
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Permission")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.HasKey("RoleId", "Permission");
+
+                    b.ToTable("RolePermissions");
                 });
 
             modelBuilder.Entity("AccessControl.Domain.Entities.User", b =>
@@ -256,6 +338,9 @@ namespace AccessControl.Persistence.Migrations
                     b.Property<string>("ApartmentNumber")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<Guid?>("ComplexId")
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -271,6 +356,9 @@ namespace AccessControl.Persistence.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
+                    b.Property<bool>("IsSuperAdmin")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasColumnType("text");
@@ -279,13 +367,12 @@ namespace AccessControl.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("Role")
-                        .HasColumnType("integer");
-
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ComplexId");
 
                     b.HasIndex("Email")
                         .IsUnique();
@@ -295,40 +382,70 @@ namespace AccessControl.Persistence.Migrations
                     b.HasData(
                         new
                         {
+                            Id = new Guid("6d3b9f20-1c4e-4a7b-8f5d-2e9a0b1c3d4f"),
+                            ApartmentNumber = "",
+                            CreatedAt = new DateTime(2025, 11, 21, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Email = "superadmin@accesscontrol.com",
+                            FirstName = "Super",
+                            IsActive = true,
+                            IsSuperAdmin = true,
+                            LastName = "Admin",
+                            PasswordHash = "$2a$11$NrwVmJEOdhpPYxIjwzhi8e79QrYbaW25WmXZXTOPwq70vuN4Rpl/S"
+                        },
+                        new
+                        {
                             Id = new Guid("ca682896-4e5f-4e3c-a3f0-f19627a71f93"),
                             ApartmentNumber = "001",
-                            CreatedAt = new DateTime(2025, 11, 21, 23, 47, 38, 434, DateTimeKind.Utc).AddTicks(4783),
+                            ComplexId = new Guid("0f6a4c1e-7b52-4d0a-9e3c-5a1b2c3d4e5f"),
+                            CreatedAt = new DateTime(2025, 11, 21, 0, 0, 0, 0, DateTimeKind.Utc),
                             Email = "admin@accesscontrol.com",
                             FirstName = "Admin",
                             IsActive = true,
+                            IsSuperAdmin = false,
                             LastName = "User",
-                            PasswordHash = "$2a$11$NrwVmJEOdhpPYxIjwzhi8e79QrYbaW25WmXZXTOPwq70vuN4Rpl/S",
-                            Role = 0
+                            PasswordHash = "$2a$11$NrwVmJEOdhpPYxIjwzhi8e79QrYbaW25WmXZXTOPwq70vuN4Rpl/S"
                         },
                         new
                         {
                             Id = new Guid("e790170c-4407-4cff-8358-8f6a09a46fad"),
                             ApartmentNumber = "101",
-                            CreatedAt = new DateTime(2025, 11, 21, 23, 47, 38, 641, DateTimeKind.Utc).AddTicks(7232),
+                            ComplexId = new Guid("0f6a4c1e-7b52-4d0a-9e3c-5a1b2c3d4e5f"),
+                            CreatedAt = new DateTime(2025, 11, 21, 0, 0, 0, 0, DateTimeKind.Utc),
                             Email = "owner@accesscontrol.com",
                             FirstName = "John",
                             IsActive = true,
+                            IsSuperAdmin = false,
                             LastName = "Doe",
-                            PasswordHash = "$2a$11$ftyFUyavOWRp2SriTa84WuU8QeoAjQV/9OhC1J3QzojVsjITw/osi",
-                            Role = 2
+                            PasswordHash = "$2a$11$ftyFUyavOWRp2SriTa84WuU8QeoAjQV/9OhC1J3QzojVsjITw/osi"
                         },
                         new
                         {
                             Id = new Guid("1a8553d6-0dee-4c79-aa40-2c41c68cd698"),
                             ApartmentNumber = "002",
-                            CreatedAt = new DateTime(2025, 11, 21, 23, 47, 38, 845, DateTimeKind.Utc).AddTicks(327),
+                            ComplexId = new Guid("0f6a4c1e-7b52-4d0a-9e3c-5a1b2c3d4e5f"),
+                            CreatedAt = new DateTime(2025, 11, 21, 0, 0, 0, 0, DateTimeKind.Utc),
                             Email = "guard@accesscontrol.com",
                             FirstName = "Guard",
                             IsActive = true,
+                            IsSuperAdmin = false,
                             LastName = "User",
-                            PasswordHash = "$2a$11$bKkXvLrTLRP4MzUnYuL6Zu1S9g7g.dUolC/DcZxHqApI9YMZco45u",
-                            Role = 1
+                            PasswordHash = "$2a$11$bKkXvLrTLRP4MzUnYuL6Zu1S9g7g.dUolC/DcZxHqApI9YMZco45u"
                         });
+                });
+
+            modelBuilder.Entity("AccessControl.Domain.Entities.UserRole", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("UserId", "RoleId");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("UserRoles");
                 });
 
             modelBuilder.Entity("AccessControl.Domain.Entities.Visit", b =>
@@ -339,6 +456,12 @@ namespace AccessControl.Persistence.Migrations
 
                     b.Property<DateTime?>("CheckOut")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("CheckedOutById")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ComplexId")
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -363,17 +486,36 @@ namespace AccessControl.Persistence.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CheckedOutById");
+
                     b.HasIndex("PersonId");
 
                     b.HasIndex("RegisteredById");
 
                     b.HasIndex("ResidenceId");
 
+                    b.HasIndex("ComplexId", "CreatedAt");
+
                     b.ToTable("Visits");
+                });
+
+            modelBuilder.Entity("AccessControl.Domain.Entities.Person", b =>
+                {
+                    b.HasOne("AccessControl.Domain.Entities.Complex", null)
+                        .WithMany()
+                        .HasForeignKey("ComplexId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("AccessControl.Domain.Entities.Residence", b =>
                 {
+                    b.HasOne("AccessControl.Domain.Entities.Complex", null)
+                        .WithMany()
+                        .HasForeignKey("ComplexId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("AccessControl.Domain.Entities.User", "Owner")
                         .WithMany("Residences")
                         .HasForeignKey("OwnerId")
@@ -383,19 +525,67 @@ namespace AccessControl.Persistence.Migrations
                     b.Navigation("Owner");
                 });
 
-            modelBuilder.Entity("AccessControl.Domain.Entities.RoleMenu", b =>
+            modelBuilder.Entity("AccessControl.Domain.Entities.Role", b =>
                 {
-                    b.HasOne("AccessControl.Domain.Entities.Menu", "Menu")
-                        .WithMany("RoleMenus")
-                        .HasForeignKey("MenuId")
+                    b.HasOne("AccessControl.Domain.Entities.Complex", null)
+                        .WithMany()
+                        .HasForeignKey("ComplexId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("AccessControl.Domain.Entities.RolePermission", b =>
+                {
+                    b.HasOne("AccessControl.Domain.Entities.Role", "Role")
+                        .WithMany("Permissions")
+                        .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Menu");
+                    b.Navigation("Role");
+                });
+
+            modelBuilder.Entity("AccessControl.Domain.Entities.User", b =>
+                {
+                    b.HasOne("AccessControl.Domain.Entities.Complex", "Complex")
+                        .WithMany()
+                        .HasForeignKey("ComplexId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Complex");
+                });
+
+            modelBuilder.Entity("AccessControl.Domain.Entities.UserRole", b =>
+                {
+                    b.HasOne("AccessControl.Domain.Entities.Role", "Role")
+                        .WithMany("UserRoles")
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("AccessControl.Domain.Entities.User", "User")
+                        .WithMany("UserRoles")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Role");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("AccessControl.Domain.Entities.Visit", b =>
                 {
+                    b.HasOne("AccessControl.Domain.Entities.User", "CheckedOutBy")
+                        .WithMany()
+                        .HasForeignKey("CheckedOutById");
+
+                    b.HasOne("AccessControl.Domain.Entities.Complex", null)
+                        .WithMany()
+                        .HasForeignKey("ComplexId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("AccessControl.Domain.Entities.Person", "Person")
                         .WithMany()
                         .HasForeignKey("PersonId")
@@ -414,6 +604,8 @@ namespace AccessControl.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("CheckedOutBy");
+
                     b.Navigation("Person");
 
                     b.Navigation("RegisteredBy");
@@ -421,14 +613,18 @@ namespace AccessControl.Persistence.Migrations
                     b.Navigation("Residence");
                 });
 
-            modelBuilder.Entity("AccessControl.Domain.Entities.Menu", b =>
+            modelBuilder.Entity("AccessControl.Domain.Entities.Role", b =>
                 {
-                    b.Navigation("RoleMenus");
+                    b.Navigation("Permissions");
+
+                    b.Navigation("UserRoles");
                 });
 
             modelBuilder.Entity("AccessControl.Domain.Entities.User", b =>
                 {
                     b.Navigation("Residences");
+
+                    b.Navigation("UserRoles");
                 });
 #pragma warning restore 612, 618
         }

@@ -14,6 +14,8 @@ import { Check, LucideAngularModule } from 'lucide-angular';
 import { map } from 'rxjs';
 import { ResidentsService } from '../../services/residents.service';
 import { AuthService } from '../../../../../core/services/auth.service';
+import { P } from '../../../../../core/security/permissions';
+import { apiErrorMessage } from '../../../../../core/utils/api-error';
 import { PageActionsDirective } from '../../../../../shared/directives/page-actions.directive';
 import { ResidentFormComponent } from '../../components/resident-form/resident-form.component';
 
@@ -40,7 +42,7 @@ export class NewResidentComponent implements OnInit {
     lastName: ['', Validators.required],
     apartmentNumber: ['', Validators.required],
     email: ['', [Validators.required, Validators.email]],
-    password: ['', Validators.required],
+    password: ['', [Validators.required, Validators.minLength(8)]],
   });
 
   readonly errorMessage = signal('');
@@ -55,7 +57,7 @@ export class NewResidentComponent implements OnInit {
   readonly SaveIcon = Check;
 
   ngOnInit(): void {
-    if (!this.authService.hasRole('Admin')) {
+    if (!this.authService.hasPermission(P.usersManage)) {
       this.residentForm.disable();
     }
   }
@@ -74,8 +76,9 @@ export class NewResidentComponent implements OnInit {
         next: () => this.router.navigate(['/access-control/residents']),
         error: (err) => {
           this.saving.set(false);
-          this.errorMessage.set('Error al crear el residente');
-          console.error(err);
+          this.errorMessage.set(
+            apiErrorMessage(err, 'No se pudo crear el residente.')
+          );
         },
       });
   }

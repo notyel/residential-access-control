@@ -3,8 +3,8 @@
     <lucide-icon [img]="SearchIcon" [size]="16"></lucide-icon>
     <input
       type="text"
-      aria-label="Buscar por apartamento o residente"
-      placeholder="Apartamento o residente"
+      aria-label="Buscar por residencia o propietario"
+      placeholder="Residencia o propietario"
       autocomplete="off"
       [value]="term()"
       (input)="onInput($event)"
@@ -12,32 +12,30 @@
   </div>
 
   <p class="picker__count text-muted" role="status">
+    @if (failed()) { No se pudieron cargar las residencias. } @else if
+    (loading()) { Buscando… } @else if (totalCount() > results().length) {
+    Mostrando {{ results().length }} de {{ totalCount() }}; escribe para
+    acotar. } @else {
     {{ results().length }}
     {{ results().length === 1 ? "resultado" : "resultados" }}
+    }
   </p>
 
   <ul class="picker__list">
-    @for (resident of results(); track resident.id) {
+    @for (residence of results(); track residence.id) {
     <li>
       <button
         type="button"
         class="picker__option"
-        [class.is-selected]="resident.id === data.selectedId"
-        [attr.aria-pressed]="resident.id === data.selectedId"
-        (click)="select(resident)"
+        [class.is-selected]="residence.id === data.selectedId"
+        [attr.aria-pressed]="residence.id === data.selectedId"
+        (click)="select(residence)"
       >
-        <span class="picker__unit text-mono" aria-hidden="true">{{
-          resident.apartmentNumber
-        }}</span>
         <span class="picker__text">
-          <span class="picker__title"
-            >Apartamento {{ resident.apartmentNumber }}</span
-          >
-          <span class="text-muted"
-            >{{ resident.firstName }} {{ resident.lastName }}</span
-          >
+          <span class="picker__title text-mono">{{ residence.identifier }}</span>
+          <span class="text-muted">{{ residence.ownerFullName }}</span>
         </span>
-        @if (resident.id === data.selectedId) {
+        @if (residence.id === data.selectedId) {
         <lucide-icon [img]="CheckIcon" [size]="18"></lucide-icon>
         }
       </button>

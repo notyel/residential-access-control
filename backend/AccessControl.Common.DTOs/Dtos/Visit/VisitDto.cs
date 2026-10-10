@@ -9,6 +9,8 @@ namespace AccessControl.Common.DTOs.Visit
         public PersonDto Person { get; set; } = null!;
         public string? VehiclePlate { get; set; }
         public DateTime? CheckOut { get; set; }
+        public Guid? CheckedOutById { get; set; }
+        public string? CheckedOutByFullName { get; set; }
         public Guid ResidenceId { get; set; }
         public string? ResidenceIdentifier { get; set; }
         public Guid RegisteredById { get; set; }

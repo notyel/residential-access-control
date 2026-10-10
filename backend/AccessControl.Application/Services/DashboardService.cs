@@ -4,7 +4,6 @@ using AccessControl.Domain.Entities;
 using AccessControl.Persistence.Generics;
 using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -12,6 +11,8 @@ namespace AccessControl.Application.Services
 {
     public class DashboardService : IDashboardService
     {
+        private const int LatestVisitsCount = 10;
+
         private readonly IRepository<Visit> _visitRepository;
         private readonly IDateTimeService _dateTimeService;
 
@@ -21,30 +22,35 @@ namespace AccessControl.Application.Services
             _dateTimeService = dateTimeService;
         }
 
-        public async Task<IEnumerable<LatestVisitDto>> GetLatestVisitsAsync(int count)
+        public async Task<DashboardDto> GetDashboardAsync(Guid? ownerId = null)
         {
-            return await _visitRepository.GetQueryable()
-                .Include(v => v.Person)
-                .Include(v => v.Residence)
-                .ThenInclude(r => r.Owner)
-                .OrderByDescending(v => v.CreatedAt)
-                .Take(count)
-                .Select(v => new LatestVisitDto
-                {
-                    VisitorFullName = $"{v.Person.FirstName} {v.Person.LastName}",
-                    ResidentFullName = $"{v.Residence.Owner.FirstName} {v.Residence.Owner.LastName}",
-                    EntryTime = v.CreatedAt
-                })
-                .ToListAsync();
-        }
+            var visits = _visitRepository.GetQueryable();
+            if (ownerId.HasValue)
+            {
+                visits = visits.Where(v => v.Residence.OwnerId == ownerId.Value);
+            }
 
-        public async Task<int> GetTotalVisitsThisMonthAsync()
-        {
             // month boundaries follow the configured business time zone, compared in UTC
             var (startUtc, endUtc) = _dateTimeService.GetCurrentMonthRangeUtc();
+            var (todayStartUtc, todayEndUtc) = _dateTimeService.GetTodayRangeUtc();
 
-            return await _visitRepository.GetQueryable()
-                .CountAsync(v => v.CreatedAt >= startUtc && v.CreatedAt < endUtc);
+            return new DashboardDto
+            {
+                TotalVisitsThisMonth = await visits.CountAsync(v => v.CreatedAt >= startUtc && v.CreatedAt < endUtc),
+                VisitorsInside = await visits.CountAsync(v => v.CheckOut == null),
+                VisitsToday = await visits.CountAsync(v => v.CreatedAt >= todayStartUtc && v.CreatedAt < todayEndUtc),
+                LatestVisits = await visits
+                    .OrderByDescending(v => v.CreatedAt)
+                    .Take(LatestVisitsCount)
+                    .Select(v => new LatestVisitDto
+                    {
+                        VisitorFullName = v.Person.FirstName + " " + v.Person.LastName,
+                        ResidentFullName = v.Residence.Owner.FirstName + " " + v.Residence.Owner.LastName,
+                        EntryTime = v.CreatedAt,
+                        CheckOut = v.CheckOut
+                    })
+                    .ToListAsync()
+            };
         }
     }
 }

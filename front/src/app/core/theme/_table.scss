@@ -117,3 +117,17 @@
     }
   }
 }
+
+// Confirmación en la misma fila de una acción (cancelar + confirmar)
+.row-confirm {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--app-space-1, 4px);
+}
+
+// Celda con dato principal y una línea secundaria debajo
+.cell-stack {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}

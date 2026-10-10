@@ -15,14 +15,14 @@ import {
   LucideAngularModule,
   Users,
   Calendar,
-  Clock,
   TrendingUp,
   Plus,
   ArrowRight,
 } from 'lucide-angular';
 import { StatsCardComponent } from '../../../components/stats-card/stats-card.component';
 import { StatusBadgeComponent } from '../../../../../shared/components/status-badge/status-badge.component';
-import { IfRoleDirective } from '../../../../../shared/directives/if-role.directive';
+import { IfPermissionDirective } from '../../../../../shared/directives/if-permission.directive';
+import { P } from '../../../../../core/security/permissions';
 
 @Component({
   selector: 'app-dashboard',
@@ -32,7 +32,7 @@ import { IfRoleDirective } from '../../../../../shared/directives/if-role.direct
     LucideAngularModule,
     StatsCardComponent,
     StatusBadgeComponent,
-    IfRoleDirective,
+    IfPermissionDirective,
     DatePipe,
   ],
   templateUrl: './dashboard.component.html',
@@ -42,11 +42,14 @@ import { IfRoleDirective } from '../../../../../shared/directives/if-role.direct
 export class DashboardComponent implements OnInit {
   latestVisits = signal<LatestVisit[]>([]);
   totalVisitsThisMonth = signal<number>(0);
+  visitorsInside = signal<number>(0);
+  visitsToday = signal<number>(0);
+
+  readonly P = P;
 
   // Icons
   UsersIcon = Users;
   CalendarIcon = Calendar;
-  ClockIcon = Clock;
 
   TrendingUpIcon = TrendingUp;
   PlusIcon = Plus;
@@ -58,6 +61,8 @@ export class DashboardComponent implements OnInit {
     this.dashboardService.getDashboardData().subscribe((data) => {
       this.latestVisits.set(data.latestVisits);
       this.totalVisitsThisMonth.set(data.totalVisitsThisMonth);
+      this.visitorsInside.set(data.visitorsInside);
+      this.visitsToday.set(data.visitsToday);
     });
   }
 }

@@ -1,0 +1,102 @@
+<ng-template appPageActions>
+  <a mat-flat-button routerLink="/access-control/complexes/new">
+    <lucide-icon [img]="PlusIcon" [size]="18"></lucide-icon>
+    Nuevo conjunto
+  </a>
+</ng-template>
+
+<div class="app-page">
+  <app-data-table
+    [loading]="loading()"
+    [empty]="complexes().length === 0"
+    [error]="error()"
+    emptyTitle="No hay conjuntos registrados"
+    emptyMessage="Crea el primer conjunto para empezar a operar."
+    (retry)="load()"
+  >
+    <ng-container tableToolbar>
+      @if (context.selected(); as selected) {
+      <span class="text-muted">Trabajando en</span>
+      <span class="app-chip">{{ selected.name }}</span>
+      } @else {
+      <span class="text-muted">Elige un conjunto para trabajar en él</span>
+      }
+      <span class="app-spacer"></span>
+      @if (actionError(); as message) {
+      <span class="text-danger" role="alert">{{ message }}</span>
+      }
+      <span class="text-muted">
+        {{ complexes().length }}
+        {{ complexes().length === 1 ? "conjunto" : "conjuntos" }}
+      </span>
+    </ng-container>
+
+    <table class="app-table">
+      <thead>
+        <tr>
+          <th scope="col">Conjunto</th>
+          <th scope="col">Tipo</th>
+          <th scope="col">Zona horaria</th>
+          <th scope="col">Estado</th>
+          <th scope="col"><span class="sr-only">Acciones</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (complex of complexes(); track complex.id) {
+        <tr>
+          <td class="cell-primary">
+            <span class="cell-ellipsis">{{ complex.name }}</span>
+          </td>
+          <td class="cell-optional">{{ typeLabels[complex.type] }}</td>
+          <td class="cell-optional text-mono text-muted">
+            {{ complex.timeZoneId }}
+          </td>
+          <td class="cell-aside">
+            @if (complex.isActive) {
+            <app-status-badge variant="success">Activo</app-status-badge>
+            } @else {
+            <app-status-badge variant="neutral">Inactivo</app-status-badge>
+            }
+          </td>
+          <td class="cell-actions">
+            <span class="row-confirm">
+              <button
+                type="button"
+                class="app-icon-btn"
+                [attr.aria-label]="'Trabajar en ' + complex.name"
+                [title]="'Trabajar en ' + complex.name"
+                [disabled]="!complex.isActive"
+                (click)="workOn(complex)"
+              >
+                <lucide-icon [img]="EnterIcon" [size]="18"></lucide-icon>
+              </button>
+              <a
+                class="app-icon-btn"
+                [routerLink]="['/access-control/complexes/edit', complex.id]"
+                [attr.aria-label]="'Editar ' + complex.name"
+                [title]="'Editar ' + complex.name"
+              >
+                <lucide-icon [img]="EditIcon" [size]="18"></lucide-icon>
+              </a>
+              <button
+                type="button"
+                class="app-icon-btn"
+                [attr.aria-label]="
+                  (complex.isActive ? 'Desactivar ' : 'Activar ') + complex.name
+                "
+                [title]="
+                  (complex.isActive ? 'Desactivar ' : 'Activar ') + complex.name
+                "
+                [disabled]="busyId() === complex.id"
+                (click)="toggleActive(complex)"
+              >
+                <lucide-icon [img]="PowerIcon" [size]="18"></lucide-icon>
+              </button>
+            </span>
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </app-data-table>
+</div>

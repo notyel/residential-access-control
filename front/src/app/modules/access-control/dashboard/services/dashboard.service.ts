@@ -8,10 +8,13 @@ export interface LatestVisit {
   visitorFullName: string;
   residentFullName: string;
   entryTime: Date;
+  checkOut?: Date | null;
 }
 
 export interface DashboardData {
   totalVisitsThisMonth: number;
+  visitorsInside: number;
+  visitsToday: number;
   latestVisits: LatestVisit[];
 }
 

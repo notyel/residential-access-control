@@ -118,29 +118,68 @@ Los Data Transfer Objects (DTOs) se utilizan para transferir datos entre las dif
 ---
 ### 🔐 Nota de Seguridad: Gestión de Secretos
 
-**No almacene datos sensibles como contraseñas de bases de datos o claves JWT directamente en los archivos de configuración.** Este proyecto está configurado para usar el .NET Secret Manager en desarrollo.
+`appsettings.json` no contiene secretos. La API **no arranca** si falta la cadena de conexión o si
+la clave JWT tiene menos de 32 bytes, y el mensaje de error dice cuál falta.
 
-Para configurar su entorno local, ejecute los siguientes comandos desde el directorio `backend/AccessControl.API`:
+**Desarrollo** — .NET Secret Manager, desde `backend/AccessControl.API`:
 
 ```bash
-dotnet user-secrets init
-dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Host=ep-mute-cherry-a4j6mcyc-pooler.us-east-1.aws.neon.tech;Database=verceldb;Username=default;Password=<SU_CONTRASEÑA_REAL>;Ssl Mode=Require;Trust Server Certificate=true"
-dotnet user-secrets set "Jwt:Key" "<SU_CLAVE_JWT_SUPER_SECRETA>"
+dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Host=<HOST>;Database=<BD>;Username=<USUARIO>;Password=<CONTRASEÑA>;Ssl Mode=Require"
+dotnet user-secrets set "Jwt:Key" "<CLAVE_ALEATORIA_DE_32_BYTES_O_MÁS>"
 ```
 
-Reemplace `<SU_CONTRASEÑA_REAL>` y `<SU_CLAVE_JWT_SUPER_SECRETA>` con sus credenciales reales.
+Una clave válida se genera con `openssl rand -base64 32`.
+
+**Despliegue** — variables de entorno:
+
+| Variable | Contenido |
+| --- | --- |
+| `ConnectionStrings__DefaultConnection` | Cadena de conexión de PostgreSQL |
+| `Jwt__Key` | Clave de firma de los tokens |
+| `Cors__AllowedOrigins__0` | Origen del frontend (se pueden añadir `__1`, `__2`…) |
+
+**Migraciones** — `dotnet ef migrations add` no necesita base de datos. `dotnet ef database update`
+usa la variable de entorno `ConnectionStrings__DefaultConnection`.
+
+### 🧪 Pruebas
+
+```bash
+cd backend
+dotnet test AccessControl.Tests -c Release
+```
+
+Las pruebas de integración (`AccessControl.Tests/Integration`) arrancan la API en memoria contra un
+**PostgreSQL real**: el paquete `MysticMind.PostgresEmbed` descarga los binarios la primera vez y
+levanta una instancia temporal, sin Docker ni instalación. Aplican todas las migraciones, así que
+una migración rota hace fallar la suite. Para usar un PostgreSQL propio, definir
+`TEST_DB_CONNECTION` con su cadena de conexión.
+
+Los usuarios de prueba son los sembrados en `DataSeeder` (admin, guard y owner).
+
+### 🗄️ Base de datos local para desarrollo
+
+Para trabajar sin tocar la base compartida:
+
+```bash
+dotnet run --project backend/AccessControl.DevDb -c Release
+```
+
+```bash
+dotnet run --project backend/AccessControl.API -c Release --launch-profile local-db
+```
+
+El primero deja un PostgreSQL en `localhost:5433` (datos en `%LOCALAPPDATA%/AccessControl/devdb`).
+El segundo arranca la API en `http://localhost:5080` contra esa base y aplica las migraciones al
+iniciar. El frontend se conecta a ella con `npm run start:local` (puerto 4401).
 
 ### 👤 Creación de Usuarios
 
-Los usuarios se pueden crear a través de la API. El endpoint `POST /api/auth/register` está protegido y requiere el JWT de un usuario `Admin` para la autorización.
+Solo un usuario `Admin` crea y edita usuarios (pantalla "Residentes" o API).
 
-**Endpoint:** `POST https://localhost:7262/api/auth/register`
-
-**Encabezados:**
-- `Content-Type: application/json`
-- `Authorization: Bearer <TOKEN_JWT_DE_ADMIN>`
-
-**Cuerpo de la Solicitud:**
+| Operación | Endpoint | Notas |
+| --- | --- | --- |
+| Crear | `POST /api/users` | Correo duplicado → 409. Contraseña de 8 caracteres o más. |
+| Editar | `PUT /api/users/{id}` | Solo nombre, apellido y apartamento; no cambia contraseña ni rol. |
 
 ```json
 {
@@ -149,58 +188,21 @@ Los usuarios se pueden crear a través de la API. El endpoint `POST /api/auth/re
   "lastName": "Doe",
   "apartmentNumber": "101",
   "password": "UnaContraseñaSegura123!",
-  "role": <ID_DE_ROL>
+  "role": 2
 }
 ```
 
-**IDs de Rol:**
-- `0`: Admin
-- `1`: Guardia
-- `2`: Propietario
+Roles: `0` Admin, `1` Guard, `2` Owner.
 
-**Ejemplos con cURL:**
+### ⚠️ Errores
 
-*   **Crear un usuario Admin:**
-    ```bash
-    curl -X POST https://localhost:7262/api/auth/register \
-    -H "Content-Type: application/json" \
-    -H "Authorization: Bearer <TOKEN_JWT_DE_ADMIN>" \
-    -d '{
-      "email": "admin@example.com",
-      "firstName": "Admin",
-      "lastName": "User",
-      "apartmentNumber": "000",
-      "password": "UnaContraseñaSegura123!",
-      "role": 0
-    }'
-    ```
+Los controladores no capturan excepciones. Los servicios lanzan las de
+`AccessControl.Application/Exceptions` y `GlobalExceptionHandler` las traduce:
 
-*   **Crear un usuario Guardia:**
-    ```bash
-    curl -X POST https://localhost:7262/api/auth/register \
-    -H "Content-Type: application/json" \
-    -H "Authorization: Bearer <TOKEN_JWT_DE_ADMIN>" \
-    -d '{
-      "email": "guardia@example.com",
-      "firstName": "Guardia",
-      "lastName": "User",
-      "apartmentNumber": "000",
-      "password": "UnaContraseñaSegura123!",
-      "role": 1
-    }'
-    ```
-
-*   **Crear un usuario Propietario:**
-    ```bash
-    curl -X POST https://localhost:7262/api/auth/register \
-    -H "Content-Type: application/json" \
-    -H "Authorization: Bearer <TOKEN_JWT_DE_ADMIN>" \
-    -d '{
-      "email": "propietario@example.com",
-      "firstName": "John",
-      "lastName": "Doe",
-      "apartmentNumber": "101",
-      "password": "UnaContraseñaSegura123!",
-      "role": 2
-    }'
-    ```
+| Excepción | HTTP |
+| --- | --- |
+| `BusinessRuleException` y validación de DTO | 400 |
+| `ForbiddenException` | 403 |
+| `NotFoundException` | 404 |
+| `ConflictException` | 409 |
+| cualquier otra | 500 con mensaje genérico; el detalle queda en el log |

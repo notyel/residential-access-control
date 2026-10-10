@@ -22,7 +22,7 @@
   <a
     mat-flat-button
     routerLink="/access-control/visits/register"
-    *appIfRole="['Admin', 'Guard']"
+    *appIfPermission="P.visitsRegister"
   >
     <lucide-icon [img]="PlusIcon" [size]="18"></lucide-icon>
     Registrar visita
@@ -60,6 +60,9 @@
       <span class="text-muted">Sin filtros</span>
       }
       <span class="app-spacer"></span>
+      @if (actionError(); as message) {
+      <span class="text-danger" role="alert">{{ message }}</span>
+      }
       <span class="text-muted">
         {{ totalCount() }} {{ totalCount() === 1 ? "visita" : "visitas" }}
       </span>
@@ -74,6 +77,9 @@
           <th scope="col">Placa</th>
           <th scope="col">Ingreso</th>
           <th scope="col">Estado</th>
+          @if (canCheckout) {
+          <th scope="col"><span class="sr-only">Acciones</span></th>
+          }
         </tr>
       </thead>
       <tbody>
@@ -106,6 +112,52 @@
             <app-status-badge variant="success">En sitio</app-status-badge>
             }
           </td>
+          @if (canCheckout) {
+          <td class="cell-actions">
+            @if (!visit.checkOut) { @if (confirmingId() === visit.id) {
+            <span class="row-confirm">
+              <button
+                type="button"
+                class="app-icon-btn"
+                aria-label="Cancelar"
+                [disabled]="checkingOutId() === visit.id"
+                (click)="cancelCheckout()"
+              >
+                <lucide-icon [img]="RemoveIcon" [size]="18"></lucide-icon>
+              </button>
+              <button
+                mat-flat-button
+                type="button"
+                [attr.aria-label]="
+                  'Confirmar salida de ' +
+                  visit.person.firstName +
+                  ' ' +
+                  visit.person.lastName
+                "
+                [disabled]="checkingOutId() === visit.id"
+                (click)="confirmCheckout(visit)"
+              >
+                Confirmar
+              </button>
+            </span>
+            } @else {
+            <button
+              mat-stroked-button
+              type="button"
+              [attr.aria-label]="
+                'Registrar salida de ' +
+                visit.person.firstName +
+                ' ' +
+                visit.person.lastName
+              "
+              (click)="askCheckout(visit)"
+            >
+              <lucide-icon [img]="CheckoutIcon" [size]="16"></lucide-icon>
+              Registrar salida
+            </button>
+            } }
+          </td>
+          }
         </tr>
         }
       </tbody>

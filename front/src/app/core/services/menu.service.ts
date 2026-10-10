@@ -23,62 +23,28 @@ export class MenuService {
   private apiUrl = `${environment.apiUrl}/menu`;
   private iconService = inject(IconService);
   public menuItems = signal<MenuItem[]>([]);
+  /** El menú no se pudo cargar. No hay menú de respaldo: mostrar opciones sin saber el rol las expondría a todos. */
+  public loadFailed = signal(false);
 
   constructor(private http: HttpClient) {}
 
   getMenuForCurrentUser(): Observable<MenuItem[]> {
+    this.loadFailed.set(false);
+
     return this.http.get<ResponseModel<MenuItem[]>>(this.apiUrl).pipe(
       map((response) =>
-        response.data!.map((item) => ({
+        (response.data ?? []).map((item) => ({
           ...item,
           iconData: this.iconService.getIcon(item.icon),
         }))
       ),
       tap((items) => this.menuItems.set(items)),
-      catchError((error) => {
-        console.warn(
-          'Failed to load menu from backend, using fallback menu:',
-          error
-        );
-        const fallbackMenu = this.getFallbackMenu();
-        const processedItems = this.processMenuItems(fallbackMenu);
-        this.menuItems.set(processedItems);
-        return of(fallbackMenu);
+      catchError(() => {
+        this.menuItems.set([]);
+        this.loadFailed.set(true);
+        return of([]);
       })
     );
-  }
-
-  private getFallbackMenu(): MenuItem[] {
-    return [
-      {
-        id: '1',
-        name: 'Dashboard',
-        path: '/access-control/dashboard',
-        icon: 'BarChart',
-        order: 1,
-      },
-      {
-        id: '2',
-        name: 'Visitas',
-        path: '/access-control/visits',
-        icon: 'Calendar',
-        order: 2,
-      },
-      {
-        id: '3',
-        name: 'Residentes',
-        path: '/access-control/residents',
-        icon: 'Users',
-        order: 3,
-      },
-    ];
-  }
-
-  private processMenuItems(items: MenuItem[]): MenuItem[] {
-    return items.map((item) => ({
-      ...item,
-      iconData: this.iconService.getIcon(item.icon),
-    }));
   }
 
   getIconData(iconName: string): LucideIconData | undefined {

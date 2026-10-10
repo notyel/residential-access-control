@@ -12,7 +12,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import {
   LucideAngularModule,
   User,
@@ -23,6 +23,7 @@ import {
   Box,
 } from 'lucide-angular';
 import { AuthService } from '../../../../core/services/auth.service';
+import { apiErrorMessage } from '../../../../core/utils/api-error';
 
 @Component({
   selector: 'app-login',
@@ -57,6 +58,7 @@ export class LoginComponent {
   constructor(
     private fb: FormBuilder,
     private router: Router,
+    private route: ActivatedRoute,
     private authService: AuthService,
     private snackBar: MatSnackBar
   ) {
@@ -66,18 +68,28 @@ export class LoginComponent {
     });
   }
 
+  /** Ruta de la que venía el usuario; solo se aceptan rutas internas de la aplicación. */
+  private returnUrl(): string {
+    const url = this.route.snapshot.queryParamMap.get('returnUrl');
+    if (url && url.startsWith('/access-control')) {
+      return url;
+    }
+    return this.authService.isSuperAdmin()
+      ? '/access-control/complexes'
+      : '/access-control';
+  }
+
   onSubmit() {
     if (this.loginForm.valid) {
       this.isLoading = true;
 
       this.authService.login(this.loginForm.value).subscribe({
         next: () => {
-          this.router.navigate(['/access-control/dashboard']);
+          this.router.navigateByUrl(this.returnUrl());
         },
         error: (error: any) => {
           this.snackBar.open(
-            'Error de autenticación: ' +
-              (error.error.message || 'Credenciales inválidas'),
+            apiErrorMessage(error, 'No se pudo iniciar sesión.'),
             'Cerrar',
             { duration: 5000 }
           );

@@ -16,5 +16,10 @@ namespace AccessControl.Application.Interfaces
         /// Rango [Start, End) en UTC del mes en curso según la zona horaria configurada.
         /// </summary>
         (DateTime StartUtc, DateTime EndUtc) GetCurrentMonthRangeUtc();
+
+        /// <summary>
+        /// Rango [Start, End) en UTC del día en curso según la zona horaria configurada.
+        /// </summary>
+        (DateTime StartUtc, DateTime EndUtc) GetTodayRangeUtc();
     }
 }

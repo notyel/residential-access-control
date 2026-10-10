@@ -1,3 +1,4 @@
+using AccessControl.Application.Exceptions;
 using AccessControl.Application.Interfaces;
 using AccessControl.Common.DTOs.Common;
 using AccessControl.Common.DTOs.Person;
@@ -8,6 +9,7 @@ using AccessControl.Shared.Dtos.Visit;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace AccessControl.Application.Services
@@ -16,120 +18,137 @@ namespace AccessControl.Application.Services
     {
         private readonly IRepository<Visit> _visitRepository;
         private readonly IRepository<Person> _personRepository;
+        private readonly IRepository<Residence> _residenceRepository;
         private readonly IDateTimeService _dateTimeService;
 
-        public VisitService(IRepository<Visit> visitRepository, IRepository<Person> personRepository, IDateTimeService dateTimeService)
+        public VisitService(
+            IRepository<Visit> visitRepository,
+            IRepository<Person> personRepository,
+            IRepository<Residence> residenceRepository,
+            IDateTimeService dateTimeService)
         {
             _visitRepository = visitRepository;
             _personRepository = personRepository;
+            _residenceRepository = residenceRepository;
             _dateTimeService = dateTimeService;
         }
 
         public async Task<VisitDto> RegisterVisitAsync(CreateVisitDto dto, Guid userId)
         {
+            var residenceExists = await _residenceRepository.GetQueryable()
+                .AnyAsync(r => r.Id == dto.ResidenceId && r.IsActive);
+            if (!residenceExists)
+            {
+                throw new BusinessRuleException("La residencia indicada no existe.");
+            }
+
             Person person;
 
             if (dto.PersonId.HasValue)
             {
-                person = await _personRepository.GetByIdAsync(dto.PersonId.Value);
-                if (person == null)
-                {
-                    throw new ArgumentException("Invalid PersonId.");
-                }
+                person = await _personRepository.GetByIdAsync(dto.PersonId.Value)
+                    ?? throw new BusinessRuleException("La persona indicada no existe.");
             }
             else if (dto.NewPerson != null)
             {
-                var existingPerson = await _personRepository.GetQueryable()
-                    .FirstOrDefaultAsync(p => p.DocumentNumber == dto.NewPerson.DocumentNumber);
-
-                if (existingPerson != null)
+                var documentNumber = dto.NewPerson.DocumentNumber.Trim();
+                var duplicated = await _personRepository.GetQueryable()
+                    .AnyAsync(p => p.DocumentNumber == documentNumber);
+                if (duplicated)
                 {
-                    throw new InvalidOperationException("A person with this document number already exists.");
+                    throw new ConflictException("Ya existe una persona con ese número de documento.");
                 }
 
                 person = new Person
                 {
-                    FirstName = dto.NewPerson.FirstName,
-                    LastName = dto.NewPerson.LastName,
-                    DocumentType = dto.NewPerson.DocumentType,
-                    DocumentNumber = dto.NewPerson.DocumentNumber,
-                    Phone = dto.NewPerson.Phone,
-                    Email = dto.NewPerson.Email,
+                    FirstName = dto.NewPerson.FirstName.Trim(),
+                    LastName = dto.NewPerson.LastName.Trim(),
+                    DocumentType = dto.NewPerson.DocumentType.Trim(),
+                    DocumentNumber = documentNumber,
+                    Phone = Blank.ToNull(dto.NewPerson.Phone),
+                    Email = Blank.ToNull(dto.NewPerson.Email),
                     PersonType = dto.NewPerson.PersonType
                 };
                 await _personRepository.AddAsync(person);
             }
             else
             {
-                throw new ArgumentException("Either PersonId or NewPerson must be provided.");
+                throw new BusinessRuleException("Debe indicar una persona existente o los datos de una nueva.");
             }
 
             var visit = new Visit
             {
                 Person = person,
-                VehiclePlate = dto.VehiclePlate,
-                ResidenceId = dto.ResidenceId,
+                VehiclePlate = NormalizePlate(dto.VehiclePlate),
+                ResidenceId = dto.ResidenceId!.Value,
                 RegisteredById = userId
             };
 
             await _visitRepository.AddAsync(visit);
             await _visitRepository.SaveChangesAsync();
 
-            return MapVisitToDto(visit);
+            return await GetVisitByIdAsync(visit.Id);
         }
 
-        public async Task<VisitDto?> GetVisitByIdAsync(Guid visitId)
+        public async Task<VisitDto> GetVisitByIdAsync(Guid visitId, Guid? ownerId = null)
         {
-            var visit = await _visitRepository.GetQueryable()
-                .Include(v => v.Person)
-                .Include(v => v.Residence)
-                .Include(v => v.RegisteredBy)
-                .FirstOrDefaultAsync(v => v.Id == visitId);
-            return visit != null ? MapVisitToDto(visit) : null;
-        }
-
-        public async Task<VisitDto?> UpdateVisitAsync(Guid visitId, UpdateVisitDto dto)
-        {
-            var visit = await _visitRepository.GetQueryable()
-                .Include(v => v.Person)
-                .FirstOrDefaultAsync(v => v.Id == visitId);
-            if (visit != null)
+            var query = _visitRepository.GetQueryable().Where(v => v.Id == visitId);
+            if (ownerId.HasValue)
             {
-                visit.PersonId = dto.PersonId;
-                visit.VehiclePlate = dto.VehiclePlate;
-                await _visitRepository.SaveChangesAsync();
+                query = query.Where(v => v.Residence.OwnerId == ownerId.Value);
             }
-            return visit != null ? MapVisitToDto(visit) : null;
+
+            // Una visita ajena responde igual que una inexistente
+            return await query.Select(ToDto).FirstOrDefaultAsync()
+                ?? throw new NotFoundException("La visita no existe.");
         }
 
-        public async Task<bool> DeleteVisitAsync(Guid visitId)
+        public async Task<VisitDto> UpdateVisitAsync(Guid visitId, UpdateVisitDto dto)
         {
-            var visit = await _visitRepository.GetByIdAsync(visitId);
-            if (visit != null)
+            var visit = await _visitRepository.GetByIdAsync(visitId)
+                ?? throw new NotFoundException("La visita no existe.");
+
+            if (visit.CheckOut.HasValue)
             {
-                _visitRepository.Remove(visit);
-                await _visitRepository.SaveChangesAsync();
-                return true;
+                throw new ConflictException("La visita ya tiene salida registrada y no se puede modificar.");
             }
-            return false;
+
+            visit.VehiclePlate = NormalizePlate(dto.VehiclePlate);
+            await _visitRepository.SaveChangesAsync();
+
+            return await GetVisitByIdAsync(visitId);
         }
 
-        public async Task<VisitDto?> CheckoutAsync(Guid visitId)
+        public async Task<VisitDto> CheckoutAsync(Guid visitId, Guid userId)
         {
-            var visit = await _visitRepository.GetQueryable()
-                .Include(v => v.Person)
-                .FirstOrDefaultAsync(v => v.Id == visitId);
-            if (visit != null)
+            var now = _dateTimeService.UtcNow;
+
+            // UPDATE condicional: si dos porteros marcan la salida a la vez, solo uno la registra
+            var updated = await _visitRepository.GetQueryable()
+                .Where(v => v.Id == visitId && v.CheckOut == null)
+                .ExecuteUpdateAsync(s => s
+                    .SetProperty(v => v.CheckOut, now)
+                    .SetProperty(v => v.CheckedOutById, userId)
+                    .SetProperty(v => v.UpdatedAt, now));
+
+            if (updated == 0)
             {
-                visit.CheckOut = _dateTimeService.UtcNow;
-                await _visitRepository.SaveChangesAsync();
+                var exists = await _visitRepository.GetQueryable().AnyAsync(v => v.Id == visitId);
+                if (!exists) throw new NotFoundException("La visita no existe.");
+                throw new ConflictException("La visita ya tiene salida registrada.");
             }
-            return visit != null ? MapVisitToDto(visit) : null;
+
+            return await GetVisitByIdAsync(visitId);
         }
 
-        public async Task<PaginatedResultDto<VisitDto>> GetVisitsAsync(VisitFilterDto filter)
+        public async Task<PaginatedResultDto<VisitDto>> GetVisitsAsync(VisitFilterDto filter, Guid? ownerId = null)
         {
             var query = _visitRepository.GetQueryable();
+
+            if (ownerId.HasValue)
+            {
+                query = query.Where(v => v.Residence.OwnerId == ownerId.Value);
+            }
 
             if (filter.StartDate.HasValue)
             {
@@ -143,70 +162,61 @@ namespace AccessControl.Application.Services
                 query = query.Where(v => v.CreatedAt <= endUtc);
             }
 
+            if (filter.Status == VisitStatus.Inside)
+            {
+                query = query.Where(v => v.CheckOut == null);
+            }
+            else if (filter.Status == VisitStatus.CheckedOut)
+            {
+                query = query.Where(v => v.CheckOut != null);
+            }
+
             var totalCount = await query.CountAsync();
 
-            var pagedVisits = await query
-                .Include(v => v.Person)
+            var items = await query
                 .OrderByDescending(v => v.CreatedAt)
                 .Skip((filter.PageNumber - 1) * filter.PageSize)
                 .Take(filter.PageSize)
-                .Select(v => new VisitDto
-                {
-                    Id = v.Id,
-                    Person = new PersonDto
-                    {
-                        Id = v.Person.Id,
-                        FirstName = v.Person.FirstName,
-                        LastName = v.Person.LastName,
-                        DocumentType = v.Person.DocumentType,
-                        DocumentNumber = v.Person.DocumentNumber,
-                        Phone = v.Person.Phone,
-                        Email = v.Person.Email,
-                        PersonType = v.Person.PersonType
-                    },
-                    VehiclePlate = v.VehiclePlate,
-                    CheckOut = v.CheckOut,
-                    ResidenceId = v.ResidenceId,
-                    ResidenceIdentifier = v.Residence.Identifier,
-                    RegisteredById = v.RegisteredById,
-                    RegisteredByFullName = $"{v.RegisteredBy.FirstName} {v.RegisteredBy.LastName}",
-                    CreatedAt = v.CreatedAt
-                })
+                .Select(ToDto)
                 .ToListAsync();
 
             return new PaginatedResultDto<VisitDto>
             {
-                Items = pagedVisits,
+                Items = items,
                 TotalCount = totalCount,
                 PageNumber = filter.PageNumber,
                 PageSize = filter.PageSize
             };
         }
 
-        private static VisitDto MapVisitToDto(Visit visit)
+        private static string? NormalizePlate(string? plate)
         {
-            return new VisitDto
-            {
-                Id = visit.Id,
-                Person = new PersonDto
-                {
-                    Id = visit.Person.Id,
-                    FirstName = visit.Person.FirstName,
-                    LastName = visit.Person.LastName,
-                    DocumentType = visit.Person.DocumentType,
-                    DocumentNumber = visit.Person.DocumentNumber,
-                    Phone = visit.Person.Phone,
-                    Email = visit.Person.Email,
-                    PersonType = visit.Person.PersonType
-                },
-                VehiclePlate = visit.VehiclePlate,
-                CheckOut = visit.CheckOut,
-                ResidenceId = visit.ResidenceId,
-                ResidenceIdentifier = visit.Residence?.Identifier,
-                RegisteredById = visit.RegisteredById,
-                RegisteredByFullName = visit.RegisteredBy != null ? $"{visit.RegisteredBy.FirstName} {visit.RegisteredBy.LastName}" : null,
-                CreatedAt = visit.CreatedAt
-            };
+            return string.IsNullOrWhiteSpace(plate) ? null : plate.Trim().ToUpperInvariant();
         }
+
+        private static readonly Expression<Func<Visit, VisitDto>> ToDto = v => new VisitDto
+        {
+            Id = v.Id,
+            Person = new PersonDto
+            {
+                Id = v.Person.Id,
+                FirstName = v.Person.FirstName,
+                LastName = v.Person.LastName,
+                DocumentType = v.Person.DocumentType,
+                DocumentNumber = v.Person.DocumentNumber,
+                Phone = v.Person.Phone,
+                Email = v.Person.Email,
+                PersonType = v.Person.PersonType
+            },
+            VehiclePlate = v.VehiclePlate,
+            CheckOut = v.CheckOut,
+            CheckedOutById = v.CheckedOutById,
+            CheckedOutByFullName = v.CheckedOutBy == null ? null : v.CheckedOutBy.FirstName + " " + v.CheckedOutBy.LastName,
+            ResidenceId = v.ResidenceId,
+            ResidenceIdentifier = v.Residence.Identifier,
+            RegisteredById = v.RegisteredById,
+            RegisteredByFullName = v.RegisteredBy.FirstName + " " + v.RegisteredBy.LastName,
+            CreatedAt = v.CreatedAt
+        };
     }
 }

@@ -1,5 +1,4 @@
 using AccessControl.Common.DTOs.Menu;
-using AccessControl.Shared.Enums;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -7,6 +6,10 @@ namespace AccessControl.Application.Interfaces
 {
     public interface IMenuService
     {
-        Task<IEnumerable<MenuDto>> GetMenusByRoleAsync(Role role);
+        /// <summary>
+        /// Opciones que habilitan los permisos efectivos de la sesión. El superadministrador
+        /// recibe además "Conjuntos", y las del conjunto solo cuando tiene uno elegido.
+        /// </summary>
+        Task<IEnumerable<MenuDto>> GetMenuAsync();
     }
 }

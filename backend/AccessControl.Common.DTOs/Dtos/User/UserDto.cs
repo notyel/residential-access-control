@@ -1,5 +1,6 @@
-using AccessControl.Shared.Enums;
+using AccessControl.Common.DTOs.Role;
 using System;
+using System.Collections.Generic;
 
 namespace AccessControl.Common.DTOs.User
 {
@@ -10,6 +11,13 @@ namespace AccessControl.Common.DTOs.User
         public string? FirstName { get; set; }
         public string? LastName { get; set; }
         public string? ApartmentNumber { get; set; }
-        public Role Role { get; set; }
+        public bool IsActive { get; set; }
+        public bool IsSuperAdmin { get; set; }
+        public Guid? ComplexId { get; set; }
+        public string? ComplexName { get; set; }
+        public List<RoleRefDto> Roles { get; set; } = new();
+
+        /// <summary>Permisos efectivos. Solo se llena para el usuario de la sesión (login y auth/me).</summary>
+        public List<string>? Permissions { get; set; }
     }
 }

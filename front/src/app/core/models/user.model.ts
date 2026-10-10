@@ -1,7 +1,8 @@
-export enum Role {
-  Admin = 0,
-  Guard = 1,
-  Owner = 2,
+export interface RoleRef {
+  id: string;
+  name: string;
+  /** Clave del rol de sistema (admin, guard, owner, resident, auditor); null en roles propios. */
+  systemKey?: string | null;
 }
 
 export interface User {
@@ -10,5 +11,14 @@ export interface User {
   firstName: string;
   lastName: string;
   apartmentNumber: string;
-  role: number;
+  isActive?: boolean;
+  isSuperAdmin?: boolean;
+  complexId?: string | null;
+  complexName?: string | null;
+  roles: RoleRef[];
+}
+
+/** Usuario de la sesión: incluye sus permisos efectivos. */
+export interface SessionUser extends User {
+  permissions: string[];
 }

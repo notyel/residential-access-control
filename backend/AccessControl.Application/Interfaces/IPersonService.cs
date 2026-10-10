@@ -7,7 +7,7 @@ namespace AccessControl.Application.Interfaces
 {
     public interface IPersonService
     {
-        Task<List<PersonDto>> SearchPersonsAsync(string documentNumber);
+        Task<List<PersonDto>> SearchPersonsAsync(string? documentNumber);
         Task<PersonDto> CreatePersonAsync(CreatePersonDto dto);
         Task<PersonDto> UpdatePersonAsync(Guid id, UpdatePersonDto dto);
     }

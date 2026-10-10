@@ -11,6 +11,7 @@ import {
   Users,
 } from 'lucide-angular';
 import { Observable, of } from 'rxjs';
+import { P, PermissionRule } from '../security/permissions';
 import { AuthService } from '../services/auth.service';
 import { ThemeService } from '../services/theme.service';
 import {
@@ -24,11 +25,12 @@ interface ActionDefinition {
   group: string;
   title: string;
   icon: LucideIconData;
-  roles?: string[];
+  /** Permiso que habilita la acción; sin él, está disponible para todos. */
+  permission?: PermissionRule;
   run: () => void;
 }
 
-/** Navegación y acciones rápidas, filtradas por el rol del usuario. */
+/** Navegación y acciones rápidas, filtradas por los permisos del usuario. */
 @Injectable()
 export class ActionsSearchProvider implements SearchProvider {
   private readonly router = inject(Router);
@@ -41,7 +43,7 @@ export class ActionsSearchProvider implements SearchProvider {
       group: 'Acciones',
       title: 'Registrar visita',
       icon: Plus,
-      roles: ['Admin', 'Guard'],
+      permission: P.visitsRegister,
       run: () => this.router.navigate(['/access-control/visits/register']),
     },
     {
@@ -49,7 +51,7 @@ export class ActionsSearchProvider implements SearchProvider {
       group: 'Acciones',
       title: 'Nuevo residente',
       icon: UserPlus,
-      roles: ['Admin'],
+      permission: P.usersManage,
       run: () => this.router.navigate(['/access-control/residents/new']),
     },
     {
@@ -72,8 +74,9 @@ export class ActionsSearchProvider implements SearchProvider {
     {
       id: 'nav-dashboard',
       group: 'Ir a',
-      title: 'Dashboard',
+      title: 'Panel',
       icon: BarChart,
+      permission: P.dashboardRead,
       run: () => this.router.navigate(['/access-control/dashboard']),
     },
     {
@@ -81,6 +84,7 @@ export class ActionsSearchProvider implements SearchProvider {
       group: 'Ir a',
       title: 'Visitas',
       icon: Calendar,
+      permission: [P.visitsRead, P.visitsReadOwn],
       run: () => this.router.navigate(['/access-control/visits']),
     },
     {
@@ -88,18 +92,19 @@ export class ActionsSearchProvider implements SearchProvider {
       group: 'Ir a',
       title: 'Residentes',
       icon: Users,
+      permission: P.usersRead,
       run: () => this.router.navigate(['/access-control/residents']),
     },
   ];
 
   search(term: string): Observable<SearchResult[]> {
-    const role = this.authService.getUserRole();
     const query = normalizeSearchText(term);
 
     return of(
       this.actions.filter(
         (action) =>
-          (!action.roles || (role !== null && action.roles.includes(role))) &&
+          (!action.permission ||
+            this.authService.hasPermission(action.permission)) &&
           normalizeSearchText(action.title).includes(query)
       )
     );

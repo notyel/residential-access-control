@@ -121,12 +121,10 @@
               [disabled]="!canRegister"
               (click)="openResidencePicker()"
             >
-              @if (selectedResident(); as resident) {
+              @if (selectedResidence(); as residence) {
               <span id="residence-value">
-                Apartamento {{ resident.apartmentNumber }}
-                <span class="text-muted"
-                  >· {{ resident.firstName }} {{ resident.lastName }}</span
-                >
+                {{ residence.identifier }}
+                <span class="text-muted">· {{ residence.ownerFullName }}</span>
               </span>
               } @else {
               <span id="residence-value" class="app-picker-field__placeholder"

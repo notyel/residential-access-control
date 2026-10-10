@@ -8,6 +8,8 @@ namespace AccessControl.Application.Interfaces
     public interface IUsersService
     {
         Task<PaginatedResultDto<UserDto>> GetUsersAsync(string? role, int pageNumber = 1, int pageSize = 10);
-        Task<UserDto?> GetUserByIdAsync(Guid id);
+        Task<UserDto> GetUserByIdAsync(Guid id);
+        Task<UserDto> CreateUserAsync(CreateUserDto dto);
+        Task<UserDto> UpdateUserAsync(Guid id, UpdateUserDto dto);
     }
 }

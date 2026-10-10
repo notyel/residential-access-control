@@ -8,6 +8,21 @@ import { PaginatedResultDto } from '../../../../core/types/paginated-result.dto'
 
 // Tamaño de página para cargar la lista completa en selectores y búsquedas
 const ALL_RESIDENTS_PAGE_SIZE = 500;
+// Clave del rol de sistema "Propietario"
+const OWNER_ROLE_KEY = 'owner';
+
+export interface CreateResident {
+  email: string;
+  firstName: string;
+  lastName: string;
+  apartmentNumber: string;
+  password: string;
+}
+
+export type UpdateResident = Pick<
+  User,
+  'firstName' | 'lastName' | 'apartmentNumber'
+>;
 
 @Injectable({
   providedIn: 'root',
@@ -22,7 +37,7 @@ export class ResidentsService {
     pageSize: number
   ): Observable<PaginatedResultDto<User>> {
     const params = new HttpParams()
-      .set('role', 'Owner')
+      .set('role', OWNER_ROLE_KEY)
       .set('pageNumber', pageNumber)
       .set('pageSize', pageSize);
 
@@ -43,11 +58,18 @@ export class ResidentsService {
       .pipe(map((response) => response.data!));
   }
 
-  createResident(resident: Partial<User>): Observable<User> {
-    return this.http.post<User>(this.apiUrl, { ...resident, role: 'Owner' });
+  createResident(resident: CreateResident): Observable<User> {
+    return this.http
+      .post<ResponseModel<User>>(this.apiUrl, {
+        ...resident,
+        roleKeys: [OWNER_ROLE_KEY],
+      })
+      .pipe(map((response) => response.data!));
   }
 
-  updateResident(id: string, resident: Partial<User>): Observable<User> {
-    return this.http.put<User>(`${this.apiUrl}/${id}`, resident);
+  updateResident(id: string, resident: UpdateResident): Observable<User> {
+    return this.http
+      .put<ResponseModel<User>>(`${this.apiUrl}/${id}`, resident)
+      .pipe(map((response) => response.data!));
   }
 }

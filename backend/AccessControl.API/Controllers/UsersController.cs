@@ -1,4 +1,6 @@
+using AccessControl.API.Infrastructure;
 using AccessControl.Application.Interfaces;
+using AccessControl.Application.Security;
 using AccessControl.Common.DTOs;
 using AccessControl.Common.DTOs.Common;
 using AccessControl.Common.DTOs.User;
@@ -9,7 +11,7 @@ namespace AccessControl.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Policy = "AdminOnly")]
+    [HasPermission(Permissions.UsersRead, Permissions.UsersManage)]
     public class UsersController : ControllerBase
     {
         private readonly IUsersService _usersService;
@@ -23,36 +25,32 @@ namespace AccessControl.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetUsers([FromQuery] string? role, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
-            try
-            {
-                var paged = await _usersService.GetUsersAsync(role, pageNumber, pageSize);
-                return Ok(new ResponseModel<PaginatedResultDto<UserDto>>(true, "Users retrieved successfully.", paged));
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(new ResponseModel<string>(false, ex.Message, null));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new ResponseModel<string>(false, "An error occurred while retrieving users.", null, new() { ex.Message }));
-            }
+            var paged = await _usersService.GetUsersAsync(role, pageNumber, pageSize);
+            return Ok(new ResponseModel<PaginatedResultDto<UserDto>>(true, "Users retrieved successfully.", paged));
         }
 
         // GET: api/users/{id}
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUser(Guid id)
         {
-            try
-            {
-                var dto = await _usersService.GetUserByIdAsync(id);
-                if (dto == null) return NotFound(new ResponseModel<string>(false, "User not found.", null));
+            var dto = await _usersService.GetUserByIdAsync(id);
+            return Ok(new ResponseModel<UserDto>(true, "User retrieved successfully.", dto));
+        }
 
-                return Ok(new ResponseModel<UserDto>(true, "User retrieved successfully.", dto));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new ResponseModel<string>(false, "An error occurred while retrieving the user.", null, new() { ex.Message }));
-            }
+        [HttpPost]
+        [HasPermission(Permissions.UsersManage)]
+        public async Task<IActionResult> CreateUser([FromBody] CreateUserDto dto)
+        {
+            var user = await _usersService.CreateUserAsync(dto);
+            return Ok(new ResponseModel<UserDto>(true, "Usuario creado.", user));
+        }
+
+        [HttpPut("{id}")]
+        [HasPermission(Permissions.UsersManage)]
+        public async Task<IActionResult> UpdateUser(Guid id, [FromBody] UpdateUserDto dto)
+        {
+            var user = await _usersService.UpdateUserAsync(id, dto);
+            return Ok(new ResponseModel<UserDto>(true, "Usuario actualizado.", user));
         }
     }
 }

@@ -1,3 +1,4 @@
+using AccessControl.Application.Exceptions;
 using AccessControl.Application.Interfaces;
 using AccessControl.Common.DTOs.Person;
 using AccessControl.Domain.Entities;
@@ -12,6 +13,8 @@ namespace AccessControl.Application.Services
 {
     public class PersonService : IPersonService
     {
+        private const int MaxSearchResults = 50;
+
         private readonly IRepository<Person> _personRepository;
 
         public PersonService(IRepository<Person> personRepository)
@@ -21,22 +24,23 @@ namespace AccessControl.Application.Services
 
         public async Task<PersonDto> CreatePersonAsync(CreatePersonDto dto)
         {
-            var existingPerson = await _personRepository.GetQueryable()
-                .FirstOrDefaultAsync(p => p.DocumentNumber == dto.DocumentNumber);
+            var documentNumber = dto.DocumentNumber.Trim();
+            var duplicated = await _personRepository.GetQueryable()
+                .AnyAsync(p => p.DocumentNumber == documentNumber);
 
-            if (existingPerson != null)
+            if (duplicated)
             {
-                throw new InvalidOperationException("A person with this document number already exists.");
+                throw new ConflictException("Ya existe una persona con ese número de documento.");
             }
 
             var person = new Person
             {
-                FirstName = dto.FirstName,
-                LastName = dto.LastName,
-                DocumentType = dto.DocumentType,
-                DocumentNumber = dto.DocumentNumber,
-                Phone = dto.Phone,
-                Email = dto.Email,
+                FirstName = dto.FirstName.Trim(),
+                LastName = dto.LastName.Trim(),
+                DocumentType = dto.DocumentType.Trim(),
+                DocumentNumber = documentNumber,
+                Phone = Blank.ToNull(dto.Phone),
+                Email = Blank.ToNull(dto.Email),
                 PersonType = dto.PersonType
             };
 
@@ -46,32 +50,33 @@ namespace AccessControl.Application.Services
             return MapPersonToDto(person);
         }
 
-        public async Task<List<PersonDto>> SearchPersonsAsync(string documentNumber)
+        public async Task<List<PersonDto>> SearchPersonsAsync(string? documentNumber)
         {
-            var query = _personRepository.GetQueryable();
-
-            if (!string.IsNullOrEmpty(documentNumber))
+            // Sin criterio no se devuelve el directorio completo de personas
+            if (string.IsNullOrWhiteSpace(documentNumber))
             {
-                query = query.Where(p => p.DocumentNumber == documentNumber);
+                return new List<PersonDto>();
             }
 
-            return await query.Select(p => MapPersonToDto(p)).ToListAsync();
+            var value = documentNumber.Trim();
+            var persons = await _personRepository.GetQueryable()
+                .Where(p => p.DocumentNumber == value)
+                .Take(MaxSearchResults)
+                .ToListAsync();
+
+            return persons.Select(MapPersonToDto).ToList();
         }
 
         public async Task<PersonDto> UpdatePersonAsync(Guid id, UpdatePersonDto dto)
         {
-            var person = await _personRepository.GetByIdAsync(id);
+            var person = await _personRepository.GetByIdAsync(id)
+                ?? throw new NotFoundException("La persona no existe.");
 
-            if (person == null)
-            {
-                return null;
-            }
-
-            person.FirstName = dto.FirstName;
-            person.LastName = dto.LastName;
-            person.DocumentType = dto.DocumentType;
-            person.Phone = dto.Phone;
-            person.Email = dto.Email;
+            person.FirstName = dto.FirstName.Trim();
+            person.LastName = dto.LastName.Trim();
+            person.DocumentType = dto.DocumentType.Trim();
+            person.Phone = Blank.ToNull(dto.Phone);
+            person.Email = Blank.ToNull(dto.Email);
             person.PersonType = dto.PersonType;
 
             await _personRepository.SaveChangesAsync();

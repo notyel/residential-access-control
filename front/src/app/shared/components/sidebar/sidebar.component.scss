@@ -88,3 +88,13 @@
     font-weight: 600;
   }
 }
+
+.sidebar__error {
+  padding: var(--app-space-2) 10px;
+  color: var(--app-text-muted);
+  font-size: 13px;
+
+  p {
+    margin: 0 0 var(--app-space-2);
+  }
+}

@@ -2,6 +2,7 @@
   <a
     mat-flat-button
     routerLink="/access-control/residents/new"
+    *appIfPermission="P.usersManage"
   >
     <lucide-icon [img]="PlusIcon" [size]="18"></lucide-icon>
     Nuevo residente
@@ -21,6 +22,7 @@
       tableEmptyAction
       mat-flat-button
       routerLink="/access-control/residents/new"
+      *appIfPermission="P.usersManage"
     >
       <lucide-icon [img]="PlusIcon" [size]="18"></lucide-icon>
       Agregar residente
@@ -53,6 +55,7 @@
           <td class="cell-actions cell-aside">
             <a
               class="app-icon-btn"
+              *appIfPermission="P.usersManage"
               [routerLink]="['/access-control/residents/edit', resident.id]"
               [attr.aria-label]="
                 'Editar a ' + resident.firstName + ' ' + resident.lastName

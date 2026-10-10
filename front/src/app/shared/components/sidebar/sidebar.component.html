@@ -11,6 +11,15 @@
   </a>
 
   <nav class="sidebar__nav app-scroll-y" aria-label="Principal">
+    @if (menuService.loadFailed()) {
+    <div class="sidebar__error" role="alert">
+      <p>No se pudo cargar el menú.</p>
+      <button type="button" class="sidebar__link" (click)="loadMenu()">
+        <lucide-icon [img]="Retry" [size]="18"></lucide-icon>
+        <span>Reintentar</span>
+      </button>
+    </div>
+    }
     <ul>
       @for (item of menuService.menuItems(); track item.path) {
       <li>

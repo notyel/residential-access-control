@@ -1,0 +1,32 @@
+.role-form__hint {
+  margin: 0 0 var(--app-space-4);
+}
+
+.role-form__groups {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--app-space-4);
+}
+
+.role-form__group {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  margin: 0;
+  padding: var(--app-space-3) var(--app-space-3) var(--app-space-2);
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius);
+
+  legend {
+    display: flex;
+    gap: var(--app-space-2);
+    align-items: baseline;
+    padding: 0 var(--app-space-2);
+    font-weight: 600;
+
+    span {
+      font-size: 12px;
+      font-weight: 400;
+    }
+  }
+}

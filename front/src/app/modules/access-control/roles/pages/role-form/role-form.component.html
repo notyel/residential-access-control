@@ -1,0 +1,72 @@
+<ng-template appPageActions>
+  <a mat-button [routerLink]="cancelUrl">{{ canManage ? "Cancelar" : "Volver" }}</a>
+  @if (canManage) {
+  <button
+    mat-flat-button
+    type="button"
+    [disabled]="!canSave()"
+    (click)="onSubmit()"
+  >
+    <lucide-icon [img]="SaveIcon" [size]="18"></lucide-icon>
+    Guardar
+  </button>
+  }
+</ng-template>
+
+<div class="app-page app-page--scroll app-form-page">
+  <form class="app-form-layout" [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="app-form-main">
+      @if (errorMessage()) {
+      <p class="app-alert" role="alert">{{ errorMessage() }}</p>
+      }
+
+      <app-form-section title="Datos del rol" [step]="1">
+        <div class="app-form-grid">
+          <mat-form-field>
+            <mat-label>Nombre</mat-label>
+            <input matInput formControlName="name" />
+            @if (role()?.isSystem) {
+            <mat-hint>El nombre de un rol de sistema no se cambia</mat-hint>
+            }
+            <mat-error>Campo obligatorio</mat-error>
+          </mat-form-field>
+
+          <mat-form-field class="span-2">
+            <mat-label>Descripción</mat-label>
+            <input matInput formControlName="description" />
+          </mat-form-field>
+        </div>
+      </app-form-section>
+
+      <app-form-section title="Permisos" [step]="2">
+        <p class="text-muted role-form__hint">
+          Marque lo que este rol puede hacer. Un usuario con varios roles reúne
+          los permisos de todos. No se pueden conceder permisos que usted no
+          tiene.
+        </p>
+
+        <div class="role-form__groups">
+          @for (group of groups(); track group.module) {
+          <fieldset class="role-form__group">
+            <legend>
+              {{ group.module }}
+              <span class="text-muted"
+                >{{ selectedIn(group) }} de {{ group.permissions.length }}</span
+              >
+            </legend>
+            @for (permission of group.permissions; track permission.key) {
+            <mat-checkbox
+              [checked]="isChecked(permission.key)"
+              [disabled]="isDisabled(permission.key)"
+              (change)="toggle(permission.key, $event.checked)"
+            >
+              {{ permission.label }}
+            </mat-checkbox>
+            }
+          </fieldset>
+          }
+        </div>
+      </app-form-section>
+    </div>
+  </form>
+</div>

@@ -1,0 +1,143 @@
+<ng-template appPageActions>
+  <a
+    mat-flat-button
+    routerLink="/access-control/roles/new"
+    *appIfPermission="P.rolesManage"
+  >
+    <lucide-icon [img]="PlusIcon" [size]="18"></lucide-icon>
+    Nuevo rol
+  </a>
+</ng-template>
+
+<div class="app-page">
+  <app-data-table
+    [loading]="loading()"
+    [empty]="roles().length === 0"
+    [error]="error()"
+    emptyTitle="No hay roles"
+    emptyMessage="Los roles del conjunto aparecerán aquí."
+    (retry)="load()"
+  >
+    <ng-container tableToolbar>
+      <span class="text-muted">Los roles de sistema se ajustan, pero no se eliminan</span>
+      <span class="app-spacer"></span>
+      @if (actionError(); as message) {
+      <span class="text-danger" role="alert">{{ message }}</span>
+      }
+      <span class="text-muted">
+        {{ roles().length }} {{ roles().length === 1 ? "rol" : "roles" }}
+      </span>
+    </ng-container>
+
+    <table class="app-table">
+      <thead>
+        <tr>
+          <th scope="col">Rol</th>
+          <th scope="col">Tipo</th>
+          <th scope="col">Permisos</th>
+          <th scope="col">Usuarios</th>
+          <th scope="col">Estado</th>
+          <th scope="col"><span class="sr-only">Acciones</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (role of roles(); track role.id) {
+        <tr>
+          <td class="cell-primary">
+            <div class="cell-stack">
+              <span class="cell-ellipsis">{{ role.name }}</span>
+              @if (role.description) {
+              <span class="text-muted cell-ellipsis cell-optional">{{
+                role.description
+              }}</span>
+              }
+            </div>
+          </td>
+          <td class="cell-optional">
+            {{ role.isSystem ? "De sistema" : "Propio" }}
+          </td>
+          <td class="cell-optional cell-numeric">
+            {{ role.permissions.length }}
+          </td>
+          <td class="cell-optional cell-numeric">{{ role.userCount }}</td>
+          <td class="cell-aside">
+            @if (role.isActive) {
+            <app-status-badge variant="success">Activo</app-status-badge>
+            } @else {
+            <app-status-badge variant="neutral">Inactivo</app-status-badge>
+            }
+          </td>
+          <td class="cell-actions">
+            <span class="row-confirm">
+              @if (deletingId() === role.id) {
+              <button
+                mat-button
+                type="button"
+                [disabled]="busyId() === role.id"
+                (click)="deletingId.set(null)"
+              >
+                Cancelar
+              </button>
+              <button
+                mat-flat-button
+                type="button"
+                [attr.aria-label]="'Confirmar eliminación de ' + role.name"
+                [disabled]="busyId() === role.id"
+                (click)="confirmDelete(role)"
+              >
+                Eliminar
+              </button>
+              } @else {
+              <a
+                class="app-icon-btn"
+                [routerLink]="['/access-control/roles/edit', role.id]"
+                [attr.aria-label]="'Ver o editar ' + role.name"
+                [title]="'Ver o editar ' + role.name"
+              >
+                <lucide-icon [img]="EditIcon" [size]="18"></lucide-icon>
+              </a>
+              <ng-container *appIfPermission="P.rolesManage">
+                <a
+                  class="app-icon-btn"
+                  routerLink="/access-control/roles/new"
+                  [queryParams]="{ from: role.id }"
+                  [attr.aria-label]="'Duplicar ' + role.name"
+                  [title]="'Duplicar ' + role.name"
+                >
+                  <lucide-icon [img]="CopyIcon" [size]="18"></lucide-icon>
+                </a>
+                <button
+                  type="button"
+                  class="app-icon-btn"
+                  [attr.aria-label]="
+                    (role.isActive ? 'Desactivar ' : 'Activar ') + role.name
+                  "
+                  [title]="
+                    (role.isActive ? 'Desactivar ' : 'Activar ') + role.name
+                  "
+                  [disabled]="busyId() === role.id"
+                  (click)="toggleActive(role)"
+                >
+                  <lucide-icon [img]="PowerIcon" [size]="18"></lucide-icon>
+                </button>
+                @if (!role.isSystem && role.userCount === 0) {
+                <button
+                  type="button"
+                  class="app-icon-btn"
+                  [attr.aria-label]="'Eliminar ' + role.name"
+                  [title]="'Eliminar ' + role.name"
+                  (click)="askDelete(role)"
+                >
+                  <lucide-icon [img]="DeleteIcon" [size]="18"></lucide-icon>
+                </button>
+                }
+              </ng-container>
+              }
+            </span>
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </app-data-table>
+</div>

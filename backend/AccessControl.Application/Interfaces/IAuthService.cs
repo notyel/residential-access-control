@@ -1,7 +1,7 @@
 using AccessControl.Common.DTOs.Auth;
 using AccessControl.Common.DTOs.User;
 using AccessControl.Domain.Entities;
-using AccessControl.Shared.Enums;
+using System;
 using System.Threading.Tasks;
 
 namespace AccessControl.Application.Interfaces
@@ -9,7 +9,10 @@ namespace AccessControl.Application.Interfaces
     public interface IAuthService
     {
         Task<LoginResponseDto?> AuthenticateAsync(string email, string password);
-        Task<UserDto> CreateUserAsync(string email, string firstName, string lastName, string apartmentNumber, string password, Role role);
+
+        /// <summary>Usuario de la sesión con sus roles y permisos efectivos al día.</summary>
+        Task<UserDto> GetCurrentUserAsync(Guid userId);
+
         string GenerateJwtToken(User user);
     }
 }

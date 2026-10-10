@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { IdCard } from 'lucide-angular';
 import { Observable, map, of } from 'rxjs';
+import { P } from '../security/permissions';
 import { AuthService } from '../services/auth.service';
 import { PersonService } from '../services/person.service';
 import { SearchProvider, SearchResult } from './search-provider';
@@ -21,7 +22,8 @@ export class PersonsSearchProvider implements SearchProvider {
   search(term: string): Observable<SearchResult[]> {
     const documentNumber = term.trim();
     const canRegister =
-      this.authService.hasRole('Admin') || this.authService.hasRole('Guard');
+      this.authService.hasPermission(P.visitsRegister) &&
+      this.authService.hasPermission(P.peopleRead);
 
     if (!canRegister || !DOCUMENT_PATTERN.test(documentNumber)) {
       return of([]);

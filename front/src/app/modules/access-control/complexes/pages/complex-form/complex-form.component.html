@@ -1,0 +1,97 @@
+<ng-template appPageActions>
+  <a mat-button [routerLink]="cancelUrl">Cancelar</a>
+  <button
+    mat-flat-button
+    type="button"
+    [disabled]="!canSave()"
+    (click)="onSubmit()"
+  >
+    <lucide-icon [img]="SaveIcon" [size]="18"></lucide-icon>
+    Guardar
+  </button>
+</ng-template>
+
+<div class="app-page app-page--scroll app-form-page">
+  <form class="app-form-layout" [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="app-form-main">
+      @if (errorMessage()) {
+      <p class="app-alert" role="alert">{{ errorMessage() }}</p>
+      }
+
+      <app-form-section title="Datos del conjunto" [step]="1">
+        <div class="app-form-grid">
+          <mat-form-field class="span-2">
+            <mat-label>Nombre</mat-label>
+            <input matInput formControlName="name" />
+            <mat-error>Campo obligatorio</mat-error>
+          </mat-form-field>
+
+          <mat-form-field>
+            <mat-label>Tipo</mat-label>
+            <mat-select formControlName="type">
+              @for (type of types; track type) {
+              <mat-option [value]="type">{{ typeLabels[type] }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field class="span-2">
+            <mat-label>Dirección</mat-label>
+            <input matInput formControlName="address" />
+          </mat-form-field>
+
+          <mat-form-field>
+            <mat-label>Zona horaria</mat-label>
+            <mat-select formControlName="timeZoneId">
+              @for (zone of timeZones; track zone) {
+              <mat-option [value]="zone">{{ zone }}</mat-option>
+              }
+            </mat-select>
+            <mat-hint>Define los cortes de día y de mes</mat-hint>
+          </mat-form-field>
+        </div>
+      </app-form-section>
+
+      @if (isNew) {
+      <app-form-section title="Administrador del conjunto" [step]="2">
+        <div class="app-form-grid" formGroupName="admin">
+          <mat-form-field>
+            <mat-label>Nombre</mat-label>
+            <input matInput formControlName="firstName" />
+            <mat-error>Campo obligatorio</mat-error>
+          </mat-form-field>
+
+          <mat-form-field>
+            <mat-label>Apellido</mat-label>
+            <input matInput formControlName="lastName" />
+            <mat-error>Campo obligatorio</mat-error>
+          </mat-form-field>
+
+          <mat-form-field class="span-2">
+            <mat-label>Correo electrónico</mat-label>
+            <input
+              matInput
+              type="email"
+              formControlName="email"
+              autocomplete="off"
+            />
+            <mat-error>Ingresa un correo válido</mat-error>
+          </mat-form-field>
+
+          <mat-form-field>
+            <mat-label>Contraseña</mat-label>
+            <input
+              matInput
+              type="password"
+              formControlName="password"
+              autocomplete="new-password"
+            />
+            <mat-hint>Mínimo 8 caracteres</mat-hint>
+            <mat-error>Debe tener al menos 8 caracteres</mat-error>
+          </mat-form-field>
+        </div>
+      </app-form-section>
+      }
+    </div>
+  </form>
+</div>
