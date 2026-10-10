@@ -21,6 +21,7 @@ import {
 import { StatusBadgeComponent } from '../../../../../shared/components/status-badge/status-badge.component';
 import { IfRoleDirective } from '../../../../../shared/directives/if-role.directive';
 import { PageActionsDirective } from '../../../../../shared/directives/page-actions.directive';
+import { PageToolsDirective } from '../../../../../shared/directives/page-tools.directive';
 import { initials } from '../../../../../shared/utils/initials';
 import {
   EMPTY_VISIT_FILTERS,
@@ -47,6 +48,7 @@ interface FilterChip {
     StatusBadgeComponent,
     IfRoleDirective,
     PageActionsDirective,
+    PageToolsDirective,
   ],
   templateUrl: './visits.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

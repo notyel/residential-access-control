@@ -29,6 +29,10 @@
     }
   </div>
 
+  <div class="topbar__tools">
+    <ng-container [ngTemplateOutlet]="pageHeader.tools()"></ng-container>
+  </div>
+
   <button
     type="button"
     class="topbar__search"
@@ -37,13 +41,8 @@
     (click)="commandPalette.open()"
   >
     <lucide-icon [img]="SearchIcon" [size]="16"></lucide-icon>
-    <span class="topbar__search-text">Buscar…</span>
-    <kbd class="app-kbd">Ctrl K</kbd>
+    <kbd class="topbar__search-key">Ctrl K</kbd>
   </button>
-
-  <div class="topbar__actions">
-    <ng-container [ngTemplateOutlet]="pageHeader.actions()"></ng-container>
-  </div>
 
   <app-theme-toggle class="topbar__theme"></app-theme-toggle>
 

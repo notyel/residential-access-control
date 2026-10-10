@@ -1,4 +1,4 @@
-<ng-template appPageActions>
+<ng-template appPageTools>
   <button
     type="button"
     class="app-icon-btn app-icon-btn--badged"
@@ -16,14 +16,16 @@
     }}</span>
     }
   </button>
+</ng-template>
+
+<ng-template appPageActions>
   <a
     mat-flat-button
     routerLink="/access-control/visits/register"
-    aria-label="Registrar visita"
     *appIfRole="['Admin', 'Guard']"
   >
     <lucide-icon [img]="PlusIcon" [size]="18"></lucide-icon>
-    <span class="hide-compact">Registrar visita</span>
+    Registrar visita
   </a>
 </ng-template>
 

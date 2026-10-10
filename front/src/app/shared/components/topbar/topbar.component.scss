@@ -43,14 +43,12 @@
   align-items: center;
   flex-shrink: 0;
   gap: var(--app-space-2);
-  width: 240px;
-  height: 40px;
-  padding: 0 var(--app-space-2) 0 var(--app-space-3);
+  height: 36px;
+  padding: 0 6px 0 10px;
   border: 1px solid var(--app-border);
   border-radius: var(--app-radius);
-  background: var(--app-bg);
+  background: var(--app-surface);
   color: var(--app-text-muted);
-  font-size: 14px;
   cursor: pointer;
 
   &:hover {
@@ -58,12 +56,23 @@
   }
 }
 
-.topbar__search-text {
-  flex: 1;
-  text-align: left;
+// La búsqueda es un comando (abre un popup), no un campo de texto
+.topbar__search:hover {
+  background: var(--app-surface-2);
+  color: var(--app-text);
 }
 
-.topbar__actions {
+.topbar__search-key {
+  padding: 2px 6px;
+  border-radius: 5px;
+  background: var(--app-surface-2);
+  font-family: var(--app-font-mono);
+  font-size: 11px;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.topbar__tools {
   display: flex;
   align-items: center;
   flex-shrink: 0;
@@ -116,8 +125,7 @@
   .topbar--has-back .topbar__menu,
   .topbar__theme,
   .topbar__user,
-  .topbar__search-text,
-  .topbar__search .app-kbd {
+  .topbar__search-key {
     display: none;
   }
 
