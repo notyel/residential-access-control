@@ -1,6 +1,6 @@
 # HU-108 · Conjuntos y separación de datos
 
-**Épica:** E7 · **Etapa:** 1 Fundamentos · **Estado:** Hecha con pendientes · **Depende de:** HU-107
+**Épica:** E7 · **Etapa:** 1 Fundamentos · **Estado:** Hecha · **Depende de:** HU-107
 **Requerimiento:** §1.1, §2 (Superadministrador), §7.4, §8.10
 
 ## Historia
@@ -17,7 +17,7 @@ aislados, para operar varios clientes en la misma plataforma sin que uno vea inf
 - [x] Al guardar, `ComplexId` se toma del token; un valor distinto enviado por el cliente se ignora.
 - [x] Las restricciones de unicidad pasan a ser por conjunto: documento de persona e identificador de residencia. **El correo de usuario se mantuvo único en toda la plataforma**: es lo que identifica la cuenta al iniciar sesión, y hacerlo único por conjunto obligaría a elegir conjunto en el login.
 - [x] El superadministrador no pertenece a un conjunto: puede listar, crear, editar y desactivar conjuntos, y elegir en cuál trabajar.
-- [ ] Un conjunto desactivado no permite iniciar sesión a sus usuarios. Hecho para el inicio de sesión; **pendiente**: los tokens ya emitidos siguen sirviendo hasta que vencen (se cierra con las sesiones revocables de HU-113).
+- [x] Un conjunto desactivado no permite iniciar sesión a sus usuarios. Hecho para el inicio de sesión; **pendiente**: los cerrado en HU-110: el servidor valida en cada petición que el conjunto siga activo.
 - [x] Pantalla "Conjuntos" (lista, alta, edición), visible solo para el superadministrador.
 
 ## Diseño técnico

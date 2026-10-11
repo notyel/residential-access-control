@@ -7,145 +7,118 @@ y es entregable por separado (un commit o PR por historia).
 
 ## Cómo se hizo la validación
 
-- Fecha: 2026-10-10, rama `develop`, commit `dc43fc6`.
-- Método: lectura del código de `backend/` (API .NET, EF Core, PostgreSQL) y `front/` (Angular).
-  **No se ejecutó la aplicación ni se consultó la base de datos**; lo que dependa de datos reales
-  (por ejemplo, las rutas del menú guardadas en la BD) está marcado como "por confirmar".
-- Escala: **Cumple** · **Parcial** (existe algo, no alcanza el criterio) · **No cumple** (no existe).
+- Fecha: 2026-10-10, rama `develop`, con las 33 historias de la épica ya trabajadas.
+- Método: pruebas automatizadas contra el API real con PostgreSQL (129 pruebas de backend, entre
+  ellas las de aceptación de §8: `dotnet test --filter Category=Aceptacion`), 27 pruebas del
+  frontend, y recorrido de las pantallas nuevas en el entorno local (`devdb` + `api-local` +
+  `front-local`). No se ha desplegado ni probado en la base de datos compartida.
+- Escala: **Cumple** · **Parcial** (funciona, con un pendiente anotado) · **No cumple**.
+- La validación inicial (antes de construir nada) quedó en el historial de git, commit `21be9a1`.
 
 ## Resultado en una línea
 
-De los 10 criterios transversales (§8) hoy no se puede demostrar ninguno completo: 3 están
-parciales (visitas, restricción por rol, menú por rol) y 7 no tienen implementación. Lo construido
-es una base de autenticación, registro de visitas en portería y una interfaz ya rediseñada; faltan
-el modelo de unidades, ocupantes, vehículos, parqueaderos, permisos configurables y bitácora.
-Además, tres flujos que la interfaz ya ofrece fallan contra el API real (ver
-[Defectos](#defectos-en-lo-construido)).
+Los 10 criterios transversales (§8) se demuestran con pruebas automatizadas de extremo a extremo.
+De las 33 historias, 12 están hechas y 21 hechas con pendientes
+anotados; ninguna está sin empezar. Lo que sigue abierto es sobre todo operación (copias de
+seguridad sin ejecutar, rotación de credenciales), sesiones con token de renovación y detalles de
+pantalla. Está reunido en [Pendientes abiertos](#pendientes-abiertos).
 
 ## Qué existe hoy
 
 | Capa | Construido |
 | --- | --- |
-| Datos | `User` (un `Role` de enum: Admin, Guard, Owner; `ApartmentNumber` como texto), `Residence` (identificador + un dueño), `Person`, `Visit` (persona, placa como texto, residencia, quién registró, `CheckOut`), `Menu`, `RoleMenu` |
-| API | `POST auth/login`, `POST auth/register` (Admin), `GET users` y `GET users/{id}` (Admin), `GET/POST/PUT persons` (Admin, Guard), `visits`: listar, ver, crear, editar, borrar, `checkout`; `GET owners/visits`; `GET menu`; `GET dashboard` (Admin) |
-| Seguridad | JWT con expiración de 240 min, contraseñas con BCrypt, cuatro políticas fijas por rol |
-| Interfaz | Login, Panel, Visitas (lista con filtro por fechas), Registrar visita, Residentes (lista, alta, edición), menú lateral cargado del API, búsqueda por comando, tema claro/oscuro, layout responsive |
-| Pruebas | Ninguna (no hay proyectos de test en backend ni `*.spec.ts` en frontend) |
+| Datos | Conjuntos (multiinquilino con filtro global por `ComplexId`), usuarios con estado e invitación, roles y permisos configurables, políticas y catálogos por conjunto, estructuras y unidades, personas, titularidades y ocupaciones con vigencia, autorizaciones de visita, visitas y eventos de acceso inmutables, vehículos y sus autorizaciones, parqueaderos con asignaciones, novedades y bitácora de auditoría |
+| API | Autenticación con bloqueo e invitaciones; administración de conjuntos, usuarios, roles, políticas y catálogos; unidades y personas; portal (`api/my/...`); portería (validación, ingreso, salida, rechazo, excepción, anulación); vehículos; parqueaderos y disponibilidad; historial de accesos, reportes con exportación CSV, novedades; panel por bloques; `GET api/health` |
+| Seguridad | Permisos `modulo.accion` exigidos en cada endpoint con `[HasPermission]`, datos aislados por conjunto y por unidad, datos personales enmascarados en el servidor, bitácora de cambios y de exportaciones, límite de intentos |
+| Interfaz | Panel por rol, Unidades, Propietarios y residentes, Validar visitantes, Visitantes, Autorizaciones, Verificar vehículos, Vehículos, Parqueaderos, Novedades, Historial de accesos, Reportes, Usuarios, Roles, Bitácora, Políticas, y el portal (Mis propiedades, Mi residencia, Autorizar visitantes, Mis vehículos, Mis parqueaderos) |
+| Pruebas | 129 de backend (integración contra PostgreSQL embebido y unitarias) y 27 de frontend; flujo de CI escrito |
 
 ## Validación por sección del requerimiento
 
-### §1.1 Propiedades y unidades — No cumple
+### §1.1 Propiedades y unidades — Cumple
 
-| Requisito | Estado | Evidencia |
-| --- | --- | --- |
-| Registrar conjuntos, torres, bloques, casas, apartamentos, locales | No cumple | Solo existe `Residence` con un texto `Identifier`; no hay API ni pantalla para crearla (solo el dato sembrado `RES-001`) |
-| Identificador único por unidad | Parcial | `Residence.Identifier` tiene índice pero no es único (`ApplicationDbContext.cs`) |
-| Consultar propietarios, ocupantes, vehículos y parqueaderos de la unidad | No cumple | No hay endpoint de residencias |
-| Historial de ocupación y cambios de propietario | No cumple | `Residence.OwnerId` se sobrescribe; no hay vigencias |
-| Una persona propietaria de varias unidades | Parcial | El modelo lo permite (`User.Residences`), sin forma de registrarlo |
+Estructuras (torre, bloque, etapa…) opcionales, unidades con código único por conjunto, alta
+individual y en lote, estado de ocupación calculado. Historias HU-115 y HU-118.
+Pendiente: no hay pantalla para administrar catálogos ni estructuras (se hace por el API).
 
-### §1.2 y §4 Propietarios, residentes y ocupantes — No cumple
+### §1.2 y §4 Propietarios, residentes y ocupantes — Cumple
 
-| Requisito | Estado | Evidencia |
-| --- | --- | --- |
-| Registrar propietarios y sus unidades | Parcial | "Residentes" lista usuarios con rol Owner; el alta y la edición fallan (defecto D2) y no vinculan una `Residence` |
-| Diferenciar propietario residente/no residente, arrendatario, otros | No cumple | No existe el concepto; "residente" = usuario con rol Owner |
-| Cuenta personal del propietario | Parcial | El Owner inicia sesión; su única vista (visitas) falla (defecto D4) |
-| Residentes por unidad, relación, estados y fechas | No cumple | — |
-| El propietario gestiona sus ocupantes | No cumple | — |
-| Varios propietarios por unidad (§4.1) | No cumple | `Residence` admite un solo `OwnerId` |
-| Fin de arrendamiento revoca permisos y conserva historial (§4.6, §4.7) | No cumple | — |
-| Permisos de acceso independientes del inicio de sesión (§4.8) | No cumple | La persona con acceso físico y la cuenta son la misma fila `User` |
+Persona separada de la cuenta de usuario; titularidades y ocupaciones con fecha de inicio y fin;
+la base impide periodos cruzados; propietario no residente y arrendatario conviven con su
+relación; el historial se conserva. Portal del propietario y del residente. Historias HU-116 a
+HU-119. Pendiente: `User` conserva nombre y apellido propios (HU-116).
 
-### §1.3 y §5 Visitantes y accesos — Parcial
+### §1.3 y §5 Visitantes y accesos — Cumple
 
-| Requisito | Estado | Evidencia |
-| --- | --- | --- |
-| Registrar visitantes desde portería | Parcial | Existe el flujo, pero envía el id del usuario como `residenceId` (defecto D1) |
-| Autorización previa del propietario o residente | No cumple | No hay entidad de autorización |
-| Asociar unidad y persona que autoriza | Parcial | Guarda la residencia y quién registró (el guarda), no quién autoriza |
-| Nombre, documento, motivo, ingreso y salida | Parcial | Falta motivo; el documento es obligatorio siempre |
-| Autorizaciones únicas, por periodo, recurrentes | No cumple | — |
-| Esperados, presentes y anteriores | Parcial | Hay lista con filtro de fechas; no hay filtro "presentes" ni esperados |
-| Resultado de la verificación y rechazos | No cumple | — |
-| Ingreso y salida por separado sin sobrescribir (§5.4) | Parcial | La salida es el campo `Visit.CheckOut`; un segundo `checkout` lo sobrescribe, `PUT visits/{id}` permite cambiar la persona y `DELETE` borra físicamente. Además la salida no tiene botón en la interfaz |
-| Vehículo relacionado con la visita (§5.5) | Parcial | Solo un texto `VehiclePlate` |
-| Accesos excepcionales con autor y motivo (§5.7) | No cumple | — |
+Autorización previa (única, por periodo, recurrente), validación en portería con el veredicto del
+servidor, ingreso sin autorización según la política del conjunto, rechazo, acceso excepcional con
+permiso y motivo, salida, anulación en lugar de edición, y trazabilidad completa en el detalle.
+Historias HU-120 a HU-123. Pendientes menores de pantalla en HU-122 y HU-123.
 
-### §1.4 Vehículos — No cumple
+### §1.4 Vehículos — Cumple
 
-No hay entidad, API ni pantalla. Lo único relacionado es el texto `Visit.VehiclePlate`.
+Inventario con placa normalizada y única, autorización por unidad y responsable con historial,
+registro desde el portal según la política, vehículo de visitante enlazado a su visita y
+verificación por placa con cuatro resultados. Historias HU-124 y HU-125.
 
-### §1.5 y §6 Parqueaderos — No cumple
+### §1.5 y §6 Parqueaderos — Cumple
 
-No hay entidad, API ni pantalla. Ninguno de los 7 criterios de §6 se puede evaluar.
+Privados, comunitarios y de visitantes; titular, asignación temporal, reserva y ocupación en una
+sola tabla con restricciones de exclusión en la base; el estado y la disponibilidad se calculan en
+cada consulta; la salida del vehículo libera el espacio. Historias HU-126 a HU-128.
 
-### §1.6 Seguridad y registro de accesos — No cumple
+### §1.6 Seguridad y registro de accesos — Cumple
 
-| Requisito | Estado | Evidencia |
-| --- | --- | --- |
-| Ingreso y salida de residentes, visitantes y vehículos | Parcial | Solo visitantes |
-| Validar vigencia de autorizaciones | No cumple | — |
-| Bitácora de eventos y novedades | No cumple | — |
-| Rechazos y accesos excepcionales | No cumple | — |
-| Consultas por fecha, persona, unidad, placa y tipo | Parcial | `GET visits` filtra solo por fechas |
-| Restringir consultas por rol | Parcial | Políticas por rol en los controladores; ver §2 |
+Todo evento de acceso queda registrado y no se puede modificar ni borrar (lo impide también la
+base). Historial filtrable según el rol, reportes, exportación con registro en bitácora y
+novedades del turno. Historia HU-129.
 
-### §2 Roles y permisos — Parcial
+### §2 Roles y permisos — Cumple
 
-| # | Criterio | Estado | Evidencia |
-| --- | --- | --- | --- |
-| — | Roles configurables, permisos individuales | No cumple | `Role` es un enum de tres valores; faltan Superadministrador, Residente y Auditor |
-| 1 | Uno o varios roles por usuario | No cumple | `User.Role` es un único valor |
-| 2 | Validación en interfaz y servidor | Parcial | El servidor valida con `[Authorize(Policy)]`; la interfaz usa `*appIfRole` y un `roleGuard` aplicado a una sola ruta. No coinciden entre sí (defecto D3) |
-| 3 | Solo datos autorizados | Parcial | `GET visits/{id}` comprueba que el Owner sea dueño; `GET owners/visits` filtra por dueño. No hay separación por conjunto |
-| 4 | Propietario no modifica otras unidades | Cumple por omisión | El Owner no tiene ninguna operación de escritura |
-| 5 | Activar, desactivar y revocar usuarios | No cumple | `IsActive` existe pero el login no lo consulta y no hay endpoint para cambiarlo |
-| 6 | Bitácora de acciones administrativas | No cumple | Solo `CreatedAt`/`UpdatedAt`, sin autor |
+Cinco roles de sistema ajustables permiso por permiso, roles propios por conjunto, y una matriz
+automatizada que comprueba que cada rol solo entra donde tiene permiso. Historias HU-109 y HU-110.
 
 ### §3 Menú dinámico — Parcial
 
-| # | Criterio | Estado | Evidencia |
-| --- | --- | --- | --- |
-| 1 | Solo módulos permitidos | Parcial | `GET menu` devuelve las opciones del rol y el sidebar las pinta. Las rutas sembradas (`/dashboard`, `/visits`, `/users`) no existen en el frontend (`/access-control/...`); por confirmar qué hay en la BD. Si el API falla, se muestra un menú de respaldo igual para todos |
-| 2 | Ocultar acciones sin permiso | Parcial | `*appIfRole` en dos botones; "Nuevo residente" y "Editar" no se ocultan |
-| 3 | Actualizar al cambiar permisos | No cumple | El rol queda en el token y en `localStorage` hasta que expira |
-| 4 | Bloquear rutas por URL directa | Parcial | Solo `visits/register` tiene `roleGuard`; `residents/*` y `dashboard` no |
-| 5 | Navegación consistente en escritorio, tableta y móvil | Cumple | Shell responsive de la épica de rediseño (HU-03), verificado a 1440/1280/390px con datos simulados |
+El menú sale del servidor según los permisos efectivos y las rutas tienen guarda. Las opciones
+del portal dependen del rol, no del vínculo: si la vinculación termina siguen visibles, vacías
+(HU-111).
 
 ### §7 Seguridad y operación — Parcial
 
-| # | Requisito | Estado | Evidencia |
-| --- | --- | --- | --- |
-| 1 | Autenticación segura | Parcial | JWT + BCrypt. Pero la cadena de conexión y la clave JWT están versionadas en `appsettings.json` (defecto D6) y el token vive en `localStorage` |
-| 2 | Recuperación de contraseña y sesiones | No cumple | No hay refresh token, cierre remoto ni manejo de 401 en el frontend |
-| 3 | Protección de datos personales | Parcial | Personas solo para Admin/Guard; el Owner recibe documento, teléfono y correo completos de sus visitantes |
-| 4 | Separación entre conjuntos | No cumple | No existe la entidad conjunto |
-| 5 | Quién, qué y cuándo | No cumple | — |
-| 6 | Validación de obligatorios, duplicados y relaciones | Parcial | Únicos: correo y documento. Los DTO no tienen validaciones; los errores de negocio salen como 500 |
-| 7 | Reportes filtrables | Parcial | Solo fechas en visitas |
-| 8 | Copias de seguridad | No cumple | Sin procedimiento documentado |
-| 9 | Diseño adaptable, rápido en portería | Cumple | Épica de rediseño de interfaz |
+Cumple: secretos fuera del repositorio, contraseñas con política y bloqueo, invitación y
+recuperación por token de un solo uso, cierre de sesión al cambiar permisos, bitácora, datos
+personales enmascarados, separación por conjunto, endpoint de salud.
+No cumple todavía: token de renovación en cookie y lista de sesiones (HU-113); copias de seguridad
+ejecutadas y verificadas (HU-132, solo hay scripts y procedimiento); rotación de la contraseña de
+la base y de la clave JWT que estuvieron versionadas (HU-101, la hace el dueño de la cuenta); texto
+de tratamiento de datos con aceptación (HU-131); el flujo de CI no se ha visto correr (HU-107).
 
 ### §8 Criterios transversales
 
-| # | Criterio | Estado | Se cierra con |
+Cada uno tiene su prueba en `AcceptanceTests` y su paso en el
+[guion manual](guion-de-aceptacion.md).
+
+| # | Criterio | Estado | Prueba |
 | --- | --- | --- | --- |
-| 1 | Unidad vinculada con su propietario | No cumple | HU-115, HU-116 |
-| 2 | Arrendatario distinto del propietario | No cumple | HU-117 |
-| 3 | Visitante autorizado, ingreso y salida trazables | Parcial | HU-102, HU-105, HU-120 a HU-122 |
-| 4 | Vehículo asociado a propietario, residente o visitante | No cumple | HU-124, HU-125 |
-| 5 | Parqueaderos de los tres tipos con estados y asignaciones | No cumple | HU-126, HU-127 |
-| 6 | Usuario sin permisos no consulta ni modifica | Parcial | HU-104, HU-109, HU-111 |
-| 7 | Cada rol ve solo su menú | Parcial | HU-104, HU-111 |
-| 8 | Historial conservado ante cambios | No cumple | HU-105, HU-116, HU-117, HU-127 |
-| 9 | Consultas de accesos, presentes y disponibilidad | No cumple | HU-123, HU-128, HU-129 |
-| 10 | Configurable para distintos tipos de conjunto | No cumple | HU-108, HU-114, HU-115 |
+| 1 | Unidad vinculada con su propietario | Cumple | `C8_1_y_8_2…` |
+| 2 | Arrendatario distinto del propietario | Cumple | `C8_1_y_8_2…` |
+| 3 | Visitante autorizado, ingreso y salida trazables | Cumple | `C8_3…` |
+| 4 | Vehículo asociado a propietario, residente o visitante | Cumple | `C8_4…` |
+| 5 | Parqueaderos de los tres tipos con estados y asignaciones | Cumple | `C8_5_y_8_9…` |
+| 6 | Usuario sin permisos no consulta ni modifica | Cumple | `C8_6…` (matriz de consultas por rol; las escrituras, en las pruebas de cada módulo) |
+| 7 | Cada rol ve solo su menú | Cumple | `C8_7…`; "Sin acceso" por URL, en el guion manual |
+| 8 | Historial conservado ante cambios | Cumple | `C8_8…` |
+| 9 | Consultas de accesos, presentes y disponibilidad | Cumple | `C8_5_y_8_9…` |
+| 10 | Configurable para distintos tipos de conjunto | Cumple | `C8_10…` |
+
+El guion manual aún no tiene una ejecución firmada.
 
 ## Defectos en lo construido
 
-Problemas en funciones que ya están en la interfaz. Se corrigen en la etapa 0, antes de construir
-nada nuevo.
+Problemas que tenían las funciones de la interfaz al empezar. **Los ocho quedaron corregidos en la
+etapa 0** (D6 con un pendiente: rotar las credenciales que estuvieron versionadas). Las rutas de la
+columna "Dónde" son las de entonces; varios de esos archivos ya no existen.
 
 | # | Defecto | Dónde | Historia |
 | --- | --- | --- | --- |
@@ -160,76 +133,174 @@ nada nuevo.
 
 ## Orden de ejecución
 
-Se resuelve de arriba abajo. Una historia no empieza hasta que sus dependencias estén en
-`Estado: Hecha`.
+Se resolvió de arriba abajo. El estado de cada historia y sus pendientes están en su archivo.
 
 ### Etapa 0 · Estabilizar lo construido
 
-| # | Historia | Depende de |
-| --- | --- | --- |
-| HU-101 | [Secretos fuera del repositorio](historias/E0-estabilizar/HU-101-secretos-fuera-del-repositorio.md) | — |
-| HU-102 | [Registrar visita contra una residencia real](historias/E0-estabilizar/HU-102-registrar-visita-residencia-real.md) | — |
-| HU-103 | [Alta y edición de residentes contra el API](historias/E0-estabilizar/HU-103-alta-y-edicion-de-residentes.md) | — |
-| HU-104 | [Menú, rutas y permisos coherentes para los roles actuales](historias/E0-estabilizar/HU-104-menu-rutas-y-permisos-coherentes.md) | — |
-| HU-105 | [Salida de visitas sin perder historial](historias/E0-estabilizar/HU-105-salida-de-visitas.md) | HU-102 |
-| HU-106 | [Sesión vencida y errores del API](historias/E0-estabilizar/HU-106-sesion-vencida-y-errores.md) | — |
-| HU-107 | [Base de pruebas automatizadas](historias/E0-estabilizar/HU-107-base-de-pruebas.md) | — |
+| # | Historia | Depende de | Estado |
+| --- | --- | --- | --- |
+| HU-101 | [Secretos fuera del repositorio](historias/E0-estabilizar/HU-101-secretos-fuera-del-repositorio.md) | — | Hecha con pendientes |
+| HU-102 | [Registrar visita contra una residencia real](historias/E0-estabilizar/HU-102-registrar-visita-residencia-real.md) | — | Hecha |
+| HU-103 | [Alta y edición de residentes contra el API](historias/E0-estabilizar/HU-103-alta-y-edicion-de-residentes.md) | — | Hecha |
+| HU-104 | [Menú, rutas y permisos coherentes para los roles actuales](historias/E0-estabilizar/HU-104-menu-rutas-y-permisos-coherentes.md) | — | Hecha |
+| HU-105 | [Salida de visitas sin perder historial](historias/E0-estabilizar/HU-105-salida-de-visitas.md) | HU-102 | Hecha |
+| HU-106 | [Sesión vencida y errores del API](historias/E0-estabilizar/HU-106-sesion-vencida-y-errores.md) | — | Hecha |
+| HU-107 | [Base de pruebas automatizadas](historias/E0-estabilizar/HU-107-base-de-pruebas.md) | — | Hecha con pendientes |
 
 ### Etapa 1 · Fundamentos: conjunto, permisos y bitácora
 
-| # | Historia | Depende de |
-| --- | --- | --- |
-| HU-108 | [Conjuntos y separación de datos](historias/E1-fundamentos/HU-108-conjuntos-y-separacion-de-datos.md) | HU-107 |
-| HU-109 | [Roles y permisos configurables](historias/E1-fundamentos/HU-109-roles-y-permisos-configurables.md) | HU-108 |
-| HU-110 | [Usuarios: alta, activación y revocación](historias/E1-fundamentos/HU-110-gestion-de-usuarios.md) | HU-109 |
-| HU-111 | [Menú dinámico y rutas por permiso](historias/E1-fundamentos/HU-111-menu-dinamico-por-permiso.md) | HU-109 |
-| HU-112 | [Bitácora de auditoría](historias/E1-fundamentos/HU-112-bitacora-de-auditoria.md) | HU-108 |
-| HU-113 | [Recuperación de contraseña y sesiones](historias/E1-fundamentos/HU-113-recuperacion-y-sesiones.md) | HU-110 |
-| HU-114 | [Políticas del conjunto](historias/E1-fundamentos/HU-114-politicas-del-conjunto.md) | HU-108, HU-109 |
+| # | Historia | Depende de | Estado |
+| --- | --- | --- | --- |
+| HU-108 | [Conjuntos y separación de datos](historias/E1-fundamentos/HU-108-conjuntos-y-separacion-de-datos.md) | HU-107 | Hecha |
+| HU-109 | [Roles y permisos configurables](historias/E1-fundamentos/HU-109-roles-y-permisos-configurables.md) | HU-108 | Hecha |
+| HU-110 | [Usuarios: alta, activación y revocación](historias/E1-fundamentos/HU-110-gestion-de-usuarios.md) | HU-109 | Hecha con pendientes |
+| HU-111 | [Menú dinámico y rutas por permiso](historias/E1-fundamentos/HU-111-menu-dinamico-por-permiso.md) | HU-109 | Hecha con pendientes |
+| HU-112 | [Bitácora de auditoría](historias/E1-fundamentos/HU-112-bitacora-de-auditoria.md) | HU-108 | Hecha |
+| HU-113 | [Recuperación de contraseña y sesiones](historias/E1-fundamentos/HU-113-recuperacion-y-sesiones.md) | HU-110 | Hecha con pendientes |
+| HU-114 | [Políticas del conjunto](historias/E1-fundamentos/HU-114-politicas-del-conjunto.md) | HU-108, HU-109 | Hecha |
 
 ### Etapa 2 · Unidades y personas
 
-| # | Historia | Depende de |
-| --- | --- | --- |
-| HU-115 | [Estructura del conjunto y unidades](historias/E2-unidades-y-personas/HU-115-estructura-y-unidades.md) | HU-108 |
-| HU-116 | [Personas y propietarios de unidades](historias/E2-unidades-y-personas/HU-116-personas-y-propietarios.md) | HU-115 |
-| HU-117 | [Ocupantes y arrendamientos con vigencia](historias/E2-unidades-y-personas/HU-117-ocupantes-y-arrendamientos.md) | HU-116, HU-114 |
-| HU-118 | [Ficha de unidad e historial](historias/E2-unidades-y-personas/HU-118-ficha-de-unidad.md) | HU-117 |
-| HU-119 | [Portal de propietario y residente](historias/E2-unidades-y-personas/HU-119-portal-propietario-y-residente.md) | HU-117, HU-111 |
+| # | Historia | Depende de | Estado |
+| --- | --- | --- | --- |
+| HU-115 | [Estructura del conjunto y unidades](historias/E2-unidades-y-personas/HU-115-estructura-y-unidades.md) | HU-108 | Hecha con pendientes |
+| HU-116 | [Personas y propietarios de unidades](historias/E2-unidades-y-personas/HU-116-personas-y-propietarios.md) | HU-115 | Hecha con pendientes |
+| HU-117 | [Ocupantes y arrendamientos con vigencia](historias/E2-unidades-y-personas/HU-117-ocupantes-y-arrendamientos.md) | HU-116, HU-114 | Hecha |
+| HU-118 | [Ficha de unidad e historial](historias/E2-unidades-y-personas/HU-118-ficha-de-unidad.md) | HU-117 | Hecha con pendientes |
+| HU-119 | [Portal de propietario y residente](historias/E2-unidades-y-personas/HU-119-portal-propietario-y-residente.md) | HU-117, HU-111 | Hecha |
 
 ### Etapa 3 · Visitantes y accesos
 
-| # | Historia | Depende de |
-| --- | --- | --- |
-| HU-120 | [Eventos de ingreso y salida](historias/E3-visitantes-y-accesos/HU-120-eventos-de-ingreso-y-salida.md) | HU-115, HU-116 |
-| HU-121 | [Autorizaciones de visita](historias/E3-visitantes-y-accesos/HU-121-autorizaciones-de-visita.md) | HU-120, HU-119 |
-| HU-122 | [Validación en portería, rechazos y accesos excepcionales](historias/E3-visitantes-y-accesos/HU-122-validacion-en-porteria.md) | HU-121, HU-114 |
-| HU-123 | [Visitantes esperados, presentes e historial](historias/E3-visitantes-y-accesos/HU-123-esperados-presentes-historial.md) | HU-122 |
+| # | Historia | Depende de | Estado |
+| --- | --- | --- | --- |
+| HU-120 | [Eventos de ingreso y salida](historias/E3-visitantes-y-accesos/HU-120-eventos-de-ingreso-y-salida.md) | HU-115, HU-116 | Hecha con pendientes |
+| HU-121 | [Autorizaciones de visita](historias/E3-visitantes-y-accesos/HU-121-autorizaciones-de-visita.md) | HU-120, HU-119 | Hecha |
+| HU-122 | [Validación en portería, rechazos y accesos excepcionales](historias/E3-visitantes-y-accesos/HU-122-validacion-en-porteria.md) | HU-121, HU-114 | Hecha con pendientes |
+| HU-123 | [Visitantes esperados, presentes e historial](historias/E3-visitantes-y-accesos/HU-123-esperados-presentes-historial.md) | HU-122 | Hecha con pendientes |
 
 ### Etapa 4 · Vehículos
 
-| # | Historia | Depende de |
-| --- | --- | --- |
-| HU-124 | [Inventario de vehículos](historias/E4-vehiculos/HU-124-inventario-de-vehiculos.md) | HU-116, HU-117 |
-| HU-125 | [Vehículos en el control de acceso](historias/E4-vehiculos/HU-125-vehiculos-en-el-acceso.md) | HU-124, HU-122 |
+| # | Historia | Depende de | Estado |
+| --- | --- | --- | --- |
+| HU-124 | [Inventario de vehículos](historias/E4-vehiculos/HU-124-inventario-de-vehiculos.md) | HU-116, HU-117 | Hecha con pendientes |
+| HU-125 | [Vehículos en el control de acceso](historias/E4-vehiculos/HU-125-vehiculos-en-el-acceso.md) | HU-124, HU-122 | Hecha con pendientes |
 
 ### Etapa 5 · Parqueaderos
 
-| # | Historia | Depende de |
-| --- | --- | --- |
-| HU-126 | [Registro de parqueaderos](historias/E5-parqueaderos/HU-126-registro-de-parqueaderos.md) | HU-115, HU-116 |
-| HU-127 | [Asignaciones, ocupación y reservas](historias/E5-parqueaderos/HU-127-asignaciones-ocupacion-reservas.md) | HU-126, HU-125 |
-| HU-128 | [Disponibilidad de parqueaderos](historias/E5-parqueaderos/HU-128-disponibilidad.md) | HU-127 |
+| # | Historia | Depende de | Estado |
+| --- | --- | --- | --- |
+| HU-126 | [Registro de parqueaderos](historias/E5-parqueaderos/HU-126-registro-de-parqueaderos.md) | HU-115, HU-116 | Hecha con pendientes |
+| HU-127 | [Asignaciones, ocupación y reservas](historias/E5-parqueaderos/HU-127-asignaciones-ocupacion-reservas.md) | HU-126, HU-125 | Hecha con pendientes |
+| HU-128 | [Disponibilidad de parqueaderos](historias/E5-parqueaderos/HU-128-disponibilidad.md) | HU-127 | Hecha con pendientes |
 
 ### Etapa 6 · Consultas y operación
 
-| # | Historia | Depende de |
-| --- | --- | --- |
-| HU-129 | [Historial de accesos y reportes](historias/E6-consultas-y-operacion/HU-129-historial-y-reportes.md) | HU-122, HU-125 |
-| HU-130 | [Paneles por rol](historias/E6-consultas-y-operacion/HU-130-paneles-por-rol.md) | HU-123, HU-128 |
-| HU-131 | [Protección de datos personales](historias/E6-consultas-y-operacion/HU-131-proteccion-de-datos-personales.md) | HU-109, HU-112 |
-| HU-132 | [Copias de seguridad y recuperación](historias/E6-consultas-y-operacion/HU-132-copias-de-seguridad.md) | HU-101, HU-108 |
-| HU-133 | [Validación de aceptación final](historias/E6-consultas-y-operacion/HU-133-validacion-de-aceptacion.md) | Todas |
+| # | Historia | Depende de | Estado |
+| --- | --- | --- | --- |
+| HU-129 | [Historial de accesos y reportes](historias/E6-consultas-y-operacion/HU-129-historial-y-reportes.md) | HU-122, HU-125 | Hecha con pendientes |
+| HU-130 | [Paneles por rol](historias/E6-consultas-y-operacion/HU-130-paneles-por-rol.md) | HU-123, HU-128 | Hecha con pendientes |
+| HU-131 | [Protección de datos personales](historias/E6-consultas-y-operacion/HU-131-proteccion-de-datos-personales.md) | HU-109, HU-112 | Hecha con pendientes |
+| HU-132 | [Copias de seguridad y recuperación](historias/E6-consultas-y-operacion/HU-132-copias-de-seguridad.md) | HU-101, HU-108 | Hecha con pendientes |
+| HU-133 | [Validación de aceptación final](historias/E6-consultas-y-operacion/HU-133-validacion-de-aceptacion.md) | Todas | Hecha con pendientes |
+
+## Pendientes abiertos
+
+Criterios sin cerrar de cada historia, tal como están anotados en su archivo. Decidir cuáles se
+hacen ahora y cuáles pasan a una segunda fase le corresponde al responsable del producto.
+
+**[HU-101](historias/E0-estabilizar/HU-101-secretos-fuera-del-repositorio.md) · Secretos fuera del repositorio**
+
+- **La contraseña de la base de datos y la clave JWT expuestas se rotan.** Sacarlas del archivo no las invalida: siguen en el historial de git. La rotación la hace el dueño de la cuenta de la base de datos.
+
+**[HU-107](historias/E0-estabilizar/HU-107-base-de-pruebas.md) · Base de pruebas automatizadas**
+
+- Un flujo de CI (GitHub Actions) ejecuta `dotnet build`, `dotnet test`, `ng build` y `ng test` en cada PR. Escrito en `.github/workflows/ci.yml`; **pendiente verlo correr** en el primer PR.
+
+**[HU-111](historias/E1-fundamentos/HU-111-menu-dinamico-por-permiso.md) · Menú dinámico y rutas por permiso**
+
+- Si la vinculación residencial del usuario termina (HU-117), sus opciones "Mi residencia / Mis propiedades" desaparecen en la siguiente recarga. **Parcial:** las opciones dependen del rol, no del vínculo: al terminar la vinculación siguen en el menú, pero ya no muestran ninguna unidad (el servidor solo entrega las de vínculo vigente).
+
+**[HU-113](historias/E1-fundamentos/HU-113-recuperacion-y-sesiones.md) · Recuperación de contraseña y sesiones**
+
+- Token de acceso corto (15 min) más token de renovación rotativo; el frontend renueva sin interrumpir al usuario. Pendiente.
+- Reutilizar un token de renovación ya usado cierra toda esa familia de sesiones. Pendiente.
+- El token de renovación viaja en cookie `HttpOnly`, `Secure`, `SameSite=Strict`; el de acceso solo vive en memoria. Nada de sesión queda en `localStorage`. Pendiente: el token sigue en localStorage.
+- "Mi cuenta → Sesiones": lista de sesiones (dispositivo, IP, último uso) con "Cerrar" y "Cerrar todas las demás". Pendiente.
+
+**[HU-116](historias/E2-unidades-y-personas/HU-116-personas-y-propietarios.md) · Personas y propietarios de unidades**
+
+- Migración: cada usuario con rol Propietario genera una `Person`, y una `UnitOwnership` vigente por cada residencia que tenía. `User.ApartmentNumber`, `User.FirstName` y `User.LastName` se eliminan (el nombre sale de la persona). La pantalla "Residentes" se reemplaza por esta. Hecho salvo la eliminación de columnas: `User` conserva `FirstName`, `LastName` y `ApartmentNumber` (ver abajo).
+
+**[HU-118](historias/E2-unidades-y-personas/HU-118-ficha-de-unidad.md) · Ficha de unidad e historial**
+
+- Secciones "Vehículos", "Parqueaderos" y "Visitas recientes". **Parcial:** "Vehículos" y "Parqueaderos" ya están en la ficha; "Visitas recientes" no (se consultan en "Visitantes" filtrando por la unidad desde el API).
+
+**[HU-120](historias/E3-visitantes-y-accesos/HU-120-eventos-de-ingreso-y-salida.md) · Eventos de ingreso y salida**
+
+- Los catálogos de puntos de acceso (porterías) son configurables por conjunto; con una sola portería no se pregunta. **Pendiente:** el catálogo `access-point` existe y el API lo valida, pero la pantalla de portería no pregunta el punto de acceso ni hay pantalla para administrar catálogos (ver HU-115).
+
+**[HU-122](historias/E3-visitantes-y-accesos/HU-122-validacion-en-porteria.md) · Validación en portería, rechazos y accesos excepcionales**
+
+- Rapidez en portería: el flujo con autorización vigente se completa con teclado (buscar → Enter → Enter); el foco inicial está en el buscador; funciona a 390 px. **Parcial:** el buscador del panel de portería recibe el foco y lleva a la validación con Enter, y la pantalla funciona en un teléfono; falta completar el ingreso solo con teclado (hoy hay que pulsar "Registrar ingreso").
+
+**[HU-123](historias/E3-visitantes-y-accesos/HU-123-esperados-presentes-historial.md) · Visitantes esperados, presentes e historial**
+
+- Esperados: autorizaciones válidas para hoy (únicas del día, por periodo y recurrentes que aplican al día de la semana) que aún no han ingresado; con acción "Registrar ingreso". **Parcial:** la vista existe; la acción "Registrar ingreso" está en "Validar visitantes", no en esta lista.
+- Presentes: visitas con entrada y sin salida, con el tiempo transcurrido y acción "Registrar salida". Las que superan la política "horas para marcar por revisar" se destacan. **Parcial:** muestra la hora de ingreso y destaca las "por revisar"; no muestra el tiempo transcurrido, y la salida se registra desde el detalle.
+- "Historial de visitas" (propietario y residente): las mismas vistas limitadas a sus unidades con vínculo vigente; el arrendatario solo ve visitas ocurridas durante su ocupación. **Parcial:** limitado a sus unidades; el corte "solo durante su ocupación" se aplica en "Historial de accesos" (HU-129), no en esta lista de visitas.
+
+**[HU-124](historias/E4-vehiculos/HU-124-inventario-de-vehiculos.md) · Inventario de vehículos**
+
+- Pantalla "Vehículos": lista con búsqueda por placa y filtros por unidad, tipo, clase y estado; alta, edición, suspender y revocar con motivo. **Parcial:** búsqueda y filtros por tipo, clase y estado; el filtro por unidad existe en el API pero no en la pantalla.
+
+**[HU-125](historias/E4-vehiculos/HU-125-vehiculos-en-el-acceso.md) · Vehículos en el control de acceso**
+
+- Novedades de ingreso o salida (daño visible, placa no coincide, etc.) como observación del evento. **Parcial:** el ingreso de visitas tiene "Observaciones" y los vehículos tienen novedades; la entrada o salida de un vehículo de residente desde "Verificar vehículos" no pide observación.
+
+**[HU-126](historias/E5-parqueaderos/HU-126-registro-de-parqueaderos.md) · Registro de parqueaderos**
+
+- Pantalla "Parqueaderos": lista con filtros por tipo, ubicación y estado; alta individual y en lote por rango de códigos (p. ej. V-01 a V-20). **Parcial:** la edición de un espacio (código, ubicación, tipo) está en el API (`PUT parking/spaces/{id}`) pero no en la pantalla; el resto sí.
+
+**[HU-127](historias/E5-parqueaderos/HU-127-asignaciones-ocupacion-reservas.md) · Asignaciones, ocupación y reservas**
+
+- **Asignación temporal** de comunitarios a una unidad o vehículo: inicio y fin obligatorios; se libera sola al llegar la fecha de fin. **Parcial:** a una unidad desde la pantalla; a un vehículo concreto solo por el API.
+
+**[HU-128](historias/E5-parqueaderos/HU-128-disponibilidad.md) · Disponibilidad de parqueaderos**
+
+- Legible y operable a 390 px. **Sin verificar:** la cuadrícula y las tarjetas son adaptables, pero no se revisó en un teléfono de 390 px.
+
+**[HU-129](historias/E6-consultas-y-operacion/HU-129-historial-y-reportes.md) · Historial de accesos y reportes**
+
+- Filtros combinables: rango de fechas, persona (nombre o documento), unidad, placa, tipo de acceso, clase de persona, operador y punto de acceso (§1.6); el superadministrador puede filtrar además por conjunto (§7.7). **Parcial:** en la pantalla: fechas, persona, placa, tipo de acceso y clase de persona. Unidad, operador y punto de acceso están en el API. El superadministrador elige el conjunto con el selector general, no con un filtro propio.
+- "Novedades": el guarda registra una novedad del turno (texto, categoría, unidad, persona o vehículo opcionales); son de solo inserción y se consultan por fecha y categoría. **Parcial:** texto, categoría y placa desde la pantalla; unidad y persona solo por el API; el filtro por fecha también.
+
+**[HU-130](historias/E6-consultas-y-operacion/HU-130-paneles-por-rol.md) · Paneles por rol**
+
+- Cada indicador enlaza a la lista filtrada correspondiente. **Parcial:** enlaza a la pantalla correspondiente, sin el filtro ya aplicado.
+- El panel de portería se actualiza solo cada 30 segundos y es usable con una mano a 390 px. **Parcial:** se actualiza solo; no se verificó el uso con una mano a 390 px.
+
+**[HU-131](historias/E6-consultas-y-operacion/HU-131-proteccion-de-datos-personales.md) · Protección de datos personales**
+
+- Los logs de la aplicación no contienen documentos, teléfonos, correos, contraseñas ni tokens. **Sin verificar:** no se registran datos personales a propósito, pero falta una revisión sistemática del log tras un flujo completo (en desarrollo, EF Core puede escribir parámetros si se activa el registro sensible).
+- Texto de tratamiento de datos configurable por conjunto, mostrado al registrar un visitante y aceptado por los usuarios en su primer ingreso (se guarda fecha y versión). **Pendiente:** no hay texto configurable ni aceptación con fecha y versión.
+- Periodo de retención configurable para datos de visitantes: pasado el plazo, la persona visitante se anonimiza (nombre y documento reemplazados) y los eventos de acceso se conservan. **Parcial:** la persona visitante se anonimiza; los eventos de acceso conservan el nombre y el documento del momento, porque son inmutables. Decidir con el asesor legal si deben anonimizarse también.
+- La revisión cubre todos los endpoints existentes; ninguno devuelve la entidad de base de datos directamente. **Parcial:** todos los endpoints devuelven DTO, no entidades; el enmascarado cubre personas, visitas, historial y exportaciones. Los nombres en fichas de unidad, autorizaciones y vehículos son datos básicos y salen completos.
+
+**[HU-132](historias/E6-consultas-y-operacion/HU-132-copias-de-seguridad.md) · Copias de seguridad y recuperación**
+
+- Objetivos escritos y acordados: pérdida máxima de datos (RPO) y tiempo máximo de recuperación (RTO). **Pendiente:** están propuestos (RPO 24 h, RTO 4 h); falta acordarlos.
+- Copia automática diaria completa con retención mínima de 30 días, más recuperación a un punto en el tiempo si el proveedor la ofrece; se confirma y documenta lo que da el plan actual. **Pendiente:** confirmar y anotar lo que ofrece el plan del proveedor.
+- Una copia adicional fuera del proveedor de la base de datos (`pg_dump` programado a un almacenamiento distinto, cifrado). **Pendiente:** el script existe; falta el almacenamiento de destino y programarlo.
+- Procedimiento de restauración paso a paso, ejecutado al menos una vez contra una base vacía; se anota la fecha y el tiempo que tomó. **Pendiente:** escrito, sin ejecutar; no hay fecha ni tiempo que anotar.
+- Verificación automática: una tarea periódica restaura la última copia en una base temporal y comprueba que las migraciones coinciden y que hay datos recientes. **Pendiente:** `verify.sh` existe; falta la tarea periódica que restaure y lo ejecute.
+- Alerta cuando una copia falla o tiene más de 26 horas. **Pendiente:** depende de dónde se programe la tarea.
+- Procedimiento para restaurar la información de **un solo conjunto** sin afectar a los demás. **Parcial:** documentado, sin ensayar.
+
+**[HU-133](historias/E6-consultas-y-operacion/HU-133-validacion-de-aceptacion.md) · Validación de aceptación final**
+
+- **§8.6** Para cada rol de sistema, una matriz de pruebas llama a todos los endpoints: responde 200 solo donde tiene permiso y 403/404 en el resto; ningún usuario obtiene datos de otro conjunto ni de otra unidad. **Parcial:** la matriz llama a todas las consultas (GET sin parámetros de ruta) y verifica que todo endpoint declara su protección; las operaciones de escritura se prueban por rol en las pruebas de cada módulo, no en la matriz.
+- **§8.7** El menú de cada rol de sistema coincide con el definido en §3; las rutas fuera del menú muestran "Sin acceso". **Parcial:** el menú se verifica con prueba automatizada; "Sin acceso" en rutas fuera del menú se cubre con el guion manual.
+- Se revisan los pendientes abiertos de las historias `Hecha con pendientes` y se decide cuáles pasan a segunda fase junto con §9. **Pendiente:** están reunidos en el README de la épica; decidir cuáles pasan a segunda fase le corresponde al responsable del producto.
 
 ## Modelo de datos objetivo
 

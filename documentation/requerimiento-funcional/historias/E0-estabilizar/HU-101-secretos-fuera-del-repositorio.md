@@ -39,3 +39,4 @@ usuario y contraseña y la clave `Jwt:Key`, ambas versionadas. El origen CORS
 
 Clonar en limpio, arrancar sin secretos (debe fallar con mensaje claro), configurarlos y hacer
 login. `git grep` de la contraseña anterior no devuelve resultados en el árbol de trabajo.
+- **Ajuste posterior (decisión del dueño del producto):** la configuración de **desarrollo** volvió al repositorio, en `appsettings.Development.json`, para que el proyecto arranque sin pasos previos; se considera pública. Lo que se resguarda es producción: ese archivo no se lee fuera de desarrollo, los valores llegan por variables de entorno y la API no arranca en producción con la clave JWT de desarrollo. El criterio "en desarrollo se leen de `dotnet user-secrets`" queda como opción, no como requisito.

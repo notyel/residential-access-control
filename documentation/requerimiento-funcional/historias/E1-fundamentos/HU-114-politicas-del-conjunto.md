@@ -1,6 +1,6 @@
 # HU-114 · Políticas del conjunto
 
-**Épica:** E7 · **Etapa:** 1 Fundamentos · **Estado:** Pendiente · **Depende de:** HU-108, HU-109
+**Épica:** E7 · **Etapa:** 1 Fundamentos · **Estado:** Hecha · **Depende de:** HU-108, HU-109
 **Requerimiento:** introducción ("cada conjunto pueda configurar…"), §1.2, §4.1, §5.3, §8.10
 
 ## Historia
@@ -10,8 +10,8 @@ el sistema se adapte a nuestro reglamento sin cambios de programa.
 
 ## Criterios de aceptación
 
-- [ ] Pantalla "Configuración → Políticas", con `settings.manage`. Cada política tiene valor por defecto y una descripción de su efecto.
-- [ ] Políticas iniciales (cada una la consume la historia indicada):
+- [x] Pantalla "Configuración → Políticas", con `settings.manage`. Cada política tiene valor por defecto y una descripción de su efecto.
+- [x] Políticas iniciales (cada una la consume la historia indicada):
 
 | Política | Valores | Por defecto | La usa |
 | --- | --- | --- | --- |
@@ -28,9 +28,9 @@ el sistema se adapte a nuestro reglamento sin cambios de programa.
 | Reservas de parqueadero comunitario | sí / no | no | HU-127 |
 | Duración máxima de sesión | horas | 12 | HU-113 |
 
-- [ ] Los cambios quedan en la bitácora con valor anterior y nuevo.
-- [ ] Una política nueva añadida al catálogo toma su valor por defecto en los conjuntos existentes sin migración de datos.
-- [ ] El servidor es quien aplica cada política; la interfaz solo adapta lo que muestra.
+- [x] Los cambios quedan en la bitácora con valor anterior y nuevo.
+- [x] Una política nueva añadida al catálogo toma su valor por defecto en los conjuntos existentes sin migración de datos.
+- [x] El servidor es quien aplica cada política; la interfaz solo adapta lo que muestra.
 
 ## Diseño técnico
 
@@ -42,3 +42,10 @@ el sistema se adapte a nuestro reglamento sin cambios de programa.
 
 Cambiar una política, recargar y verla persistida; la bitácora muestra el cambio. Prueba unitaria:
 conjunto sin valores guardados devuelve los valores por defecto.
+
+## Cómo quedó
+
+- Catálogo tipado en `ComplexPolicies` (12 políticas); la tabla `ComplexPolicies` solo guarda lo que un conjunto cambió. `IPolicyService` devuelve el valor vigente y valida tipo, rango y opciones.
+- `GET/PUT api/policies` con permisos `settings.read` y `settings.manage`; pantalla "Configuración → Políticas". Los cambios quedan en la bitácora con valor anterior y nuevo.
+- La lectura se guarda por petición, no por conjunto: una política cambiada rige desde la siguiente petición.
+- Cada política empieza a tener efecto cuando se construye la historia que la consulta.

@@ -1,6 +1,6 @@
 # HU-118 · Ficha de unidad e historial
 
-**Épica:** E7 · **Etapa:** 2 Unidades y personas · **Estado:** Pendiente · **Depende de:** HU-117
+**Épica:** E7 · **Etapa:** 2 Unidades y personas · **Estado:** Hecha con pendientes · **Depende de:** HU-117
 **Requerimiento:** §1.1 (consultar propietarios, ocupantes, vehículos y parqueaderos; historial), §8.8
 
 ## Historia
@@ -10,14 +10,14 @@ vive allí y qué tiene asociado, para responder consultas sin recorrer varias p
 
 ## Criterios de aceptación
 
-- [ ] Ficha de unidad con: datos de la unidad y estado de ocupación calculado; propietarios vigentes; ocupantes vigentes con su relación y vigencia.
-- [ ] Sección "Historial": línea de tiempo con titularidades y ocupaciones anteriores (quién, desde, hasta, quién lo registró).
-- [ ] Secciones "Vehículos", "Parqueaderos" y "Visitas recientes": se añaden cuando existan HU-124, HU-126 y HU-123; hasta entonces no se muestran.
-- [ ] Acciones en la ficha según permiso: agregar o cambiar propietario, agregar ocupante, finalizar ocupación.
-- [ ] Vista para portería (`units.read` sin `people.read`): solo nombres y relación de los ocupantes vigentes, sin documento, teléfono ni historial.
-- [ ] `GET units/{id}/summary` entrega todo en una sola llamada.
-- [ ] La ficha de persona muestra el inverso: todas sus unidades y la relación con cada una, vigentes y pasadas.
-- [ ] Desde la lista de unidades y desde el buscador por comando (`Ctrl K`) se llega a la ficha escribiendo el código.
+- [x] Ficha de unidad con: datos de la unidad y estado de ocupación calculado; propietarios vigentes; ocupantes vigentes con su relación y vigencia.
+- [x] Sección "Historial": línea de tiempo con titularidades y ocupaciones anteriores (quién, desde, hasta, quién lo registró).
+- [ ] Secciones "Vehículos", "Parqueaderos" y "Visitas recientes". **Parcial:** "Vehículos" y "Parqueaderos" ya están en la ficha; "Visitas recientes" no (se consultan en "Visitantes" filtrando por la unidad desde el API).
+- [x] Acciones en la ficha según permiso: agregar o cambiar propietario, agregar ocupante, finalizar ocupación.
+- [x] Vista para portería (`units.read` sin `people.read`): solo nombres y relación de los ocupantes vigentes, sin documento, teléfono ni historial.
+- [x] `GET units/{id}/summary` entrega todo en una sola llamada.
+- [x] La ficha de persona muestra el inverso: todas sus unidades y la relación con cada una, vigentes y pasadas.
+- [x] Desde la lista de unidades y desde el buscador por comando (`Ctrl K`) se llega a la ficha escribiendo el código.
 
 ## Diseño técnico
 
@@ -28,3 +28,9 @@ vive allí y qué tiene asociado, para responder consultas sin recorrer varias p
 
 Tras un cambio de propietario y un arrendamiento finalizado, la ficha muestra el estado actual
 arriba y ambos hechos en el historial. Con rol Portería no aparecen documentos ni teléfonos.
+
+## Cómo quedó
+
+- `GET units/{id}/summary` entrega la ficha en una llamada. Sin `people.read` solo trae propietarios y ocupantes vigentes, sin historial.
+- La ficha de persona muestra el inverso (todas sus unidades, vigentes y pasadas).
+- La búsqueda por comando encuentra unidades y personas en el servidor (cierra el pendiente de HU-05 del rediseño).
