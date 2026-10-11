@@ -14,6 +14,8 @@ namespace AccessControl.Application.Services
         public Guid? ComplexId { get; set; }
         public bool IsSuperAdmin { get; set; }
         public string? TimeZoneId { get; set; }
+        public string? UserName { get; set; }
+        public string? IpAddress { get; set; }
         public IReadOnlySet<string> Permissions { get; set; } = new HashSet<string>();
 
         // Quien puede sobre todo el conjunto (visits.read) puede también sobre lo propio (visits.read_own)
@@ -21,6 +23,8 @@ namespace AccessControl.Application.Services
             IsSuperAdmin
             || Permissions.Contains(permission)
             || (permission.EndsWith(OwnSuffix) && Permissions.Contains(permission[..^OwnSuffix.Length]));
+
+        public bool HoldsPermission(string permission) => !IsSuperAdmin && Permissions.Contains(permission);
 
         private const string OwnSuffix = "_own";
     }
@@ -30,5 +34,6 @@ namespace AccessControl.Application.Services
         public const string ComplexId = "complex";
         public const string TimeZone = "tz";
         public const string SuperAdmin = "super";
+        public const string SecurityStamp = "stamp";
     }
 }

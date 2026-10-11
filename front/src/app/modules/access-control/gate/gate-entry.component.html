@@ -1,0 +1,231 @@
+<app-side-panel [title]="mode() === 'reject' ? 'Rechazar ingreso' : 'Registrar ingreso'">
+  <form id="gate-entry-form" class="gate-form" [formGroup]="form" (ngSubmit)="save()">
+    @if (errorMessage()) {
+    <p class="app-alert" role="alert">{{ errorMessage() }}</p>
+    }
+
+    @if (authorization; as a) {
+    <div class="gate-note" [class.gate-note--blocked]="blockedReason">
+      <strong>{{ blockedReason ? blockedReason : "Autorización válida" }}</strong>
+      <span>
+        Autorizó {{ a.authorizedByName }} · {{ a.unitLabel }} · {{ window(a) }}
+      </span>
+    </div>
+    } @else if (notAllowed()) {
+    <div class="gate-note gate-note--blocked">
+      <strong>Este conjunto no admite visitas sin autorización previa.</strong>
+      <span>
+        Deje constancia del rechazo@if (canException) {, o regístrelo como acceso
+        excepcional}.
+      </span>
+    </div>
+    }
+
+    <h3>Visitante</h3>
+    @if (person(); as p) {
+    <p class="gate-chosen">
+      <span>
+        <strong>{{ p.firstName }} {{ p.lastName }}</strong>
+        <span class="text-muted text-mono">
+          {{ p.documentType === "NA" ? "Sin documento" : p.documentType + " " + p.documentNumber }}
+        </span>
+      </span>
+      @if (!authorization?.visitorPersonId) {
+      <button mat-button type="button" (click)="clearPerson()">Cambiar</button>
+      }
+    </p>
+    } @else {
+    <div class="app-form-grid app-form-grid--single">
+      <mat-form-field>
+        <mat-label>
+          Número de documento{{ data.context.documentRequired ? "" : " (opcional)" }}
+        </mat-label>
+        <input
+          matInput
+          class="text-mono"
+          formControlName="documentNumber"
+          autocomplete="off"
+          (blur)="findByDocument()"
+        />
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Tipo de documento</mat-label>
+        <mat-select formControlName="documentType">
+          @for (type of documentTypes(); track type.code) {
+          <mat-option [value]="type.code">{{ type.label }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Nombres</mat-label>
+        <input matInput formControlName="firstName" autocomplete="off" />
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Apellidos</mat-label>
+        <input matInput formControlName="lastName" autocomplete="off" />
+      </mat-form-field>
+    </div>
+    }
+
+    <h3>Destino</h3>
+    @if (unit(); as u) {
+    <p class="gate-chosen">
+      <strong class="text-mono">{{ u.label }}</strong>
+      @if (!authorization) {
+      <button mat-button type="button" (click)="clearUnit()">Cambiar</button>
+      }
+    </p>
+    } @else {
+    <label class="app-toolbar-search gate-unit-search">
+      <input
+        type="search"
+        autocomplete="off"
+        aria-label="Buscar unidad de destino"
+        placeholder="Buscar unidad o propietario"
+        [value]="unitTerm()"
+        (input)="searchUnits($event)"
+      />
+    </label>
+    <ul class="gate-options" aria-label="Unidades">
+      @for (item of unitResults(); track item.id) {
+      <li>
+        <button type="button" (click)="chooseUnit(item)">
+          <span class="text-mono">{{ item.label }}</span>
+          <span class="text-muted">{{ item.owners.join(", ") }}</span>
+        </button>
+      </li>
+      }
+    </ul>
+    }
+
+    <div class="app-form-grid app-form-grid--single">
+      @if (mode() === 'entry') {
+      <mat-form-field>
+        <mat-label>Motivo de la visita</mat-label>
+        <mat-select formControlName="reason">
+          @for (reason of reasons(); track reason.code) {
+          <mat-option [value]="reason.code">{{ reason.label }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      } @else {
+      <mat-form-field>
+        <mat-label>Motivo del rechazo</mat-label>
+        <mat-select formControlName="rejectReason">
+          @for (reason of rejectionReasons(); track reason.code) {
+          <mat-option [value]="reason.code">{{ reason.label }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      }
+
+      <mat-form-field>
+        <mat-label>Placa del vehículo (opcional)</mat-label>
+        <input
+          matInput
+          class="text-mono"
+          formControlName="vehiclePlate"
+          autocomplete="off"
+          (blur)="checkPlate()"
+        />
+      </mat-form-field>
+      @if (plateNotice()) {
+      <p class="gate-note gate-note--blocked" role="status">{{ plateNotice() }}</p>
+      } @if (newVehicle() && mode() === 'entry') {
+      <mat-form-field>
+        <mat-label>Tipo de vehículo</mat-label>
+        <mat-select formControlName="vehicleType" (selectionChange)="loadParking()">
+          @for (type of vehicleTypes(); track type.code) {
+          <mat-option [value]="type.code">{{ type.label }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Marca (opcional)</mat-label>
+        <input matInput formControlName="vehicleBrand" autocomplete="off" />
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Color (opcional)</mat-label>
+        <input matInput formControlName="vehicleColor" autocomplete="off" />
+      </mat-form-field>
+      } @if (parkingSpaces().length && mode() === 'entry') {
+      <mat-form-field>
+        <mat-label>Parqueadero de visitantes (opcional)</mat-label>
+        <mat-select formControlName="parkingSpaceId">
+          <mat-option value="">Sin parqueadero</mat-option>
+          @for (space of parkingSpaces(); track space.id) {
+          <mat-option [value]="space.id">
+            {{ space.code }}@if (space.location) { · {{ space.location }} }
+          </mat-option>
+          }
+        </mat-select>
+        <mat-hint>Se libera solo cuando el vehículo salga.</mat-hint>
+      </mat-form-field>
+      }
+
+      @if (mode() === 'entry' && needsConfirmation()) {
+      <mat-form-field>
+        <mat-label>Quién de la unidad confirmó</mat-label>
+        <mat-select formControlName="confirmedByPersonId">
+          @for (item of unitPeople(); track item.id) {
+          <mat-option [value]="item.id">{{ item.name }}</mat-option>
+          }
+        </mat-select>
+        <mat-hint>
+          {{ unit() && !unitPeople().length ? "La unidad no tiene propietarios ni ocupantes vigentes." : "Llame a la unidad antes de dejar ingresar." }}
+        </mat-hint>
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Medio de confirmación</mat-label>
+        <mat-select formControlName="confirmationChannel">
+          @for (channel of channels; track channel) {
+          <mat-option [value]="channel">{{ channel }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      }
+
+      @if (mode() === 'entry' && canException) {
+      <mat-checkbox [checked]="exception()" (change)="toggleException($event.checked)">
+        Acceso excepcional (sin autorización válida)
+      </mat-checkbox>
+      @if (exception()) {
+      <mat-form-field>
+        <mat-label>Motivo del acceso excepcional</mat-label>
+        <textarea matInput rows="2" formControlName="exceptionReason"></textarea>
+        <mat-hint>Queda registrado con su nombre como responsable.</mat-hint>
+      </mat-form-field>
+      } }
+
+      <mat-form-field>
+        <mat-label>Observaciones (opcional)</mat-label>
+        <textarea matInput rows="2" formControlName="notes"></textarea>
+      </mat-form-field>
+    </div>
+  </form>
+
+  <ng-container sidePanelFooter>
+    @if (mode() === 'entry') {
+    <button mat-stroked-button type="button" [disabled]="busy()" (click)="mode.set('reject')">
+      Rechazar
+    </button>
+    <button
+      mat-flat-button
+      type="submit"
+      form="gate-entry-form"
+      [disabled]="busy() || notAllowed()"
+    >
+      {{ exception() ? "Registrar acceso excepcional" : "Registrar ingreso" }}
+    </button>
+    } @else {
+    @if (!blockedReason || canException) {
+    <button mat-stroked-button type="button" [disabled]="busy()" (click)="mode.set('entry')">
+      Volver al ingreso
+    </button>
+    }
+    <button mat-flat-button type="submit" form="gate-entry-form" [disabled]="busy()">
+      Registrar rechazo
+    </button>
+    }
+  </ng-container>
+</app-side-panel>

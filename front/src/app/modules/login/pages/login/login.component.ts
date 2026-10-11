@@ -11,7 +11,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
   LucideAngularModule,
   User,
@@ -36,6 +36,7 @@ import { NotificationService } from '../../../../shared/services/notifications/n
     MatInputModule,
     MatButtonModule,
     MatIconModule,
+    RouterLink,
     LucideAngularModule,
   ],
   templateUrl: './login.component.html',
@@ -73,9 +74,7 @@ export class LoginComponent {
     if (url && url.startsWith('/access-control')) {
       return url;
     }
-    return this.authService.isSuperAdmin()
-      ? '/access-control/complexes'
-      : '/access-control';
+    return '/access-control';
   }
 
   onSubmit() {

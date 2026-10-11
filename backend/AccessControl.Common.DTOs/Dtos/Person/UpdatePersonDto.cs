@@ -17,6 +17,10 @@ namespace AccessControl.Common.DTOs.Person
         [MaxLength(20)]
         public string DocumentType { get; set; } = null!;
 
+        /// <summary>Si se envía, corrige el número de documento.</summary>
+        [MaxLength(30)]
+        public string? DocumentNumber { get; set; }
+
         [MaxLength(30)]
         public string? Phone { get; set; }
 
@@ -24,6 +28,5 @@ namespace AccessControl.Common.DTOs.Person
         [MaxLength(200)]
         public string? Email { get; set; }
 
-        public int PersonType { get; set; }
     }
 }

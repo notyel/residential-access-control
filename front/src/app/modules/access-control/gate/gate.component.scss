@@ -1,0 +1,222 @@
+:host {
+  display: block;
+}
+
+.gate__search-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--app-space-3);
+  margin-bottom: var(--app-space-4);
+}
+
+// La búsqueda es la acción principal de portería: grande y siempre a la vista
+.gate__search {
+  flex: 1 1 280px;
+  height: 48px;
+
+  input {
+    flex: 1;
+    width: auto;
+    max-width: none;
+    font-size: 16px;
+  }
+}
+
+.gate__columns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--app-space-4);
+  align-items: start;
+}
+
+.gate-card {
+  margin-bottom: var(--app-space-4);
+  padding: var(--app-space-4);
+
+  h2 {
+    margin: 0 0 var(--app-space-2);
+    font-size: 15px;
+  }
+}
+
+.gate-list {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--app-space-2) var(--app-space-3);
+    min-height: 52px;
+    padding: var(--app-space-2) 0;
+    border-top: 1px solid var(--app-border);
+  }
+
+  li:first-child {
+    border-top: 0;
+  }
+
+  .cell-stack {
+    flex: 1 1 200px;
+    min-width: 0;
+  }
+}
+
+.gate-list__actions {
+  display: flex;
+  gap: var(--app-space-2);
+}
+
+// ---- panel de ingreso ----
+
+.gate-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-space-3);
+
+  h3 {
+    margin: var(--app-space-2) 0 0;
+    font-size: 13px;
+    color: var(--app-text-muted);
+  }
+}
+
+.gate-note {
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-space-1);
+  padding: var(--app-space-3);
+  border: 1px solid var(--app-border);
+  border-left: 3px solid var(--app-success-text);
+  border-radius: var(--app-radius);
+  background: var(--app-surface-2);
+  font-size: 13px;
+}
+
+.gate-note--blocked {
+  margin: 0;
+  border-left-color: var(--app-danger-text);
+}
+
+// ---- resultado de la verificación de placa: color + icono + texto ----
+
+.plate-result {
+  border-left: 6px solid var(--app-border-strong);
+
+  p {
+    margin: var(--app-space-2) 0 0;
+  }
+}
+
+.plate-result__header {
+  display: flex;
+  align-items: center;
+  gap: var(--app-space-3);
+
+  div {
+    display: flex;
+    flex-direction: column;
+    font-size: 18px;
+  }
+}
+
+.plate-result__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--app-space-3);
+  margin-top: var(--app-space-3);
+}
+
+.plate-result--ok {
+  border-left-color: var(--app-success-text);
+  background: var(--app-success-bg);
+
+  .plate-result__header {
+    color: var(--app-success-text);
+  }
+}
+
+.plate-result--blocked {
+  border-left-color: var(--app-danger-text);
+  background: var(--app-danger-bg);
+
+  .plate-result__header {
+    color: var(--app-danger-text);
+  }
+}
+
+.plate-result--visit {
+  border-left-color: var(--app-warning-text);
+  background: var(--app-warning-bg);
+
+  .plate-result__header {
+    color: var(--app-warning-text);
+  }
+}
+
+.plate-result--unknown {
+  background: var(--app-neutral-bg);
+
+  .plate-result__header {
+    color: var(--app-neutral-text);
+  }
+}
+
+.gate-chosen {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--app-space-3);
+  margin: 0;
+
+  > span {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+.gate-unit-search {
+  width: 100%;
+  height: 40px;
+
+  input {
+    flex: 1;
+    width: auto;
+    max-width: none;
+  }
+}
+
+.gate-options {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  button {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--app-space-3);
+    width: 100%;
+    min-height: 40px;
+    padding: 0 var(--app-space-2);
+    border: 0;
+    border-radius: var(--app-radius);
+    background: transparent;
+    color: var(--app-text);
+    font: inherit;
+    text-align: left;
+    align-items: center;
+    cursor: pointer;
+
+    &:hover,
+    &:focus-visible {
+      background: var(--app-surface-2);
+    }
+  }
+}

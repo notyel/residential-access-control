@@ -31,5 +31,4 @@ export interface CreateComplex extends SaveComplex {
   adminEmail: string;
   adminFirstName: string;
   adminLastName: string;
-  adminPassword: string;
 }

@@ -1,0 +1,210 @@
+<app-side-panel [title]="'Parqueadero ' + (detail()?.space?.code ?? '')">
+  @if (errorMessage()) {
+  <p class="app-alert" role="alert">{{ errorMessage() }}</p>
+  }
+
+  @if (detail(); as d) {
+  <dl class="app-summary">
+    <div>
+      <dt>Estado</dt>
+      <dd>
+        <strong>{{ d.space.isActive ? stateLabels[d.space.state] : "Dado de baja" }}</strong>
+      </dd>
+    </div>
+    <div>
+      <dt>Tipo</dt>
+      <dd>{{ typeLabels[d.space.type] }} · {{ kindLabels[d.space.vehicleKind] }}</dd>
+    </div>
+    @if (d.space.location) {
+    <div>
+      <dt>Ubicación</dt>
+      <dd>{{ d.space.location }}</dd>
+    </div>
+    } @if (d.space.type === Type.Private) {
+    <div>
+      <dt>Unidad titular</dt>
+      <dd>
+        @if (d.space.holderUnitLabel) {
+        <span class="text-mono">{{ d.space.holderUnitLabel }}</span>
+        @if (d.space.holderPersonName) { · {{ d.space.holderPersonName }} }
+        } @else { Sin asignar }
+      </dd>
+    </div>
+    } @if (d.space.occupant; as o) {
+    <div>
+      <dt>Lo ocupa</dt>
+      <dd>
+        <span class="text-mono">{{ o.plate }}</span>
+        @if (o.unitLabel) { · unidad <span class="text-mono">{{ o.unitLabel }}</span> }
+        @if (o.visitId) { · visita }
+        <br />
+        <span class="text-muted">desde {{ o.since | date : "d MMM, h:mm a" }}</span>
+        @if (o.isOverdue) {
+        <span class="text-danger"> · superó el tiempo máximo</span>
+        } @if (o.isException) {
+        <span class="text-danger"> · uso excepcional</span>
+        }
+      </dd>
+    </div>
+    } @if (d.space.plan; as p) {
+    <div>
+      <dt>{{ classLabels[p.class] }}</dt>
+      <dd>
+        <span class="text-mono">{{ p.unitLabel || p.plate }}</span>
+        <br />
+        <span class="text-muted">
+          {{ p.startsAt | date : "d MMM, h:mm a" }} – {{ p.endsAt | date : "d MMM, h:mm a" }}
+        </span>
+      </dd>
+    </div>
+    } @if (d.space.outOfServiceReason) {
+    <div>
+      <dt>Fuera de servicio</dt>
+      <dd>
+        {{ d.space.outOfServiceReason }}
+        @if (d.space.outOfServiceUntil) {
+        <span class="text-muted"> · hasta {{ d.space.outOfServiceUntil | date : "d MMM, h:mm a" }}</span>
+        }
+      </dd>
+    </div>
+    }
+  </dl>
+
+  @if (action(); as a) {
+  <div class="parking-action">
+    <strong>{{ actionTitles[a] }}</strong>
+    @if (a === 'out' || a === 'note') {
+    <textarea rows="3" [attr.aria-label]="actionTitles[a]" [value]="text()" (input)="onText($event)"></textarea>
+    } @else {
+    @if (unit(); as u) {
+    <p class="text-mono">{{ u.label }}</p>
+    } @else {
+    <input
+      type="search"
+      class="app-toolbar-select"
+      aria-label="Buscar unidad"
+      placeholder="Buscar unidad"
+      (input)="searchUnits($event)"
+    />
+    <ul class="parking-options">
+      @for (item of unitResults(); track item.id) {
+      <li>
+        <button type="button" (click)="chooseUnit(item)">
+          <span class="text-mono">{{ item.label }}</span>
+          <span class="text-muted">{{ item.owners.join(", ") }}</span>
+        </button>
+      </li>
+      }
+    </ul>
+    } @if (a === 'assign' || a === 'reserve') {
+    <label class="cell-stack">
+      <span class="text-muted">Desde</span>
+      <input type="datetime-local" class="app-toolbar-select" [value]="from()" (change)="onDate('from', $event)" />
+    </label>
+    <label class="cell-stack">
+      <span class="text-muted">Hasta</span>
+      <input type="datetime-local" class="app-toolbar-select" [value]="to()" (change)="onDate('to', $event)" />
+    </label>
+    } }
+  </div>
+  } @else {
+  <div class="parking-actions">
+    @if (canRelease && d.space.occupant; as o) {
+    <button mat-stroked-button type="button" [disabled]="busy()" (click)="release(o.assignmentId)">
+      Liberar manualmente
+    </button>
+    } @if ((canAssign || canReserve) && d.space.plan; as p) {
+    <button mat-stroked-button type="button" [disabled]="busy()" (click)="cancelPlan(p.assignmentId)">
+      Cancelar {{ classLabels[p.class].toLowerCase() }}
+    </button>
+    } @if (d.space.type === Type.Community && d.space.isActive) { @if (canAssign) {
+    <button mat-stroked-button type="button" (click)="ask('assign')">Asignar temporalmente</button>
+    } @if (canReserve) {
+    <button mat-stroked-button type="button" (click)="ask('reserve')">Reservar</button>
+    } } @if (canWrite) { @if (d.space.type === Type.Private) {
+    <button mat-stroked-button type="button" (click)="ask('holder')">
+      {{ d.space.holderUnitLabel ? "Reasignar a otra unidad" : "Asociar a una unidad" }}
+    </button>
+    @if (d.space.holderUnitLabel) {
+    <button mat-button type="button" [disabled]="busy()" (click)="endHolder()">
+      Quitar titular
+    </button>
+    } } @if (d.space.outOfServiceId; as outId) {
+    <button mat-stroked-button type="button" [disabled]="busy()" (click)="endOutOfService(outId)">
+      Volver a poner en servicio
+    </button>
+    } @else if (d.space.isActive) {
+    <button mat-button type="button" (click)="ask('out')">Fuera de servicio</button>
+    }
+    <button mat-button type="button" [disabled]="busy()" (click)="setActive(!d.space.isActive)">
+      {{ d.space.isActive ? "Dar de baja" : "Reactivar" }}
+    </button>
+    }
+    <button mat-button type="button" (click)="ask('note')">Novedad</button>
+  </div>
+  }
+
+  <h3 class="parking-heading">Historial</h3>
+  <ul class="parking-history">
+    @for (item of d.history; track item.id) {
+    <li>
+      <span>
+        <strong>{{ classLabels[item.class] }}</strong>
+        · <span class="text-mono">{{ item.plate || item.unitLabel || "—" }}</span>
+        @if (item.plate && item.unitLabel) { · <span class="text-mono">{{ item.unitLabel }}</span> }
+      </span>
+      <span class="text-muted">
+        {{ item.startsAt | date : "d MMM y, h:mm a" }}
+        @if (item.endsAt) { – {{ item.endsAt | date : "d MMM y, h:mm a" }} }
+        · {{ statusLabels[item.status] }}
+        @if (item.registeredBy) { · registró {{ item.registeredBy }} }
+      </span>
+      @if (item.exceptionReason || item.notes) {
+      <span class="text-muted">{{ item.exceptionReason || item.notes }}</span>
+      }
+    </li>
+    } @empty {
+    <li class="text-muted">Sin movimientos.</li>
+    }
+  </ul>
+
+  @if (d.outOfService.length) {
+  <h3 class="parking-heading">Periodos fuera de servicio</h3>
+  <ul class="parking-history">
+    @for (item of d.outOfService; track item.id) {
+    <li>
+      <span>{{ item.reason }}</span>
+      <span class="text-muted">
+        {{ item.from | date : "d MMM y, h:mm a" }} –
+        {{ item.to ? (item.to | date : "d MMM y, h:mm a") : "sin fecha de fin" }}
+      </span>
+    </li>
+    }
+  </ul>
+  } @if (d.notes.length) {
+  <h3 class="parking-heading">Novedades</h3>
+  <ul class="parking-history">
+    @for (note of d.notes; track note.createdAt) {
+    <li>
+      <span>{{ note.text }}</span>
+      <span class="text-muted">
+        {{ note.createdAt | date : "d MMM y, h:mm a" }} · {{ note.authorName || "Sistema" }}
+      </span>
+    </li>
+    }
+  </ul>
+  } }
+
+  <ng-container sidePanelFooter>
+    @if (action()) {
+    <button mat-button type="button" [disabled]="busy()" (click)="action.set(null)">
+      Cancelar
+    </button>
+    <button mat-flat-button type="button" [disabled]="busy()" (click)="confirm()">
+      Confirmar
+    </button>
+    } @else {
+    <button mat-button type="button" (click)="close()">Cerrar</button>
+    }
+  </ng-container>
+</app-side-panel>

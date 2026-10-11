@@ -121,7 +121,12 @@ Los Data Transfer Objects (DTOs) se utilizan para transferir datos entre las dif
 `appsettings.json` no contiene secretos. La API **no arranca** si falta la cadena de conexión o si
 la clave JWT tiene menos de 32 bytes, y el mensaje de error dice cuál falta.
 
-**Desarrollo** — .NET Secret Manager, desde `backend/AccessControl.API`:
+**Desarrollo** — no hay que configurar nada: la conexión a la base de desarrollo y una clave JWT de
+desarrollo están en `appsettings.Development.json`, versionado a propósito. Esos valores son
+públicos; no sirven para producción (la API se niega a arrancar fuera de desarrollo con esa clave).
+
+Para usar otros valores en su máquina sin tocar el archivo, .NET Secret Manager, desde
+`backend/AccessControl.API`:
 
 ```bash
 dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Host=<HOST>;Database=<BD>;Username=<USUARIO>;Password=<CONTRASEÑA>;Ssl Mode=Require"

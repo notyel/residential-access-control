@@ -6,6 +6,7 @@ using AccessControl.Common.DTOs.User;
 using AccessControl.Shared.Dtos.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace AccessControl.API.Controllers
 {
@@ -18,6 +19,7 @@ namespace AccessControl.API.Controllers
 
         [HttpPost("login")]
         [AllowAnonymous]
+        [EnableRateLimiting(RateLimits.Auth)]
         public async Task<IActionResult> Login([FromBody] LoginDto dto)
         {
             var loginResponse = await _auth.AuthenticateAsync(dto.Email, dto.Password);
@@ -27,6 +29,43 @@ namespace AccessControl.API.Controllers
             }
 
             return Ok(new ResponseModel<LoginResponseDto>(true, "Login successful.", loginResponse));
+        }
+
+        [HttpPost("accept-invitation")]
+        [AllowAnonymous]
+        [EnableRateLimiting(RateLimits.Auth)]
+        public async Task<IActionResult> AcceptInvitation([FromBody] SetPasswordDto dto)
+        {
+            await _auth.AcceptInvitationAsync(dto.Token, dto.Password);
+            return Ok(new ResponseModel<string>(true, "Contraseña definida. Ya puede iniciar sesión.", null));
+        }
+
+        [HttpPost("forgot-password")]
+        [AllowAnonymous]
+        [EnableRateLimiting(RateLimits.Auth)]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto dto)
+        {
+            await _auth.RequestPasswordResetAsync(dto.Email);
+            // misma respuesta exista o no la cuenta
+            return Ok(new ResponseModel<string>(true, "Si el correo está registrado, recibirá un enlace para definir una contraseña nueva.", null));
+        }
+
+        [HttpPost("reset-password")]
+        [AllowAnonymous]
+        [EnableRateLimiting(RateLimits.Auth)]
+        public async Task<IActionResult> ResetPassword([FromBody] SetPasswordDto dto)
+        {
+            await _auth.ResetPasswordAsync(dto.Token, dto.Password);
+            return Ok(new ResponseModel<string>(true, "Contraseña actualizada. Ya puede iniciar sesión.", null));
+        }
+
+        // Invalida en el servidor todos los tokens del usuario; el frontend lo llama al cerrar sesión
+        [HttpPost("logout")]
+        [Authorize]
+        public async Task<IActionResult> Logout()
+        {
+            await _auth.LogoutAllAsync(User.GetUserId());
+            return Ok(new ResponseModel<string>(true, "Sesión cerrada.", null));
         }
 
         // Usuario de la sesión con roles y permisos al día; el frontend lo consulta para refrescar lo que muestra

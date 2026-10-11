@@ -1,4 +1,4 @@
-import { Injectable, signal, inject } from '@angular/core';
+import { Injectable, computed, signal, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { tap, map, catchError } from 'rxjs/operators';
@@ -13,7 +13,14 @@ export interface MenuItem {
   path: string;
   icon: string;
   order: number;
+  /** Encabezado bajo el que se agrupa; null = sin grupo. */
+  group?: string | null;
   iconData?: LucideIconData;
+}
+
+export interface MenuSection {
+  group: string | null;
+  items: MenuItem[];
 }
 
 @Injectable({
@@ -25,6 +32,21 @@ export class MenuService {
   public menuItems = signal<MenuItem[]>([]);
   /** El menú no se pudo cargar. No hay menú de respaldo: mostrar opciones sin saber el rol las expondría a todos. */
   public loadFailed = signal(false);
+
+  /** Opciones en el orden del servidor, partidas en bloques consecutivos del mismo grupo. */
+  public readonly sections = computed<MenuSection[]>(() => {
+    const sections: MenuSection[] = [];
+    for (const item of this.menuItems()) {
+      const group = item.group ?? null;
+      const last = sections[sections.length - 1];
+      if (last && last.group === group) {
+        last.items.push(item);
+      } else {
+        sections.push({ group, items: [item] });
+      }
+    }
+    return sections;
+  });
 
   constructor(private http: HttpClient) {}
 

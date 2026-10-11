@@ -3,6 +3,7 @@ using AccessControl.Application.Interfaces;
 using AccessControl.Common.DTOs.Complex;
 using AccessControl.Domain.Entities;
 using AccessControl.Persistence.Generics;
+using AccessControl.Shared.Enums;
 using AccessControl.Application.Security;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -17,9 +18,21 @@ namespace AccessControl.Application.Services
         private readonly IRepository<Complex> _complexRepository;
         private readonly IRepository<User> _userRepository;
         private readonly IRoleProvisioner _roleProvisioner;
+        private readonly IUserTokenService _tokens;
+        private readonly IEmailSender _email;
+        private readonly IPermissionService _permissions;
 
-        public ComplexesService(IRepository<Complex> complexRepository, IRepository<User> userRepository, IRoleProvisioner roleProvisioner)
+        public ComplexesService(
+            IRepository<Complex> complexRepository,
+            IRepository<User> userRepository,
+            IRoleProvisioner roleProvisioner,
+            IUserTokenService tokens,
+            IEmailSender email,
+            IPermissionService permissions)
         {
+            _tokens = tokens;
+            _email = email;
+            _permissions = permissions;
             _roleProvisioner = roleProvisioner;
             _complexRepository = complexRepository;
             _userRepository = userRepository;
@@ -60,19 +73,28 @@ namespace AccessControl.Application.Services
 
             var adminRole = _roleProvisioner.AddSystemRoles(complex.Id).First(r => r.SystemKey == SystemRoles.Admin);
 
-            await _userRepository.AddAsync(new User
+            var admin = new User
             {
                 ComplexId = complex.Id,
                 Email = adminEmail,
                 FirstName = dto.AdminFirstName.Trim(),
                 LastName = dto.AdminLastName.Trim(),
                 ApartmentNumber = string.Empty,
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.AdminPassword),
+                PasswordHash = string.Empty,
+                Status = UserStatus.Invited,
                 UserRoles = new List<UserRole> { new() { Role = adminRole } }
-            });
+            };
+            await _userRepository.AddAsync(admin);
+            var token = _tokens.Create(admin, UserTokenPurpose.Invitation);
 
             // conjunto, roles de sistema y administrador se guardan en la misma transacción
             await _complexRepository.SaveChangesAsync();
+
+            await _email.SendAsync(
+                admin.Email,
+                $"Administración de {complex.Name} en Zentryal",
+                $"Hola {admin.FirstName}:\n\nUsted es el administrador de {complex.Name}. Defina su contraseña en este enlace " +
+                $"(vence en {UserTokenService.InvitationLifetime.TotalHours:0} horas):\n{_tokens.BuildLink("invitation", token)}");
 
             return ToDto(complex);
         }
@@ -96,6 +118,8 @@ namespace AccessControl.Application.Services
             var complex = await FindAsync(id);
             complex.IsActive = isActive;
             await _complexRepository.SaveChangesAsync();
+            // las sesiones de sus usuarios dejan de servir (o vuelven a servir) desde la siguiente petición
+            _permissions.Invalidate();
 
             return ToDto(complex);
         }

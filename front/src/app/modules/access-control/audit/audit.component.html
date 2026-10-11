@@ -1,0 +1,126 @@
+<div class="app-page">
+  <app-data-table
+    [loading]="loading()"
+    [empty]="entries().length === 0"
+    [error]="error()"
+    emptyTitle="Sin registros"
+    emptyMessage="Ningún registro coincide con los filtros."
+    (retry)="load()"
+  >
+    <ng-container tableToolbar>
+      <select
+        class="app-toolbar-select"
+        aria-label="Filtrar por tipo de registro"
+        (change)="setFilter('entityType', $event)"
+      >
+        <option value="">Todo</option>
+        @for (option of entityOptions; track option[0]) {
+        <option [value]="option[0]">{{ option[1] }}</option>
+        }
+      </select>
+      <select
+        class="app-toolbar-select"
+        aria-label="Filtrar por acción"
+        (change)="setFilter('action', $event)"
+      >
+        <option value="">Todas las acciones</option>
+        @for (option of actionOptions; track option[0]) {
+        <option [value]="option[0]">{{ option[1] }}</option>
+        }
+      </select>
+      <input
+        class="app-toolbar-select"
+        type="date"
+        aria-label="Desde"
+        [value]="startDate()"
+        (change)="setFilter('startDate', $event)"
+      />
+      <input
+        class="app-toolbar-select"
+        type="date"
+        aria-label="Hasta"
+        [value]="endDate()"
+        (change)="setFilter('endDate', $event)"
+      />
+      <span class="app-spacer"></span>
+      <span class="text-muted">
+        {{ totalCount() }} {{ totalCount() === 1 ? "registro" : "registros" }}
+      </span>
+    </ng-container>
+
+    <table class="app-table">
+      <thead>
+        <tr>
+          <th scope="col">Fecha</th>
+          <th scope="col">Usuario</th>
+          <th scope="col">Acción</th>
+          <th scope="col">Sobre</th>
+          <th scope="col"><span class="sr-only">Detalle</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (entry of entries(); track entry.id) {
+        <tr>
+          <td class="cell-numeric cell-aside">
+            {{ entry.occurredAt | date : "d MMM y, h:mm:ss a" }}
+          </td>
+          <td class="cell-primary">
+            <span class="cell-ellipsis">{{ entry.userName || "Sistema" }}</span>
+          </td>
+          <td>{{ actionLabel(entry) }}</td>
+          <td class="cell-optional">{{ entityLabel(entry) }}</td>
+          <td class="cell-actions">
+            <button
+              type="button"
+              class="app-icon-btn"
+              [attr.aria-expanded]="expandedId() === entry.id"
+              [attr.aria-label]="'Ver detalle de ' + actionLabel(entry)"
+              (click)="toggle(entry)"
+            >
+              <lucide-icon
+                [img]="expandedId() === entry.id ? OpenIcon : ClosedIcon"
+                [size]="18"
+              ></lucide-icon>
+            </button>
+          </td>
+        </tr>
+        @if (expandedId() === entry.id) {
+        <tr class="app-table__detail">
+          <td colspan="5">
+            <dl class="audit-detail">
+              @for (line of changeLines(entry); track line.field) {
+              <div>
+                <dt class="text-mono">{{ line.field }}</dt>
+                <dd>
+                  @if (line.old) {
+                  <span class="text-muted">{{ line.old }}</span>
+                  <span aria-label="pasó a"> → </span>
+                  }
+                  <span>{{ line.new || "(vacío)" }}</span>
+                </dd>
+              </div>
+              } @empty {
+              <div><dd class="text-muted">Sin más detalle.</dd></div>
+              }
+              <div>
+                <dt class="text-mono">origen</dt>
+                <dd class="text-muted text-mono">
+                  {{ entry.ipAddress || "—" }} · {{ entry.entityId || "—" }}
+                </dd>
+              </div>
+            </dl>
+          </td>
+        </tr>
+        } }
+      </tbody>
+    </table>
+
+    <app-paginator
+      tableFooter
+      [length]="totalCount()"
+      [pageIndex]="pageIndex()"
+      [pageSize]="pageSize()"
+      (page)="onPageChange($event)"
+    ></app-paginator>
+  </app-data-table>
+</div>

@@ -1,0 +1,141 @@
+<div class="app-page app-page--scroll">
+  @if (errorMessage()) {
+  <p class="app-alert" role="alert">{{ errorMessage() }}</p>
+  } @if (notice()) {
+  <p role="status">{{ notice() }}</p>
+  }
+
+  @for (unit of units(); track unit.id) {
+  <section class="app-card unit-card">
+    <header class="unit-card__header">
+      <div>
+        <h2 class="text-mono">{{ unit.label }}</h2>
+        <p class="text-muted">
+          @if (ownerMode) { Propietario@if (unit.relation !== null &&
+          unit.relation !== undefined) { residente} @else { no residente} }
+          @else {
+          {{ relationLabels[unit.relation!] }}
+          @if (unit.startDate) { · desde {{ unit.startDate | date : "d MMM y" }} }
+          @if (unit.endDate) { hasta {{ unit.endDate | date : "d MMM y" }} } }
+        </p>
+      </div>
+      <app-status-badge variant="neutral">{{
+        stateLabels[unit.occupancyState]
+      }}</app-status-badge>
+    </header>
+
+    @if (ownerMode) {
+    <h4>Residentes</h4>
+    <ul class="unit-list">
+      @for (occupant of occupantsOf(unit); track occupant.id) {
+      <li>
+        <span>{{ occupant.personName }}</span>
+        <span>{{ relationLabels[occupant.relation] }}</span>
+        <span class="text-muted">
+          {{ occupant.isCurrent ? "Vigente" : statusLabels[occupant.status] }}
+          @if (occupant.statusReason) { · {{ occupant.statusReason }} }
+        </span>
+        @if (occupant.status === Status.Active && policy() !== 'no') {
+        <button mat-button type="button" [disabled]="busy()" (click)="end(occupant)">
+          Finalizar hoy
+        </button>
+        }
+      </li>
+      } @empty {
+      <li class="text-muted">No hay residentes registrados.</li>
+      }
+    </ul>
+
+    @if (policy() === 'no') {
+    <p class="text-muted">
+      En este conjunto los ocupantes los registra la administración.
+    </p>
+    } @else if (addingTo() !== unit.id) {
+    <p>
+      <button mat-stroked-button type="button" (click)="open(unit)">
+        Registrar residente
+      </button>
+      @if (policy() === 'approval') {
+      <span class="text-muted">La administración debe aprobarlo.</span>
+      }
+    </p>
+    } @else {
+    <form class="app-form-grid" [formGroup]="form" (ngSubmit)="add()">
+      <mat-form-field>
+        <mat-label>Relación</mat-label>
+        <mat-select formControlName="relation">
+          @for (item of relations; track item) {
+          <mat-option [value]="item">{{ relationLabels[item] }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Desde</mat-label>
+        <input matInput type="date" formControlName="startDate" />
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Hasta (opcional)</mat-label>
+        <input matInput type="date" formControlName="endDate" />
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Nombres</mat-label>
+        <input matInput formControlName="firstName" />
+        <mat-error>Campo obligatorio</mat-error>
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Apellidos</mat-label>
+        <input matInput formControlName="lastName" />
+        <mat-error>Campo obligatorio</mat-error>
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Tipo de documento</mat-label>
+        <mat-select formControlName="documentType">
+          @for (type of documentTypes(); track type.code) {
+          <mat-option [value]="type.code">{{ type.label }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Número de documento</mat-label>
+        <input matInput formControlName="documentNumber" />
+        <mat-error>Campo obligatorio</mat-error>
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Teléfono</mat-label>
+        <input matInput type="tel" formControlName="phone" />
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Correo</mat-label>
+        <input matInput type="email" formControlName="email" />
+      </mat-form-field>
+      <div class="span-2">
+        <button mat-flat-button type="submit" [disabled]="busy()">
+          {{ policy() === "approval" ? "Enviar solicitud" : "Registrar" }}
+        </button>
+        <button mat-button type="button" (click)="addingTo.set(null)">
+          Cancelar
+        </button>
+      </div>
+    </form>
+    } } @else {
+    <h4>Viven aquí</h4>
+    <ul class="unit-list">
+      @for (name of unit.occupants; track name) {
+      <li>{{ name }}</li>
+      }
+    </ul>
+    }
+  </section>
+  } @empty { @if (!loading()) {
+  <section class="app-card unit-card">
+    <p class="text-muted">
+      {{
+        ownerMode
+          ? "No figura como propietario vigente de ninguna unidad."
+          : "No tiene una residencia vigente registrada."
+      }}
+      Si cree que es un error, comuníquese con la administración.
+    </p>
+  </section>
+  } }
+</div>

@@ -1,0 +1,181 @@
+<ng-template appPageActions>
+  <a
+    mat-flat-button
+    routerLink="/access-control/users/new"
+    *appIfPermission="P.usersManage"
+  >
+    <lucide-icon [img]="PlusIcon" [size]="18"></lucide-icon>
+    Nuevo usuario
+  </a>
+</ng-template>
+
+<div class="app-page">
+  <app-data-table
+    [loading]="loading()"
+    [empty]="users().length === 0"
+    [error]="error()"
+    emptyTitle="No hay usuarios"
+    [emptyMessage]="
+      search() || status()
+        ? 'Ningún usuario coincide con la búsqueda.'
+        : 'Los usuarios del conjunto aparecerán aquí.'
+    "
+    (retry)="load()"
+  >
+    <ng-container tableToolbar>
+      <label class="app-toolbar-search">
+        <lucide-icon [img]="SearchIcon" [size]="16"></lucide-icon>
+        <input
+          type="search"
+          aria-label="Buscar por nombre o correo"
+          placeholder="Nombre o correo"
+          [value]="search()"
+          (input)="onSearch($event)"
+        />
+      </label>
+      <select
+        class="app-toolbar-select"
+        aria-label="Filtrar por estado"
+        (change)="onStatus($event)"
+      >
+        <option value="">Todos los estados</option>
+        @for (item of statuses; track item) {
+        <option [value]="item" [selected]="status() === item">
+          {{ statusLabels[item] }}
+        </option>
+        }
+      </select>
+      <span class="app-spacer"></span>
+      @if (notice(); as message) {
+      <span
+        [class.text-danger]="message.isError"
+        [attr.role]="message.isError ? 'alert' : 'status'"
+        >{{ message.text }}</span
+      >
+      }
+      <span class="text-muted">
+        {{ totalCount() }} {{ totalCount() === 1 ? "usuario" : "usuarios" }}
+      </span>
+    </ng-container>
+
+    <table class="app-table">
+      <thead>
+        <tr>
+          <th scope="col">Usuario</th>
+          <th scope="col">Correo</th>
+          <th scope="col">Roles</th>
+          <th scope="col">Estado</th>
+          <th scope="col"><span class="sr-only">Acciones</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (user of users(); track user.id) {
+        <tr>
+          <td class="cell-primary">
+            <div class="cell-person">
+              <span class="app-avatar" aria-hidden="true">{{
+                initials(user.firstName, user.lastName)
+              }}</span>
+              <span class="cell-ellipsis"
+                >{{ user.firstName }} {{ user.lastName }}</span
+              >
+            </div>
+          </td>
+          <td class="cell-optional text-muted cell-ellipsis">{{ user.email }}</td>
+          <td class="cell-optional">{{ roleNames(user) }}</td>
+          <td class="cell-aside">
+            @switch (user.status) { @case ('Active') {
+            <app-status-badge variant="success">Activo</app-status-badge>
+            } @case ('Invited') {
+            <app-status-badge variant="warning">Invitado</app-status-badge>
+            } @default {
+            <app-status-badge variant="neutral">Desactivado</app-status-badge>
+            } }
+          </td>
+          <td class="cell-actions">
+            <span class="row-confirm" *appIfPermission="P.usersManage">
+              @if (pending()?.userId === user.id) {
+              <button
+                mat-button
+                type="button"
+                [disabled]="busyId() === user.id"
+                (click)="pending.set(null)"
+              >
+                Cancelar
+              </button>
+              <button
+                mat-flat-button
+                type="button"
+                [disabled]="busyId() === user.id"
+                (click)="confirm(user)"
+              >
+                {{ pending()?.label }}
+              </button>
+              } @else {
+              <a
+                class="app-icon-btn"
+                [routerLink]="['/access-control/users/edit', user.id]"
+                [attr.aria-label]="'Editar a ' + user.firstName + ' ' + user.lastName"
+                title="Editar"
+              >
+                <lucide-icon [img]="EditIcon" [size]="18"></lucide-icon>
+              </a>
+              @if (user.status === 'Invited') {
+              <button
+                type="button"
+                class="app-icon-btn"
+                [attr.aria-label]="'Reenviar invitación a ' + user.email"
+                title="Reenviar invitación"
+                [disabled]="busyId() === user.id"
+                (click)="resend(user)"
+              >
+                <lucide-icon [img]="ResendIcon" [size]="18"></lucide-icon>
+              </button>
+              }
+              <!-- nadie se desactiva ni se revoca a sí mismo -->
+              @if (!isSelf(user)) {
+              <button
+                type="button"
+                class="app-icon-btn"
+                [attr.aria-label]="
+                  (user.status === 'Disabled' ? 'Activar a ' : 'Desactivar a ') +
+                  user.firstName +
+                  ' ' +
+                  user.lastName
+                "
+                [title]="user.status === 'Disabled' ? 'Activar' : 'Desactivar'"
+                (click)="
+                  ask(user, user.status === 'Disabled' ? 'activate' : 'deactivate')
+                "
+              >
+                <lucide-icon [img]="PowerIcon" [size]="18"></lucide-icon>
+              </button>
+              @if (user.roles.length) {
+              <button
+                type="button"
+                class="app-icon-btn"
+                [attr.aria-label]="
+                  'Revocar accesos de ' + user.firstName + ' ' + user.lastName
+                "
+                title="Revocar accesos: cierra sus sesiones y le quita todos los roles"
+                (click)="ask(user, 'revoke')"
+              >
+                <lucide-icon [img]="RevokeIcon" [size]="18"></lucide-icon>
+              </button>
+              } } }
+            </span>
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+
+    <app-paginator
+      tableFooter
+      [length]="totalCount()"
+      [pageIndex]="pageIndex()"
+      [pageSize]="pageSize()"
+      (page)="onPageChange($event)"
+    ></app-paginator>
+  </app-data-table>
+</div>

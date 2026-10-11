@@ -28,6 +28,5 @@ namespace AccessControl.Common.DTOs.Person
         [MaxLength(200)]
         public string? Email { get; set; }
 
-        public int PersonType { get; set; }
     }
 }

@@ -2,7 +2,7 @@ using AccessControl.Common.DTOs.Common;
 using AccessControl.Common.DTOs.Dashboard;
 using AccessControl.Common.DTOs.Menu;
 using AccessControl.Common.DTOs.User;
-using AccessControl.Common.DTOs.Visit;
+using AccessControl.Common.DTOs.Access;
 using AccessControl.Persistence;
 using AccessControl.Tests.Infrastructure;
 using Microsoft.EntityFrameworkCore;
@@ -14,32 +14,18 @@ namespace AccessControl.Tests.Integration
     [Collection(ApiCollection.Name)]
     public class PermissionTests(ApiFixture api)
     {
-        private static object NewVisit(Guid residenceId) => new
+        private static object NewVisit(Guid unitId) => new
         {
-            residenceId,
-            newPerson = new { firstName = "Luis", lastName = "Visitante", documentType = "CC", documentNumber = HttpExtensions.UniqueDocument(), personType = 0 }
+            unitId,
+            newPerson = new { firstName = "Luis", lastName = "Visitante", documentType = "CC", documentNumber = HttpExtensions.UniqueDocument() }
         };
 
-        /// <summary>Crea un segundo propietario con su residencia, directamente en la base.</summary>
-        private async Task<(string Email, string Password, Guid ResidenceId)> CreateOtherOwnerAsync()
+        /// <summary>Crea otra unidad con su propietario, que además tiene cuenta en la plataforma.</summary>
+        private async Task<(string Email, string Password, Guid UnitId)> CreateOtherOwnerAsync()
         {
             var admin = await api.AdminAsync();
-            var email = $"owner-{Guid.NewGuid():N}@test.com";
-            const string password = "OtraClave123!";
-            var user = await (await admin.PostAsJsonAsync("/api/users", new
-            {
-                email, firstName = "Otra", lastName = "Propietaria", apartmentNumber = "202", password, roleKeys = new[] { "owner" }
-            })).ReadDataAsync<UserDto>();
-
-            var residenceId = await api.WithDbAsync(async db =>
-            {
-                var residence = new Domain.Entities.Residence { Identifier = $"RES-{Guid.NewGuid():N}"[..12], OwnerId = user.Id };
-                db.Residences.Add(residence);
-                await db.SaveChangesAsync();
-                return residence.Id;
-            });
-
-            return (email, password, residenceId);
+            var owner = await TestData.CreateOwnerWithUnitAsync(api, admin);
+            return (owner.Email, TestData.Password, owner.UnitId);
         }
 
         [Fact]
@@ -54,25 +40,26 @@ namespace AccessControl.Tests.Integration
         {
             var owner = await api.OwnerAsync();
 
-            Assert.Equal(HttpStatusCode.Forbidden, (await owner.PostAsJsonAsync("/api/visits", NewVisit(DataSeeder.ResidenceId))).StatusCode);
+            Assert.Equal(HttpStatusCode.Forbidden, (await owner.PostAsJsonAsync("/api/access/check-in", NewVisit(DataSeeder.UnitId))).StatusCode);
             Assert.Equal(HttpStatusCode.Forbidden, (await owner.GetAsync("/api/persons?documentNumber=1")).StatusCode);
-            Assert.Equal(HttpStatusCode.Forbidden, (await owner.GetAsync("/api/residences")).StatusCode);
+            Assert.Equal(HttpStatusCode.Forbidden, (await owner.GetAsync("/api/units")).StatusCode);
+            Assert.Equal(HttpStatusCode.Forbidden, (await owner.GetAsync("/api/persons/search")).StatusCode);
         }
 
         [Fact]
         public async Task El_propietario_solo_ve_las_visitas_de_sus_residencias()
         {
             var guard = await api.GuardAsync();
-            var (email, password, otherResidenceId) = await CreateOtherOwnerAsync();
-            var mine = await (await guard.PostAsJsonAsync("/api/visits", NewVisit(DataSeeder.ResidenceId))).ReadDataAsync<VisitDto>();
-            var theirs = await (await guard.PostAsJsonAsync("/api/visits", NewVisit(otherResidenceId))).ReadDataAsync<VisitDto>();
+            var (email, password, otherUnitId) = await CreateOtherOwnerAsync();
+            var mine = await (await guard.PostAsJsonAsync("/api/access/check-in", NewVisit(DataSeeder.UnitId))).ReadDataAsync<VisitDto>();
+            var theirs = await (await guard.PostAsJsonAsync("/api/access/check-in", NewVisit(otherUnitId))).ReadDataAsync<VisitDto>();
 
             var owner = await api.OwnerAsync();
             var list = await (await owner.GetAsync("/api/visits?pageSize=500")).ReadDataAsync<PaginatedResultDto<VisitDto>>();
 
             Assert.Contains(list.Items!, v => v.Id == mine.Id);
             Assert.DoesNotContain(list.Items!, v => v.Id == theirs.Id);
-            Assert.All(list.Items!, v => Assert.Equal(DataSeeder.ResidenceId, v.ResidenceId));
+            Assert.All(list.Items!, v => Assert.Equal(DataSeeder.UnitId, v.UnitId));
 
             // por id, una visita ajena responde como si no existiera
             Assert.Equal(HttpStatusCode.OK, (await owner.GetAsync($"/api/visits/{mine.Id}")).StatusCode);
@@ -87,8 +74,8 @@ namespace AccessControl.Tests.Integration
         public async Task El_panel_responde_a_los_tres_roles_y_al_propietario_solo_con_lo_suyo()
         {
             var guard = await api.GuardAsync();
-            var (email, password, otherResidenceId) = await CreateOtherOwnerAsync();
-            (await guard.PostAsJsonAsync("/api/visits", NewVisit(otherResidenceId))).EnsureSuccessStatusCode();
+            var (email, password, otherUnitId) = await CreateOtherOwnerAsync();
+            (await guard.PostAsJsonAsync("/api/access/check-in", NewVisit(otherUnitId))).EnsureSuccessStatusCode();
 
             var forAdmin = await (await (await api.AdminAsync()).GetAsync("/api/dashboard")).ReadDataAsync<DashboardDto>();
             var forGuard = await (await guard.GetAsync("/api/dashboard")).ReadDataAsync<DashboardDto>();
@@ -103,9 +90,9 @@ namespace AccessControl.Tests.Integration
         }
 
         [Theory]
-        [InlineData(ApiFixture.AdminEmail, ApiFixture.AdminPassword, 4)]
-        [InlineData(ApiFixture.GuardEmail, ApiFixture.GuardPassword, 2)]
-        [InlineData(ApiFixture.OwnerEmail, ApiFixture.OwnerPassword, 2)]
+        [InlineData(ApiFixture.AdminEmail, ApiFixture.AdminPassword, 16)]
+        [InlineData(ApiFixture.GuardEmail, ApiFixture.GuardPassword, 11)]
+        [InlineData(ApiFixture.OwnerEmail, ApiFixture.OwnerPassword, 8)]
         public async Task El_menu_de_cada_rol_apunta_a_rutas_reales_del_frontend(string email, string password, int expected)
         {
             var client = await api.ClientForAsync(email, password);

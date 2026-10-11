@@ -24,6 +24,10 @@ namespace AccessControl.Application.Services
 
         public TimeZoneInfo TimeZone { get; }
 
+        public DateTime LocalNow => TimeZoneInfo.ConvertTimeFromUtc(UtcNow, TimeZone);
+
+        public DateOnly Today => DateOnly.FromDateTime(TimeZoneInfo.ConvertTimeFromUtc(UtcNow, TimeZone));
+
         public DateTime ToUtc(DateTime value)
         {
             switch (value.Kind)

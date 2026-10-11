@@ -1,0 +1,89 @@
+@if (canManage) {
+<ng-template appPageActions>
+  <button
+    mat-flat-button
+    type="button"
+    [disabled]="!dirty() || saving()"
+    (click)="save()"
+  >
+    <lucide-icon [img]="SaveIcon" [size]="18"></lucide-icon>
+    Guardar
+  </button>
+</ng-template>
+}
+
+<div class="app-page app-page--scroll app-form-page">
+  <div class="app-form-layout">
+    <div class="app-form-main">
+      @if (message(); as notice) {
+      <p
+        [class.app-alert]="notice.isError"
+        [attr.role]="notice.isError ? 'alert' : 'status'"
+      >
+        {{ notice.text }}
+      </p>
+      }
+
+      @for (group of groups(); track group.name; let index = $index) {
+      <app-form-section [title]="group.name" [step]="index + 1">
+        <ul class="policies">
+          @for (policy of group.policies; track policy.key) {
+          <li class="policies__item">
+            <label class="policies__text" [for]="'policy-' + policy.key">
+              <span class="policies__label">{{ policy.label }}</span>
+              <span class="text-muted">{{ policy.description }}</span>
+              <span class="text-muted policies__default"
+                >Por defecto: {{ defaultLabel(policy) }}</span
+              >
+            </label>
+
+            @switch (policy.kind) { @case ('Number') {
+            <input
+              class="app-toolbar-select policies__control policies__control--number"
+              type="number"
+              [id]="'policy-' + policy.key"
+              [min]="policy.min ?? 0"
+              [max]="policy.max ?? null"
+              [value]="valueOf(policy)"
+              [disabled]="!canManage"
+              (change)="set(policy, $event)"
+            />
+            } @case ('Boolean') {
+            <select
+              class="app-toolbar-select policies__control"
+              [id]="'policy-' + policy.key"
+              [disabled]="!canManage"
+              (change)="set(policy, $event)"
+            >
+              <option value="true" [selected]="valueOf(policy) === 'true'">
+                Sí
+              </option>
+              <option value="false" [selected]="valueOf(policy) === 'false'">
+                No
+              </option>
+            </select>
+            } @default {
+            <select
+              class="app-toolbar-select policies__control"
+              [id]="'policy-' + policy.key"
+              [disabled]="!canManage"
+              (change)="set(policy, $event)"
+            >
+              @for (option of policy.options ?? []; track option.value) {
+              <option
+                [value]="option.value"
+                [selected]="valueOf(policy) === option.value"
+              >
+                {{ option.label }}
+              </option>
+              }
+            </select>
+            } }
+          </li>
+          }
+        </ul>
+      </app-form-section>
+      }
+    </div>
+  </div>
+</div>

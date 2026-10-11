@@ -6,7 +6,6 @@ export interface Person {
   documentNumber: string;
   phone?: string;
   email?: string;
-  personType: number;
 }
 
 export interface CreatePerson {
@@ -16,7 +15,6 @@ export interface CreatePerson {
   documentNumber: string;
   phone?: string;
   email?: string;
-  personType: number;
 }
 
 export interface UpdatePerson {
@@ -25,5 +23,4 @@ export interface UpdatePerson {
   documentType: string;
   phone?: string;
   email?: string;
-  personType: number;
 }

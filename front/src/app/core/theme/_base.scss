@@ -216,3 +216,47 @@ textarea {
 .text-danger {
   color: var(--app-danger-text);
 }
+
+// Controles compactos de la barra de una tabla: búsqueda y filtro rápido
+.app-toolbar-search {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--app-space-2);
+  height: 32px;
+  padding: 0 10px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius);
+  background: var(--app-surface);
+  color: var(--app-text-muted);
+
+  input {
+    width: 180px;
+    max-width: 40vw;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: var(--app-text);
+    font: inherit;
+  }
+
+  &:focus-within {
+    border-color: var(--app-primary);
+  }
+}
+
+.app-toolbar-select {
+  height: 32px;
+  padding: 0 8px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius);
+  background: var(--app-surface);
+  color: var(--app-text);
+  font: inherit;
+}
+
+// Lista vertical de casillas con título y descripción
+.app-check-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-space-1);
+}

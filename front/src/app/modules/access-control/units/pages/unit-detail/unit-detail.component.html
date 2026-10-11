@@ -1,0 +1,327 @@
+@if (summary(); as data) {
+<ng-template appPageActions>
+  <a
+    mat-stroked-button
+    [routerLink]="['/access-control/units/edit', data.unit.id]"
+    *appIfPermission="P.unitsWrite"
+  >
+    <lucide-icon [img]="EditIcon" [size]="18"></lucide-icon>
+    Editar
+  </a>
+</ng-template>
+}
+
+<div class="app-page app-page--scroll">
+  @if (errorMessage()) {
+  <p class="app-alert" role="alert">{{ errorMessage() }}</p>
+  }
+
+  @if (summary(); as data) {
+  <section class="app-card unit-card">
+    <header class="unit-card__header">
+      <div>
+        <h2 class="text-mono">{{ data.unit.label }}</h2>
+        <p class="text-muted">
+          {{ data.unit.type }}@if (data.unit.area) { · {{ data.unit.area }} m²}
+          @if (data.unit.notes) { · {{ data.unit.notes }} }
+        </p>
+      </div>
+      @if (!data.unit.isActive) {
+      <app-status-badge variant="danger">Inactiva</app-status-badge>
+      } @else if (data.unit.occupancyState === State.Vacant) {
+      <app-status-badge variant="neutral">{{
+        stateLabels[data.unit.occupancyState]
+      }}</app-status-badge>
+      } @else if (data.unit.occupancyState === State.Rented) {
+      <app-status-badge variant="warning">{{
+        stateLabels[data.unit.occupancyState]
+      }}</app-status-badge>
+      } @else {
+      <app-status-badge variant="success">{{
+        stateLabels[data.unit.occupancyState]
+      }}</app-status-badge>
+      }
+    </header>
+    <p *appIfPermission="P.unitsWrite">
+      <button mat-button type="button" [disabled]="busy()" (click)="toggleActive()">
+        {{ data.unit.isActive ? "Desactivar unidad" : "Activar unidad" }}
+      </button>
+      @if (!data.unit.isActive) {
+      <span class="text-muted"
+        >Una unidad inactiva conserva su historial y no admite nuevos
+        propietarios, ocupantes ni visitas.</span
+      >
+      }
+    </p>
+  </section>
+
+  <section class="app-card unit-card" aria-labelledby="owners-title">
+    <header class="unit-card__header">
+      <h3 id="owners-title">Propietarios</h3>
+      <span class="unit-card__actions" *appIfPermission="P.ownershipWrite">
+        <button mat-button type="button" (click)="open('owner')">Agregar</button>
+        @if (data.owners.length) {
+        <button mat-button type="button" (click)="open('transfer')">
+          Cambiar propietario
+        </button>
+        }
+      </span>
+    </header>
+
+    @if (action() === 'owner' || action() === 'transfer') {
+    <div class="unit-form">
+      <p class="text-muted">
+        @if (action() === 'transfer') { Las titularidades vigentes se cierran
+        el día anterior a la fecha indicada y quedan en el historial. } @else {
+        Se suma a los propietarios vigentes. }
+      </p>
+      <app-person-picker (picked)="person.set($event)"></app-person-picker>
+      <label>
+        <span>{{ action() === "transfer" ? "Fecha del cambio" : "Desde" }}</span>
+        <input
+          class="app-toolbar-select"
+          type="date"
+          [value]="startDate()"
+          (change)="startDate.set(value($event))"
+        />
+      </label>
+      <div>
+        <button mat-flat-button type="button" [disabled]="busy()" (click)="save()">
+          Guardar
+        </button>
+        <button mat-button type="button" (click)="open(null)">Cancelar</button>
+      </div>
+    </div>
+    }
+
+    <ul class="unit-list">
+      @for (owner of data.owners; track owner.id) {
+      <li>
+        <a [routerLink]="['/access-control/people', owner.personId]">{{
+          owner.personName
+        }}</a>
+        <span class="text-muted">desde {{ owner.startDate | date : "d MMM y" }}</span>
+      </li>
+      } @empty {
+      <li class="text-muted">Sin propietario registrado.</li>
+      }
+    </ul>
+  </section>
+
+  <section class="app-card unit-card" aria-labelledby="occupants-title">
+    <header class="unit-card__header">
+      <h3 id="occupants-title">Ocupantes</h3>
+      <span class="unit-card__actions" *appIfPermission="P.occupancyWrite">
+        <button mat-button type="button" (click)="open('occupant')">Agregar</button>
+      </span>
+    </header>
+
+    @if (action() === 'occupant') {
+    <div class="unit-form">
+      <app-person-picker (picked)="person.set($event)"></app-person-picker>
+      <label>
+        <span>Relación</span>
+        <select
+          class="app-toolbar-select"
+          (change)="relation.set(+value($event))"
+        >
+          @for (item of relations; track item) {
+          <option [value]="item" [selected]="relation() === item">
+            {{ relationLabels[item] }}
+          </option>
+          }
+        </select>
+      </label>
+      <label>
+        <span>Desde</span>
+        <input
+          class="app-toolbar-select"
+          type="date"
+          [value]="startDate()"
+          (change)="startDate.set(value($event))"
+        />
+      </label>
+      <label>
+        <span>Hasta (opcional)</span>
+        <input
+          class="app-toolbar-select"
+          type="date"
+          [value]="endDate()"
+          (change)="endDate.set(value($event))"
+        />
+      </label>
+      <div>
+        <button mat-flat-button type="button" [disabled]="busy()" (click)="save()">
+          Guardar
+        </button>
+        <button mat-button type="button" (click)="open(null)">Cancelar</button>
+      </div>
+    </div>
+    }
+
+    <ul class="unit-list">
+      @for (occupant of data.occupants; track occupant.id) {
+      <li>
+        <a [routerLink]="['/access-control/people', occupant.personId]">{{
+          occupant.personName
+        }}</a>
+        <span>{{ relationLabels[occupant.relation] }}</span>
+        <span class="text-muted">
+          desde {{ occupant.startDate | date : "d MMM y" }}
+          @if (occupant.endDate) { hasta {{ occupant.endDate | date : "d MMM y" }} }
+        </span>
+        <button
+          mat-button
+          type="button"
+          *appIfPermission="P.occupancyWrite"
+          (click)="askEnd(occupant)"
+        >
+          Finalizar
+        </button>
+      </li>
+      @if (ending()?.id === occupant.id) {
+      <li class="unit-form">
+        <p class="text-muted">
+          Al finalizar se revocan los accesos que dependían de esta ocupación.
+          El registro queda en el historial.
+        </p>
+        <label>
+          <span>Último día</span>
+          <input
+            class="app-toolbar-select"
+            type="date"
+            [value]="endDate()"
+            (change)="endDate.set(value($event))"
+          />
+        </label>
+        <label>
+          <span>Motivo (opcional)</span>
+          <input
+            class="app-toolbar-select"
+            type="text"
+            [value]="endReason()"
+            (input)="endReason.set(value($event))"
+          />
+        </label>
+        @if (occupant.relation === Relation.Tenant) {
+        <label class="unit-form__check">
+          <input
+            type="checkbox"
+            [checked]="includeDependents()"
+            (change)="includeDependents.set(checked($event))"
+          />
+          <span>Finalizar también a los demás ocupantes no propietarios</span>
+        </label>
+        }
+        <div>
+          <button
+            mat-flat-button
+            type="button"
+            [disabled]="busy()"
+            (click)="confirmEnd()"
+          >
+            Finalizar ocupación
+          </button>
+          <button mat-button type="button" (click)="ending.set(null)">
+            Cancelar
+          </button>
+        </div>
+      </li>
+      } } @empty {
+      <li class="text-muted">Nadie vive hoy en la unidad.</li>
+      }
+    </ul>
+
+    @if (data.pendingOccupancies.length) {
+    <h4>Solicitudes pendientes</h4>
+    <ul class="unit-list">
+      @for (request of data.pendingOccupancies; track request.id) {
+      <li>
+        <span>{{ request.personName }}</span>
+        <span>{{ relationLabels[request.relation] }}</span>
+        <span class="text-muted"
+          >desde {{ request.startDate | date : "d MMM y" }}</span
+        >
+        <ng-container *appIfPermission="P.occupancyWrite">
+          <button mat-button type="button" (click)="decide(request, true)">
+            Aprobar
+          </button>
+          <button mat-button type="button" (click)="decide(request, false)">
+            Rechazar
+          </button>
+        </ng-container>
+      </li>
+      }
+    </ul>
+    }
+  </section>
+
+  <section class="app-card unit-card" aria-labelledby="vehicles-title">
+    <h3 id="vehicles-title">Vehículos</h3>
+    <ul class="unit-list">
+      @for (vehicle of data.vehicles ?? []; track vehicle.id) {
+      <li>
+        <strong class="text-mono">{{ vehicle.plate }}</strong>
+        <span>{{ vehicle.brand }} {{ vehicle.color }}</span>
+        <span class="text-muted">{{ vehicle.responsibleName }}</span>
+        <app-status-badge [variant]="vehicle.isAuthorizedToday ? 'success' : 'warning'">{{
+          vehicle.isAuthorizedToday ? "Autorizado" : "Sin autorización vigente"
+        }}</app-status-badge>
+      </li>
+      } @empty {
+      <li class="text-muted">No hay vehículos registrados en esta unidad.</li>
+      }
+    </ul>
+  </section>
+
+  <section class="app-card unit-card" aria-labelledby="parking-title">
+    <h3 id="parking-title">Parqueaderos</h3>
+    <ul class="unit-list">
+      @for (space of data.parking ?? []; track space.id) {
+      <li>
+        <strong class="text-mono">{{ space.code }}</strong>
+        <span class="text-muted">{{ space.location }}</span>
+        @if (space.occupant; as occupant) {
+        <span>Ocupado por <span class="text-mono">{{ occupant.plate }}</span></span>
+        } @else {
+        <span class="text-muted">Sin vehículo dentro</span>
+        }
+      </li>
+      } @empty {
+      <li class="text-muted">La unidad no tiene parqueaderos privados asociados.</li>
+      }
+    </ul>
+  </section>
+
+  @if (data.pastOwners || data.pastOccupants) {
+  <section class="app-card unit-card" aria-labelledby="history-title">
+    <h3 id="history-title">Historial</h3>
+    <ul class="unit-list">
+      @for (owner of data.pastOwners ?? []; track owner.id) {
+      <li>
+        <span>{{ owner.personName }}</span>
+        <span>Propietario</span>
+        <span class="text-muted">
+          {{ owner.startDate | date : "d MMM y" }} –
+          {{ owner.endDate | date : "d MMM y" }}
+        </span>
+      </li>
+      } @for (occupant of data.pastOccupants ?? []; track occupant.id) {
+      <li>
+        <span>{{ occupant.personName }}</span>
+        <span>{{ relationLabels[occupant.relation] }}</span>
+        <span class="text-muted">
+          {{ occupant.startDate | date : "d MMM y" }} –
+          {{ occupant.endDate | date : "d MMM y" }}
+          @if (occupant.statusReason) { · {{ occupant.statusReason }} }
+        </span>
+      </li>
+      } @if (!data.pastOwners?.length && !data.pastOccupants?.length) {
+      <li class="text-muted">Sin cambios anteriores.</li>
+      }
+    </ul>
+  </section>
+  } } @else if (loading()) {
+  <p class="text-muted" role="status">Cargando…</p>
+  }
+</div>

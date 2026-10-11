@@ -22,7 +22,7 @@ export class PersonsSearchProvider implements SearchProvider {
   search(term: string): Observable<SearchResult[]> {
     const documentNumber = term.trim();
     const canRegister =
-      this.authService.hasPermission(P.visitsRegister) &&
+      this.authService.hasPermission(P.accessRegister) &&
       this.authService.hasPermission(P.peopleRead);
 
     if (!canRegister || !DOCUMENT_PATTERN.test(documentNumber)) {
@@ -35,11 +35,11 @@ export class PersonsSearchProvider implements SearchProvider {
           id: `person-${person.id}`,
           group: 'Personas',
           title: `${person.firstName} ${person.lastName}`,
-          subtitle: `${person.documentType} ${person.documentNumber} · Registrar visita`,
+          subtitle: `${person.documentType} ${person.documentNumber} · Validar ingreso`,
           icon: IdCard,
           // El documento viaja en el estado de navegación, no en la URL
           run: () =>
-            this.router.navigate(['/access-control/visits/register'], {
+            this.router.navigate(['/access-control/gate'], {
               state: { documentNumber: person.documentNumber },
             }),
         }))

@@ -55,6 +55,20 @@ export class AuthService {
       );
   }
 
+  /**
+   * Cierre de sesión pedido por el usuario: invalida sus tokens en el servidor (en todos los
+   * dispositivos) y limpia la sesión local, aunque el servidor no responda.
+   */
+  signOut(): void {
+    if (this.hasValidToken()) {
+      this.http
+        .post(`${environment.apiUrl}/auth/logout`, null)
+        .subscribe({ error: () => undefined });
+    }
+    this.logout();
+  }
+
+  /** Limpia la sesión local sin avisar al servidor (token vencido o ya rechazado). */
   logout(): void {
     localStorage.removeItem(this.TOKEN_KEY);
     this.complexContext.clear();

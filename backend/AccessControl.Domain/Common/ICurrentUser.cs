@@ -22,8 +22,20 @@ namespace AccessControl.Domain.Common
         /// <summary>Zona horaria del conjunto actual (ID IANA o Windows), si se conoce.</summary>
         string? TimeZoneId { get; }
 
+        /// <summary>Nombre para mostrar de quien hace la petición.</summary>
+        string? UserName { get; }
+
+        /// <summary>Dirección desde la que llega la petición.</summary>
+        string? IpAddress { get; }
+
         /// <summary>Permiso efectivo (unión de los roles activos del usuario). El superadministrador los tiene todos.</summary>
         bool HasPermission(string permission);
+
+        /// <summary>
+        /// Tiene exactamente ese permiso, sin que uno más amplio lo implique. Sirve para decidir qué
+        /// se le ofrece (el menú del portal), no qué se le permite.
+        /// </summary>
+        bool HoldsPermission(string permission);
     }
 
     /// <summary>Entidad que pertenece a un conjunto. El DbContext la filtra y la marca automáticamente.</summary>

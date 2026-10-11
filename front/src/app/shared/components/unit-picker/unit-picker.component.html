@@ -1,0 +1,45 @@
+<app-side-panel title="Buscar unidad">
+  <div class="picker__search">
+    <lucide-icon [img]="SearchIcon" [size]="16"></lucide-icon>
+    <input
+      type="text"
+      aria-label="Buscar por unidad o propietario"
+      placeholder="Unidad o propietario"
+      autocomplete="off"
+      [value]="term()"
+      (input)="onInput($event)"
+    />
+  </div>
+
+  <p class="picker__count text-muted" role="status">
+    @if (failed()) { No se pudieron cargar las unidades. } @else if
+    (loading()) { Buscando… } @else if (totalCount() > results().length) {
+    Mostrando {{ results().length }} de {{ totalCount() }}; escribe para
+    acotar. } @else {
+    {{ results().length }}
+    {{ results().length === 1 ? "resultado" : "resultados" }}
+    }
+  </p>
+
+  <ul class="picker__list">
+    @for (unit of results(); track unit.id) {
+    <li>
+      <button
+        type="button"
+        class="picker__option"
+        [class.is-selected]="unit.id === data.selectedId"
+        [attr.aria-pressed]="unit.id === data.selectedId"
+        (click)="select(unit)"
+      >
+        <span class="picker__text">
+          <span class="picker__title text-mono">{{ unit.label }}</span>
+          <span class="text-muted">{{ unit.owners.join(", ") || "Sin propietario registrado" }}</span>
+        </span>
+        @if (unit.id === data.selectedId) {
+        <lucide-icon [img]="CheckIcon" [size]="18"></lucide-icon>
+        }
+      </button>
+    </li>
+    }
+  </ul>
+</app-side-panel>

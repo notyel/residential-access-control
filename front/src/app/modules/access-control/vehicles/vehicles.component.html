@@ -1,0 +1,213 @@
+@if (canWrite && !formMode()) {
+<ng-template appPageActions>
+  <button mat-flat-button type="button" (click)="openForm('create')">
+    <lucide-icon [img]="PlusIcon" [size]="18"></lucide-icon>
+    Nuevo vehículo
+  </button>
+</ng-template>
+}
+
+<div class="app-page" [class.app-page--scroll]="formMode() || pending().length">
+  @if (formMode(); as mode) {
+  <section class="app-card" style="padding: var(--app-space-4); margin-bottom: var(--app-space-4)">
+    <h2 style="margin: 0 0 var(--app-space-3); font-size: 15px">
+      {{ mode === "create" ? "Nuevo vehículo" : mode === "edit" ? "Editar vehículo" : "Reasignar vehículo " + form.controls.plate.value }}
+    </h2>
+    @if (formError()) {
+    <p class="app-alert" role="alert">{{ formError() }}</p>
+    }
+    <form class="app-form-grid" [formGroup]="form" (ngSubmit)="save()">
+      @if (mode !== 'reassign') {
+      <mat-form-field>
+        <mat-label>Placa</mat-label>
+        <input
+          matInput
+          class="text-mono"
+          formControlName="plate"
+          autocomplete="off"
+          (input)="onPlate()"
+        />
+        <mat-hint>Sin espacios ni guiones. Una bicicleta puede no tener.</mat-hint>
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Tipo</mat-label>
+        <mat-select formControlName="type">
+          @for (item of types(); track item.code) {
+          <mat-option [value]="item.code">{{ item.label }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Marca (opcional)</mat-label>
+        <input matInput formControlName="brand" />
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Color (opcional)</mat-label>
+        <input matInput formControlName="color" />
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Modelo (opcional)</mat-label>
+        <input matInput formControlName="model" />
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Notas (opcional)</mat-label>
+        <input matInput formControlName="notes" />
+      </mat-form-field>
+      } @if (mode !== 'edit') {
+      <div class="app-picker-field">
+        <span class="app-picker-field__label" id="vehicle-unit">Unidad *</span>
+        <button
+          type="button"
+          class="app-picker-field__button"
+          aria-labelledby="vehicle-unit vehicle-unit-value"
+          aria-haspopup="dialog"
+          (click)="pickUnit()"
+        >
+          <span id="vehicle-unit-value" [class.app-picker-field__placeholder]="!unit()">
+            {{ unit()?.label ?? "Seleccionar unidad" }}
+          </span>
+          <lucide-icon [img]="SearchIcon" [size]="16"></lucide-icon>
+        </button>
+      </div>
+      <mat-form-field>
+        <mat-label>Responsable</mat-label>
+        <mat-select formControlName="responsiblePersonId">
+          @for (person of responsibles(); track person.id) {
+          <mat-option [value]="person.id">{{ person.label }}</mat-option>
+          }
+        </mat-select>
+        <mat-hint>Propietario u ocupante vigente de la unidad.</mat-hint>
+      </mat-form-field>
+      }
+      <div class="span-2">
+        <button mat-flat-button type="submit" [disabled]="busy()">Guardar</button>
+        <button mat-button type="button" (click)="cancelForm()">Cancelar</button>
+      </div>
+    </form>
+  </section>
+  }
+
+  @if (pending().length) {
+  <section class="app-card" style="padding: var(--app-space-3) var(--app-space-4); margin-bottom: var(--app-space-4)">
+    <strong>Solicitudes de residentes</strong>
+    @if (actionError()) {
+    <p class="text-danger" role="alert">{{ actionError() }}</p>
+    }
+    <ul style="margin: var(--app-space-2) 0 0; padding: 0; list-style: none">
+      @for (request of pending(); track request.id) {
+      <li class="row-confirm" style="flex-wrap: wrap">
+        <span class="text-mono">{{ request.plate }}</span>
+        <span class="text-muted">
+          {{ typeLabel(request.type) }} · {{ request.responsibleName }} ·
+          <span class="text-mono">{{ request.unitLabel }}</span>
+        </span>
+        <button mat-button type="button" [disabled]="busy()" (click)="decide(request, true)">
+          Aprobar
+        </button>
+        <button mat-button type="button" [disabled]="busy()" (click)="decide(request, false)">
+          Rechazar
+        </button>
+      </li>
+      }
+    </ul>
+  </section>
+  }
+
+  <app-data-table
+    [loading]="loading()"
+    [empty]="vehicles().length === 0"
+    [error]="error()"
+    emptyTitle="No hay vehículos"
+    emptyMessage="Ningún vehículo coincide con la búsqueda."
+    (retry)="load()"
+  >
+    <ng-container tableToolbar>
+      <label class="app-toolbar-search">
+        <lucide-icon [img]="SearchIcon" [size]="16"></lucide-icon>
+        <input
+          type="search"
+          aria-label="Buscar por placa, marca o responsable"
+          placeholder="Placa, marca o responsable"
+          [value]="search()"
+          (input)="onSearch($event)"
+        />
+      </label>
+      <select class="app-toolbar-select" aria-label="Filtrar por tipo" (change)="setFilter('type', $event)">
+        <option value="">Todos los tipos</option>
+        @for (item of types(); track item.code) {
+        <option [value]="item.code">{{ item.label }}</option>
+        }
+      </select>
+      <select class="app-toolbar-select" aria-label="Filtrar por clase" (change)="setFilter('vehicleClass', $event)">
+        <option value="">Permanentes y visitantes</option>
+        <option [value]="Class.Permanent">Permanentes</option>
+        <option [value]="Class.Visitor">Visitantes</option>
+      </select>
+      <select class="app-toolbar-select" aria-label="Filtrar por estado" (change)="setFilter('status', $event)">
+        <option value="">Cualquier estado</option>
+        @for (item of statuses; track item) {
+        <option [value]="item">{{ statusLabels[item] }}</option>
+        }
+      </select>
+      <span class="app-spacer"></span>
+      <span class="text-muted">{{ totalCount() }}</span>
+    </ng-container>
+
+    <table class="app-table">
+      <thead>
+        <tr>
+          <th scope="col">Placa</th>
+          <th scope="col">Vehículo</th>
+          <th scope="col">Unidad</th>
+          <th scope="col">Responsable</th>
+          <th scope="col">Estado</th>
+          <th scope="col"><span class="sr-only">Detalle</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (vehicle of vehicles(); track vehicle.id) {
+        <tr>
+          <td class="cell-primary text-mono">{{ vehicle.plate }}</td>
+          <td>
+            <span class="cell-stack">
+              <span>{{ typeLabel(vehicle.type) }}</span>
+              <span class="text-muted">{{ describe(vehicle) }}</span>
+            </span>
+          </td>
+          <td class="text-mono">{{ vehicle.unitLabel || "—" }}</td>
+          <td class="cell-optional">{{ vehicle.responsibleName || "—" }}</td>
+          <td class="cell-aside">
+            @if (vehicle.class === Class.Visitor) {
+            <app-status-badge variant="neutral">Visitante</app-status-badge>
+            } @else if (vehicle.status !== null && vehicle.status !== undefined) {
+            <app-status-badge [variant]="statusVariants[vehicle.status]">{{
+              vehicle.status === Status.Active && !vehicle.isAuthorizedToday
+                ? "Fuera de fechas"
+                : statusLabels[vehicle.status]
+            }}</app-status-badge>
+            }
+          </td>
+          <td class="cell-actions">
+            <button
+              type="button"
+              class="app-icon-btn"
+              [attr.aria-label]="'Ver vehículo ' + vehicle.plate"
+              (click)="openDetail(vehicle)"
+            >
+              <lucide-icon [img]="DetailIcon" [size]="18"></lucide-icon>
+            </button>
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+
+    <app-paginator
+      tableFooter
+      [length]="totalCount()"
+      [pageIndex]="pageIndex()"
+      [pageSize]="pageSize()"
+      (page)="onPageChange($event)"
+    ></app-paginator>
+  </app-data-table>
+</div>

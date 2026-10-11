@@ -1,0 +1,164 @@
+@if (canWrite && !creating()) {
+<ng-template appPageActions>
+  <button mat-stroked-button type="button" (click)="startCreate('bulk')">Crear en lote</button>
+  <button mat-flat-button type="button" (click)="startCreate('one')">
+    <lucide-icon [img]="PlusIcon" [size]="18"></lucide-icon>
+    Nuevo espacio
+  </button>
+</ng-template>
+}
+
+<div class="app-page app-page--scroll">
+  @if (errorMessage()) {
+  <p class="app-alert" role="alert">{{ errorMessage() }}</p>
+  }
+
+  @if (creating(); as mode) {
+  <section class="app-card parking-form">
+    <h2>{{ mode === "one" ? "Nuevo espacio" : "Crear espacios por rango de códigos" }}</h2>
+    @if (formError()) {
+    <p class="app-alert" role="alert">{{ formError() }}</p>
+    }
+    <form class="app-form-grid" [formGroup]="form" (ngSubmit)="save()">
+      @if (mode === 'one') {
+      <mat-form-field>
+        <mat-label>Código</mat-label>
+        <input matInput class="text-mono" formControlName="code" autocomplete="off" />
+        <mat-hint>Único en el conjunto. Ej.: V-01</mat-hint>
+      </mat-form-field>
+      } @else {
+      <mat-form-field>
+        <mat-label>Prefijo</mat-label>
+        <input matInput class="text-mono" formControlName="prefix" autocomplete="off" />
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Desde el número</mat-label>
+        <input matInput type="number" min="0" formControlName="rangeFrom" />
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Hasta el número</mat-label>
+        <input matInput type="number" min="0" formControlName="rangeTo" />
+        <mat-hint>V- del 1 al 10 crea V-01 … V-10</mat-hint>
+      </mat-form-field>
+      }
+      <mat-form-field>
+        <mat-label>Tipo</mat-label>
+        <mat-select formControlName="type">
+          @for (item of types; track item) {
+          <mat-option [value]="item">{{ typeLabels[item] }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Vehículo admitido</mat-label>
+        <mat-select formControlName="vehicleKind">
+          @for (item of kinds; track item) {
+          <mat-option [value]="item">{{ kindLabels[item] }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Ubicación (opcional)</mat-label>
+        <input matInput formControlName="location" placeholder="Sótano 1, zona norte…" />
+      </mat-form-field>
+      <div class="span-2">
+        <button mat-flat-button type="submit" [disabled]="busy()">Crear</button>
+        <button mat-button type="button" (click)="creating.set(null)">Cancelar</button>
+      </div>
+    </form>
+  </section>
+  }
+
+  @if (availability(); as a) {
+  <div class="parking-summary" aria-live="polite">
+    @for (row of a.byType.concat(a.total); track $index) {
+    <section class="app-card parking-summary__card">
+      <h2>{{ typeTitle(row.type) }}</h2>
+      <strong>{{ row.available }}</strong>
+      <span class="text-muted"> disponibles de {{ row.capacity }}</span>
+      <dl>
+        <dt>Ocupados</dt>
+        <dd>{{ row.occupied }}</dd>
+        <dt>Reservados</dt>
+        <dd>{{ row.reserved }}</dd>
+        <dt>Fuera de servicio</dt>
+        <dd>{{ row.outOfService }}</dd>
+      </dl>
+    </section>
+    }
+  </div>
+  }
+
+  <div class="parking-toolbar">
+    <select class="app-toolbar-select" aria-label="Filtrar por tipo" (change)="setFilter('type', $event)">
+      <option value="">Todos los tipos</option>
+      @for (item of types; track item) {
+      <option [value]="item">{{ typeLabels[item] }}</option>
+      }
+    </select>
+    <select class="app-toolbar-select" aria-label="Filtrar por estado" (change)="setFilter('state', $event)">
+      <option value="">Cualquier estado</option>
+      @for (item of states; track item) {
+      <option [value]="item">{{ stateLabels[item] }}</option>
+      }
+    </select>
+    <select class="app-toolbar-select" aria-label="Filtrar por tipo de vehículo" (change)="setFilter('kind', $event)">
+      <option value="">Cualquier vehículo</option>
+      <option [value]="kinds[1]">Carro</option>
+      <option [value]="kinds[2]">Moto</option>
+    </select>
+    <input
+      class="app-toolbar-select"
+      type="search"
+      aria-label="Filtrar por ubicación"
+      placeholder="Ubicación"
+      (change)="setFilter('location', $event)"
+    />
+    <label class="row-confirm">
+      <span class="text-muted">Para el periodo</span>
+      <input
+        class="app-toolbar-select"
+        type="datetime-local"
+        aria-label="Inicio del periodo"
+        (change)="setFilter('from', $event)"
+      />
+      <input
+        class="app-toolbar-select"
+        type="datetime-local"
+        aria-label="Fin del periodo"
+        (change)="setFilter('to', $event)"
+      />
+    </label>
+    <span class="app-spacer"></span>
+    @if (updatedAt(); as at) {
+    <span class="text-muted">Actualizado {{ at | date : "h:mm:ss a" }}</span>
+    }
+  </div>
+
+  <ul class="parking-grid">
+    @for (space of spaces(); track space.id) {
+    <li>
+      <button
+        type="button"
+        class="parking-space"
+        [class]="'parking-space--' + space.state"
+        [attr.aria-label]="'Parqueadero ' + space.code + ', ' + stateLabels[space.state] + (info(space) ? ', ' + info(space) : '')"
+        (click)="open(space)"
+      >
+        <span class="parking-space__code text-mono">{{ space.code }}</span>
+        <span class="parking-space__state">
+          <lucide-icon [img]="stateIcons[space.state]" [size]="14"></lucide-icon>
+          {{ stateLabels[space.state] }}
+          @if (space.occupant?.isOverdue) { · excedido }
+        </span>
+        <span class="parking-space__info">{{ typeLabels[space.type] }}</span>
+        <span class="parking-space__info text-mono">{{ info(space) }}</span>
+      </button>
+    </li>
+    } @empty {
+    <li class="text-muted">
+      {{ loading() ? "Cargando…" : "Ningún parqueadero coincide con los filtros." }}
+    </li>
+    }
+  </ul>
+</div>

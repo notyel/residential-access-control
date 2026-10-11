@@ -1,0 +1,164 @@
+<div class="app-page app-page--scroll gate">
+  <div class="gate__search-row">
+    <label class="app-toolbar-search gate__search">
+      <lucide-icon [img]="SearchIcon" [size]="18"></lucide-icon>
+      <input
+        type="search"
+        class="text-mono"
+        autocomplete="off"
+        autocapitalize="characters"
+        aria-label="Placa del vehículo"
+        placeholder="Placa"
+        (input)="onInput($event)"
+      />
+    </label>
+  </div>
+
+  @if (errorMessage()) {
+  <p class="app-alert" role="alert">{{ errorMessage() }}</p>
+  }
+
+  @if (check(); as c) {
+  <section
+    class="app-card gate-card plate-result"
+    [class]="'plate-result--' + view()!.tone"
+    role="status"
+    aria-live="polite"
+  >
+    <header class="plate-result__header">
+      <lucide-icon [img]="view()!.icon" [size]="28"></lucide-icon>
+      <div>
+        <strong>{{ view()!.title }}</strong>
+        <span class="text-mono">{{ c.plate }}</span>
+      </div>
+    </header>
+    <p>{{ c.message }}</p>
+
+    @if (c.vehicle; as v) {
+    <p class="text-muted">
+      {{ describe(v) }}
+      @if (v.unitLabel) { · Unidad <span class="text-mono">{{ v.unitLabel }}</span> }
+      @if (v.responsibleName) { · Responsable: {{ v.responsibleName }} }
+      @if (v.statusReason) { · {{ v.statusReason }} }
+      · {{ c.isInside ? "Está dentro" : "Está fuera" }}
+    </p>
+    } @if (c.result === Result.VisitInProgress) {
+    <p class="text-muted">
+      Visitante: {{ c.visitorName }} · Unidad
+      <span class="text-mono">{{ c.visitUnitLabel }}</span>. Su salida se registra con la de
+      la visita.
+    </p>
+    }
+
+    @if (c.drivers.length && (c.result === Result.Authorized || c.result === Result.NotValid)) {
+    <div class="plate-result__actions">
+      <label class="cell-stack">
+        <span class="text-muted">Conduce</span>
+        <select class="app-toolbar-select" [value]="driverId()" (change)="onDriver($event)">
+          @for (driver of c.drivers; track driver.personId) {
+          <option [value]="driver.personId">{{ driver.name }}</option>
+          }
+        </select>
+      </label>
+      @if (c.isInside) {
+      <button mat-flat-button type="button" [disabled]="busy()" (click)="move(Movement.Exit)">
+        Registrar salida
+      </button>
+      } @else if (c.result === Result.Authorized) {
+      <button mat-flat-button type="button" [disabled]="busy()" (click)="move(Movement.Entry)">
+        Registrar entrada
+      </button>
+      } @else if (canException) {
+      <label class="cell-stack" style="flex: 1 1 220px">
+        <span class="text-muted">Motivo del acceso excepcional</span>
+        <input class="app-toolbar-select" [value]="exceptionReason()" (input)="onReason($event)" />
+      </label>
+      <button
+        mat-stroked-button
+        type="button"
+        [disabled]="busy()"
+        (click)="move(Movement.Entry, true)"
+      >
+        Entrada excepcional
+      </button>
+      } @else {
+      <span class="text-danger">No registre su ingreso: no tiene autorización vigente.</span>
+      }
+    </div>
+    } @else if (c.result === Result.Unknown && c.isInside && c.vehicle) {
+    <div class="plate-result__actions">
+      <button
+        mat-flat-button
+        type="button"
+        [disabled]="busy()"
+        (click)="exitVehicle(c.vehicle.id, c.plate)"
+      >
+        Registrar salida del vehículo
+      </button>
+    </div>
+    }
+  </section>
+  } @else if (plate().length >= 3) {
+  <p class="text-muted" role="status">{{ checking() ? "Verificando…" : "" }}</p>
+  }
+
+  <div class="gate__columns">
+    <section class="app-card gate-card" aria-labelledby="inside-permanent">
+      <h2 id="inside-permanent">
+        Vehículos de residentes dentro
+        <span class="text-muted">{{ permanentInside().length }}</span>
+      </h2>
+      <ul class="gate-list">
+        @for (v of permanentInside(); track v.vehicleId) {
+        <li>
+          <span class="cell-stack">
+            <strong class="text-mono">{{ v.plate }}</strong>
+            <span class="text-muted">
+              <span class="text-mono">{{ v.unitLabel }}</span> · {{ v.personName }} · desde
+              {{ v.since | date : "d MMM, h:mm a" }}
+            </span>
+          </span>
+        </li>
+        } @empty {
+        <li class="text-muted">Ninguno.</li>
+        }
+      </ul>
+    </section>
+
+    <section class="app-card gate-card" aria-labelledby="inside-visitors">
+      <h2 id="inside-visitors">
+        Vehículos de visitantes dentro
+        <span class="text-muted">{{ visitorsInside().length }}</span>
+      </h2>
+      <ul class="gate-list">
+        @for (v of visitorsInside(); track v.vehicleId) {
+        <li>
+          <span class="cell-stack">
+            <strong class="text-mono">{{ v.plate }}</strong>
+            <span class="text-muted">
+              <span class="text-mono">{{ v.unitLabel }}</span> · {{ v.personName }} · desde
+              {{ v.since | date : "d MMM, h:mm a" }}
+            </span>
+            @if (v.visitorLeft) {
+            <span class="text-danger">El visitante ya salió; el vehículo quedó dentro.</span>
+            }
+          </span>
+          @if (v.visitorLeft) {
+          <button
+            mat-stroked-button
+            type="button"
+            [disabled]="busy()"
+            [attr.aria-label]="'Registrar salida del vehículo ' + v.plate"
+            (click)="exitVehicle(v.vehicleId, v.plate)"
+          >
+            Salida
+          </button>
+          }
+        </li>
+        } @empty {
+        <li class="text-muted">Ninguno.</li>
+        }
+      </ul>
+    </section>
+  </div>
+</div>

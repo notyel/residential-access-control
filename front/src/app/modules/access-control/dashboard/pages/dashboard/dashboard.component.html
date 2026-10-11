@@ -1,52 +1,252 @@
 <div class="app-page app-page--scroll">
-  <!-- Quick Actions -->
-  <a
-    class="action-card app-card"
-    routerLink="/access-control/visits/register"
-    *appIfPermission="P.visitsRegister"
-  >
-    <span class="action-icon">
-      <lucide-icon [img]="PlusIcon" [size]="24"></lucide-icon>
-    </span>
-    <span class="action-content">
-      <strong>Registrar visita</strong>
-      <span>Dar acceso a un nuevo visitante</span>
-    </span>
-    <lucide-icon
-      class="action-arrow"
-      [img]="ArrowRightIcon"
-      [size]="20"
-    ></lucide-icon>
-  </a>
+  @if (failed()) {
+  <p class="app-alert" role="alert">No se pudo cargar el panel. Se reintentará en unos segundos.</p>
+  }
 
-  <!-- Statistics Grid -->
+  @if (data(); as d) {
+  <!-- Portería -->
+  @if (d.gate; as gate) {
+  <section class="dashboard-block" aria-labelledby="block-gate">
+    <h2 id="block-gate" class="dashboard-block__title">Portería</h2>
+
+    <form class="dashboard-search" role="search" (submit)="search($event)">
+      <lucide-icon [img]="SearchIcon" [size]="20"></lucide-icon>
+      <input
+        type="search"
+        autocomplete="off"
+        aria-label="Buscar persona, documento o unidad para validar un ingreso"
+        placeholder="Persona, documento o unidad"
+      />
+      <button type="submit" class="dashboard-search__go">Validar</button>
+    </form>
+
+    <div class="dashboard-shortcuts">
+      <a class="app-card" routerLink="/access-control/gate">
+        <lucide-icon [img]="GateIcon" [size]="20"></lucide-icon> Registrar ingreso
+      </a>
+      <a class="app-card" routerLink="/access-control/visits">
+        <lucide-icon [img]="UsersIcon" [size]="20"></lucide-icon> Registrar salida
+      </a>
+      <a class="app-card" routerLink="/access-control/gate/vehicles">
+        <lucide-icon [img]="PlateIcon" [size]="20"></lucide-icon> Verificar placa
+      </a>
+    </div>
+
+    <div class="dashboard-grid">
+      <a class="dashboard-link" routerLink="/access-control/gate">
+        <app-stats-card
+          title="Esperados hoy"
+          [value]="gate.expectedToday"
+          description="Con autorización para hoy"
+          [icon]="TicketIcon"
+        ></app-stats-card>
+      </a>
+      <a class="dashboard-link" routerLink="/access-control/visits">
+        <app-stats-card
+          title="Visitantes presentes"
+          [value]="gate.inside"
+          description="Sin salida registrada"
+          [icon]="UsersIcon"
+        ></app-stats-card>
+      </a>
+      <a class="dashboard-link" routerLink="/access-control/gate/vehicles">
+        <app-stats-card
+          title="Vehículos dentro"
+          [value]="gate.vehiclesInside"
+          description="Según los accesos registrados"
+          [icon]="CarIcon"
+        ></app-stats-card>
+      </a>
+      <a class="dashboard-link" routerLink="/access-control/parking">
+        <app-stats-card
+          title="Parqueaderos de visitantes"
+          [value]="gate.visitorParking.available"
+          [description]="'Disponibles de ' + gate.visitorParking.capacity"
+          [icon]="ParkingIcon"
+        ></app-stats-card>
+      </a>
+    </div>
+
+    <section class="recent-visits app-card" aria-labelledby="incidents-title">
+      <header class="recent-visits__header">
+        <h3 id="incidents-title">Últimas novedades</h3>
+        <a routerLink="/access-control/incidents">Ver todas</a>
+      </header>
+      <ul>
+        @for (incident of gate.latestIncidents; track incident.id) {
+        <li class="recent-visits__item">
+          <span class="recent-visits__info">
+            <strong>{{ incident.text }}</strong>
+            <span class="text-muted">{{ incident.categoryLabel }} · {{ incident.authorName }}</span>
+          </span>
+          <span class="recent-visits__time text-muted">{{
+            incident.occurredAt | date : "d MMM, h:mm a"
+          }}</span>
+        </li>
+        } @empty {
+        <li class="recent-visits__empty text-muted">Sin novedades registradas</li>
+        }
+      </ul>
+    </section>
+  </section>
+  }
+
+  <!-- Administración y auditoría -->
+  @if (d.management; as m) {
+  <section class="dashboard-block" aria-labelledby="block-management">
+    <h2 id="block-management" class="dashboard-block__title">Conjunto</h2>
+    <div class="dashboard-grid">
+      <a class="dashboard-link" routerLink="/access-control/units">
+        <app-stats-card
+          title="Unidades"
+          [value]="m.unitsOwnerOccupied + m.unitsRented"
+          [description]="'Ocupadas · ' + m.unitsRented + ' arrendadas · ' + m.unitsVacant + ' desocupadas'"
+          [icon]="UnitsIcon"
+        ></app-stats-card>
+      </a>
+      <a class="dashboard-link" routerLink="/access-control/access-history">
+        <app-stats-card
+          title="Accesos hoy"
+          [value]="m.accessesToday"
+          [description]="m.accessesWeek + ' en los últimos 7 días'"
+          [icon]="CalendarIcon"
+        ></app-stats-card>
+      </a>
+      <a class="dashboard-link" routerLink="/access-control/visits">
+        <app-stats-card
+          title="Visitantes presentes"
+          [value]="m.inside"
+          description="Actualmente en el conjunto"
+          [icon]="UsersIcon"
+        ></app-stats-card>
+      </a>
+      <a class="dashboard-link" routerLink="/access-control/people">
+        <app-stats-card
+          title="Solicitudes pendientes"
+          [value]="m.pendingOccupancies + m.pendingVehicles"
+          [description]="m.pendingOccupancies + ' de ocupantes · ' + m.pendingVehicles + ' de vehículos'"
+          [icon]="IncidentIcon"
+        ></app-stats-card>
+      </a>
+      <a class="dashboard-link" routerLink="/access-control/reports">
+        <app-stats-card
+          title="Vinculaciones por vencer"
+          [value]="m.expiringLinks"
+          description="En los próximos 30 días"
+          [icon]="TrendingUpIcon"
+        ></app-stats-card>
+      </a>
+    </div>
+
+    <div class="dashboard-columns">
+      <section class="recent-visits app-card" aria-labelledby="alerts-title">
+        <header class="recent-visits__header">
+          <h3 id="alerts-title">Rechazos y accesos excepcionales</h3>
+          <a routerLink="/access-control/reports">Ver reporte</a>
+        </header>
+        <ul>
+          @for (alert of m.recentAlerts; track $index) {
+          <li class="recent-visits__item">
+            <span class="recent-visits__info">
+              <strong>{{ alert.personName }}</strong>
+              <span class="text-muted">
+                {{ alert.unitLabel }} @if (alert.reason) { · {{ alert.reason }} }
+              </span>
+            </span>
+            <span class="recent-visits__time text-muted">{{
+              alert.occurredAt | date : "d MMM, h:mm a"
+            }}</span>
+            <app-status-badge [variant]="alert.kind === 'rejection' ? 'danger' : 'warning'">{{
+              alert.kind === "rejection" ? "Rechazo" : "Excepcional"
+            }}</app-status-badge>
+          </li>
+          } @empty {
+          <li class="recent-visits__empty text-muted">Sin rechazos ni excepciones recientes</li>
+          }
+        </ul>
+      </section>
+
+      <section class="recent-visits app-card" aria-labelledby="parking-title">
+        <header class="recent-visits__header">
+          <h3 id="parking-title">Parqueaderos por tipo</h3>
+          <a routerLink="/access-control/parking">Ver disponibilidad</a>
+        </header>
+        <ul>
+          @for (row of m.parking; track row.type) {
+          <li class="recent-visits__item">
+            <span class="recent-visits__info">
+              <strong>{{ parkingLabels[row.type!] }}</strong>
+              <span class="text-muted">
+                {{ row.occupied }} ocupados · {{ row.reserved }} reservados ·
+                {{ row.outOfService }} fuera de servicio
+              </span>
+            </span>
+            <span>{{ row.available }} de {{ row.capacity }} disponibles</span>
+          </li>
+          }
+        </ul>
+      </section>
+    </div>
+  </section>
+  }
+
+  <!-- Propietario o residente -->
+  @if (d.portal; as portal) {
+  <section class="dashboard-block" aria-labelledby="block-portal">
+    <h2 id="block-portal" class="dashboard-block__title">Mi residencia</h2>
+    <div class="dashboard-grid">
+      <a class="dashboard-link" routerLink="/access-control/my/home">
+        <app-stats-card
+          title="Mis unidades"
+          [value]="portal.units.length"
+          [description]="portal.units.join(', ') || 'Sin una unidad vigente'"
+          [icon]="UnitsIcon"
+        ></app-stats-card>
+      </a>
+      <a class="dashboard-link" routerLink="/access-control/my/authorizations">
+        <app-stats-card
+          title="Autorizaciones vigentes"
+          [value]="portal.activeAuthorizations"
+          description="Visitantes que portería dejará ingresar"
+          [icon]="TicketIcon"
+        ></app-stats-card>
+      </a>
+      <a class="dashboard-link" routerLink="/access-control/my/vehicles">
+        <app-stats-card
+          title="Mis vehículos"
+          [value]="portal.vehicles"
+          description="Registrados en mis unidades"
+          [icon]="CarIcon"
+        ></app-stats-card>
+      </a>
+    </div>
+  </section>
+  }
+
+  <!-- Visitas: para todos, con el alcance que el servidor da a cada quien -->
+  @if (!d.gate && !d.management) {
   <div class="dashboard-grid">
     <app-stats-card
-      title="Visitantes Activos"
-      [value]="visitorsInside()"
+      title="Visitantes presentes"
+      [value]="d.visitorsInside"
       description="Actualmente en el conjunto"
       [icon]="UsersIcon"
-    >
-    </app-stats-card>
-
+    ></app-stats-card>
     <app-stats-card
-      title="Visitas Hoy"
-      [value]="visitsToday()"
+      title="Visitas hoy"
+      [value]="d.visitsToday"
       description="Total de ingresos"
       [icon]="CalendarIcon"
-    >
-    </app-stats-card>
-
+    ></app-stats-card>
     <app-stats-card
-      title="Total Registros"
-      [value]="totalVisitsThisMonth()"
-      description="Visitas este mes"
+      title="Visitas este mes"
+      [value]="d.totalVisitsThisMonth"
+      description="Ingresos registrados"
       [icon]="TrendingUpIcon"
-    >
-    </app-stats-card>
+    ></app-stats-card>
   </div>
+  }
 
-  <!-- Recent Visits Section -->
   <section class="recent-visits app-card" aria-labelledby="recent-visits-title">
     <header class="recent-visits__header">
       <h2 id="recent-visits-title">Últimas visitas</h2>
@@ -54,11 +254,11 @@
     </header>
 
     <ul>
-      @for (visit of latestVisits(); track $index) {
+      @for (visit of d.latestVisits; track $index) {
       <li class="recent-visits__item">
         <span class="recent-visits__info">
           <strong>{{ visit.visitorFullName }}</strong>
-          <span class="text-muted">{{ visit.residentFullName }}</span>
+          <span class="text-muted">{{ visit.unitLabel }}</span>
         </span>
         <span class="recent-visits__time text-muted">{{
           visit.entryTime | date : "d MMM, h:mm a"
@@ -76,4 +276,5 @@
       }
     </ul>
   </section>
+  }
 </div>

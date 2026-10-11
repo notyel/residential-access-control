@@ -1,0 +1,148 @@
+<ng-template appPageActions>
+  <a mat-button [routerLink]="cancelUrl">Cancelar</a>
+  <button
+    mat-flat-button
+    type="button"
+    [disabled]="saving()"
+    (click)="onSubmit()"
+  >
+    <lucide-icon [img]="SaveIcon" [size]="18"></lucide-icon>
+    @if (bulk) {
+    {{ preview() ? "Crear " + preview()!.created.length + " unidades" : "Ver vista previa" }}
+    } @else { Guardar }
+  </button>
+</ng-template>
+
+<div class="app-page app-page--scroll app-form-page">
+  <form class="app-form-layout" [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="app-form-main">
+      @if (errorMessage()) {
+      <p class="app-alert" role="alert">{{ errorMessage() }}</p>
+      }
+
+      <app-form-section
+        [title]="bulk ? 'Unidades a crear' : 'Datos de la unidad'"
+        [step]="1"
+      >
+        <div class="app-form-grid">
+          @if (!bulk) {
+          <mat-form-field>
+            <mat-label>Código</mat-label>
+            <input matInput formControlName="code" />
+            <mat-hint>Único en el conjunto; es lo que se dice en portería</mat-hint>
+            <mat-error>Campo obligatorio</mat-error>
+          </mat-form-field>
+          }
+
+          <mat-form-field>
+            <mat-label>Tipo</mat-label>
+            <mat-select formControlName="type">
+              @for (type of types(); track type.code) {
+              <mat-option [value]="type.code">{{ type.label }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field>
+            <mat-label>Estructura</mat-label>
+            <mat-select formControlName="structureId">
+              <mat-option value="">Sin estructura</mat-option>
+              @for (structure of structures(); track structure.id) {
+              <mat-option [value]="structure.id">{{ structure.path }}</mat-option>
+              }
+            </mat-select>
+            <mat-hint>Torre, bloque o piso al que pertenece (opcional)</mat-hint>
+          </mat-form-field>
+
+          @if (bulk) {
+          <mat-form-field>
+            <mat-label>Prefijo del código</mat-label>
+            <input matInput formControlName="prefix" />
+            <mat-hint>Opcional; p. ej. "A" produce A101, A102…</mat-hint>
+          </mat-form-field>
+          <mat-form-field>
+            <mat-label>Piso inicial</mat-label>
+            <input matInput type="number" formControlName="floorFrom" />
+          </mat-form-field>
+          <mat-form-field>
+            <mat-label>Piso final</mat-label>
+            <input matInput type="number" formControlName="floorTo" />
+          </mat-form-field>
+          <mat-form-field>
+            <mat-label>Unidades por piso</mat-label>
+            <input matInput type="number" formControlName="unitsPerFloor" />
+          </mat-form-field>
+          } @else {
+          <mat-form-field>
+            <mat-label>Área (m²)</mat-label>
+            <input matInput type="number" formControlName="area" />
+          </mat-form-field>
+          <mat-form-field class="span-2">
+            <mat-label>Notas</mat-label>
+            <input matInput formControlName="notes" />
+          </mat-form-field>
+          }
+        </div>
+
+        <p style="margin: var(--app-space-3) 0 0">
+          @if (!addingStructure()) {
+          <button mat-button type="button" (click)="addingStructure.set(true)">
+            Crear una estructura nueva
+          </button>
+          }
+        </p>
+        @if (addingStructure()) {
+        <div class="app-form-grid" [formGroup]="newStructure">
+          <mat-form-field>
+            <mat-label>Tipo de estructura</mat-label>
+            <mat-select formControlName="type">
+              @for (type of structureTypes(); track type.code) {
+              <mat-option [value]="type.code">{{ type.label }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field>
+            <mat-label>Nombre</mat-label>
+            <input matInput formControlName="name" placeholder="Torre A" />
+          </mat-form-field>
+          <mat-form-field>
+            <mat-label>Dentro de</mat-label>
+            <mat-select formControlName="parentId">
+              <mat-option value="">Ninguna</mat-option>
+              @for (structure of structures(); track structure.id) {
+              <mat-option [value]="structure.id">{{ structure.path }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <div class="span-2">
+            <button mat-stroked-button type="button" (click)="saveStructure()">
+              Agregar estructura
+            </button>
+            <button mat-button type="button" (click)="addingStructure.set(false)">
+              Cancelar
+            </button>
+          </div>
+        </div>
+        }
+      </app-form-section>
+
+      @if (preview(); as result) {
+      <app-form-section title="Vista previa" [step]="2">
+        <p role="status">
+          Se crearán {{ result.created.length }} unidades@if
+          (result.skipped.length) {; {{ result.skipped.length }} ya existen y
+          se omiten}.
+        </p>
+        <p class="text-mono text-muted" style="overflow-wrap: anywhere">
+          {{ result.created.join(" · ") }}
+        </p>
+        @if (result.skipped.length) {
+        <p class="text-muted">
+          Ya existen: <span class="text-mono">{{ result.skipped.join(" · ") }}</span>
+        </p>
+        }
+      </app-form-section>
+      }
+    </div>
+  </form>
+</div>

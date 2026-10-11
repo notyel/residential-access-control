@@ -1,0 +1,115 @@
+<app-side-panel title="Detalle de la visita">
+  @if (errorMessage()) {
+  <p class="app-alert" role="alert">{{ errorMessage() }}</p>
+  }
+
+  @if (visit(); as v) {
+  <dl class="app-summary">
+    <div>
+      <dt>Visitante</dt>
+      <dd>{{ visitorName(v) }}</dd>
+    </div>
+    <div>
+      <dt>Documento</dt>
+      <dd class="text-mono">{{ visitorDocument(v.person) }}</dd>
+    </div>
+    <div>
+      <dt>Unidad</dt>
+      <dd class="text-mono">{{ v.unitLabel || "—" }}</dd>
+    </div>
+    @if (v.vehiclePlate) {
+    <div>
+      <dt>Placa</dt>
+      <dd class="text-mono">
+        {{ v.vehiclePlate }}
+        @if (v.parkingSpaceCode) { · parqueadero {{ v.parkingSpaceCode }} }
+        @if (v.vehicleStillInside) {
+        <span class="text-danger">· el vehículo sigue dentro</span>
+        }
+      </dd>
+    </div>
+    }
+    <div>
+      <dt>Verificación</dt>
+      <dd>{{ verificationLabels[v.verification] }}</dd>
+    </div>
+    @if (v.authorizedByName) {
+    <div>
+      <dt>Autorizó</dt>
+      <dd>{{ v.authorizedByName }}</dd>
+    </div>
+    } @if (v.exceptionReason) {
+    <div>
+      <dt>Motivo de la excepción</dt>
+      <dd>{{ v.exceptionReason }}</dd>
+    </div>
+    }
+    <div>
+      <dt>Ingreso</dt>
+      <dd>
+        {{ v.entryAt | date : "d MMM y, h:mm a" }}
+        <span class="text-muted">· registró {{ v.entryOperator || "—" }}</span>
+      </dd>
+    </div>
+    <div>
+      <dt>Salida</dt>
+      <dd>
+        @if (v.exitAt) {
+        {{ v.exitAt | date : "d MMM y, h:mm a" }}
+        <span class="text-muted">
+          · registró {{ v.exitOperator || "—" }}
+          @if (v.exitIsAdministrative) { · cierre administrativo }
+        </span>
+        } @else { Sin registrar }
+      </dd>
+    </div>
+    @if (v.isVoided) {
+    <div>
+      <dt>Estado</dt>
+      <dd class="text-danger">Ingreso anulado</dd>
+    </div>
+    }
+  </dl>
+
+  @if (pending(); as action) {
+  <label class="cell-stack" style="margin-top: var(--app-space-4)">
+    <span>{{ actionLabels[action] }}</span>
+    <textarea rows="3" [value]="reason()" (input)="onReason($event)"></textarea>
+    <span class="text-muted">
+      El registro original no se borra: queda marcado junto con este motivo.
+    </span>
+  </label>
+  } }
+
+  <ng-container sidePanelFooter>
+    @if (pending()) {
+    <button mat-button type="button" [disabled]="busy()" (click)="pending.set(null)">
+      Cancelar
+    </button>
+    <button mat-flat-button type="button" [disabled]="busy()" (click)="confirm()">
+      Confirmar
+    </button>
+    } @else if (!visit().isVoided) {
+    @if (canVoid) {
+    @if (visit().exitAt) {
+    <button mat-button type="button" (click)="ask('void-exit')">Anular salida</button>
+    } @else {
+    <button mat-button type="button" (click)="ask('void-entry')">Anular ingreso</button>
+    } }
+    @if (canRegister && !visit().exitAt) {
+    <button mat-stroked-button type="button" (click)="ask('close')">
+      Cierre administrativo
+    </button>
+    @if (visit().vehiclePlate) {
+    <button mat-stroked-button type="button" [disabled]="busy()" (click)="checkOut(true)">
+      Sale sin el vehículo
+    </button>
+    }
+    <button mat-flat-button type="button" [disabled]="busy()" (click)="checkOut()">
+      Registrar salida
+    </button>
+    } } @else {
+    <button mat-button type="button" (click)="close()">Cerrar</button>
+    }
+  </ng-container>
+</app-side-panel>

@@ -1,3 +1,4 @@
+@if (tab() === 'history') {
 <ng-template appPageTools>
   <button
     type="button"
@@ -17,35 +18,62 @@
     }
   </button>
 </ng-template>
+}
 
 <ng-template appPageActions>
   <a
     mat-flat-button
-    routerLink="/access-control/visits/register"
-    *appIfPermission="P.visitsRegister"
+    routerLink="/access-control/gate"
+    *appIfPermission="P.accessRegister"
   >
-    <lucide-icon [img]="PlusIcon" [size]="18"></lucide-icon>
-    Registrar visita
+    <lucide-icon [img]="GateIcon" [size]="18"></lucide-icon>
+    Validar visitante
   </a>
 </ng-template>
 
 <div class="app-page">
   <app-data-table
     [loading]="loading()"
-    [empty]="visits().length === 0"
+    [empty]="isEmpty()"
     [error]="error()"
-    emptyTitle="No hay visitas"
+    [emptyTitle]="tab() === 'expected' ? 'Nadie esperado' : 'No hay visitas'"
     [emptyMessage]="
-      filterChips().length
-        ? 'Ninguna visita coincide con los filtros aplicados.'
-        : 'Las visitas registradas aparecerán aquí.'
+      tab() === 'expected'
+        ? 'No hay visitantes autorizados para hoy.'
+        : tab() === 'inside'
+        ? 'No hay visitantes dentro del conjunto.'
+        : 'Ninguna visita coincide con la búsqueda.'
     "
-    (retry)="loadVisits()"
+    (retry)="load()"
   >
     <ng-container tableToolbar>
-      @if (filterChips().length) {
-      <span class="text-muted">Filtros</span>
-      @for (chip of filterChips(); track chip.key) {
+      <div role="tablist" aria-label="Visitantes" class="row-confirm">
+        @for (item of tabs; track item.id) {
+        <button
+          type="button"
+          role="tab"
+          class="app-chip"
+          [attr.aria-selected]="tab() === item.id"
+          [style.font-weight]="tab() === item.id ? 600 : 400"
+          [style.border-color]="tab() === item.id ? 'var(--app-primary)' : null"
+          (click)="select(item.id)"
+        >
+          {{ item.label }}
+        </button>
+        }
+      </div>
+      @if (tab() !== 'expected') {
+      <label class="app-toolbar-search">
+        <lucide-icon [img]="SearchIcon" [size]="16"></lucide-icon>
+        <input
+          type="search"
+          aria-label="Buscar por nombre o documento"
+          placeholder="Nombre o documento"
+          [value]="search()"
+          (input)="onSearch($event)"
+        />
+      </label>
+      } @if (tab() === 'history') { @for (chip of filterChips(); track chip.key) {
       <span class="app-chip">
         {{ chip.label }}
         <button
@@ -56,30 +84,50 @@
           <lucide-icon [img]="RemoveIcon" [size]="12"></lucide-icon>
         </button>
       </span>
-      } } @else {
-      <span class="text-muted">Sin filtros</span>
-      }
+      } }
       <span class="app-spacer"></span>
-      @if (actionError(); as message) {
-      <span class="text-danger" role="alert">{{ message }}</span>
-      }
-      <span class="text-muted">
-        {{ totalCount() }} {{ totalCount() === 1 ? "visita" : "visitas" }}
-      </span>
+      <span class="text-muted">{{ totalCount() }}</span>
     </ng-container>
 
+    @if (tab() === 'expected') {
     <table class="app-table">
       <thead>
         <tr>
           <th scope="col">Visitante</th>
-          <th scope="col">Documento</th>
-          <th scope="col">Residencia</th>
+          <th scope="col">Unidad</th>
+          <th scope="col">Autorizó</th>
+          <th scope="col">Horario</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (a of expected(); track a.id) {
+        <tr>
+          <td class="cell-primary">
+            <span class="cell-stack">
+              <span>{{ a.visitorName }}</span>
+              @if (a.visitorDocument) {
+              <span class="text-muted text-mono">{{ a.visitorDocument }}</span>
+              }
+            </span>
+          </td>
+          <td class="text-mono">{{ a.unitLabel }}</td>
+          <td class="cell-optional">{{ a.authorizedByName }}</td>
+          <td>{{ window(a) }}</td>
+        </tr>
+        }
+      </tbody>
+    </table>
+    } @else {
+    <table class="app-table">
+      <thead>
+        <tr>
+          <th scope="col">Visitante</th>
+          <th scope="col">Unidad</th>
           <th scope="col">Placa</th>
           <th scope="col">Ingreso</th>
+          <th scope="col">Salida</th>
           <th scope="col">Estado</th>
-          @if (canCheckout) {
-          <th scope="col"><span class="sr-only">Acciones</span></th>
-          }
+          <th scope="col"><span class="sr-only">Detalle</span></th>
         </tr>
       </thead>
       <tbody>
@@ -90,79 +138,57 @@
               <span class="app-avatar" aria-hidden="true">{{
                 initials(visit.person.firstName, visit.person.lastName)
               }}</span>
-              <span class="cell-ellipsis"
-                >{{ visit.person.firstName }} {{ visit.person.lastName }}</span
-              >
+              <span class="cell-stack">
+                <span class="cell-ellipsis"
+                  >{{ visit.person.firstName }} {{ visit.person.lastName }}</span
+                >
+                <span class="text-muted text-mono">{{
+                  visitorDocument(visit.person)
+                }}</span>
+              </span>
             </div>
           </td>
-          <td class="cell-optional text-mono text-muted">
-            {{ visit.person.documentType }} {{ visit.person.documentNumber }}
-          </td>
-          <td>{{ visit.residenceIdentifier || "—" }}</td>
-          <td class="cell-optional text-mono">
-            {{ visit.vehiclePlate || "—" }}
-          </td>
-          <td class="cell-numeric">
-            {{ visit.createdAt | date : "d MMM, h:mm a" }}
+          <td class="text-mono">{{ visit.unitLabel || "—" }}</td>
+          <td class="cell-optional text-mono">{{ visit.vehiclePlate || "—" }}</td>
+          <td class="cell-numeric">{{ visit.entryAt | date : "d MMM, h:mm a" }}</td>
+          <td class="cell-numeric cell-optional">
+            {{ visit.exitAt ? (visit.exitAt | date : "d MMM, h:mm a") : "—" }}
           </td>
           <td class="cell-aside">
-            @if (visit.checkOut) {
+            @if (visit.isVoided) {
+            <app-status-badge variant="danger">Anulada</app-status-badge>
+            } @else if (visit.exitAt) {
             <app-status-badge variant="neutral">Finalizada</app-status-badge>
+            } @else if (visit.needsReview) {
+            <app-status-badge variant="warning">Revisar</app-status-badge>
             } @else {
             <app-status-badge variant="success">En sitio</app-status-badge>
+            } @if (visit.verification === Exception) {
+            <app-status-badge variant="warning">Excepcional</app-status-badge>
             }
           </td>
-          @if (canCheckout) {
           <td class="cell-actions">
-            @if (!visit.checkOut) { @if (confirmingId() === visit.id) {
-            <span class="row-confirm">
-              <button
-                type="button"
-                class="app-icon-btn"
-                aria-label="Cancelar"
-                [disabled]="checkingOutId() === visit.id"
-                (click)="cancelCheckout()"
-              >
-                <lucide-icon [img]="RemoveIcon" [size]="18"></lucide-icon>
-              </button>
-              <button
-                mat-flat-button
-                type="button"
-                [attr.aria-label]="
-                  'Confirmar salida de ' +
-                  visit.person.firstName +
-                  ' ' +
-                  visit.person.lastName
-                "
-                [disabled]="checkingOutId() === visit.id"
-                (click)="confirmCheckout(visit)"
-              >
-                Confirmar
-              </button>
-            </span>
-            } @else {
             <button
-              mat-stroked-button
               type="button"
+              class="app-icon-btn"
               [attr.aria-label]="
-                'Registrar salida de ' +
+                'Ver detalle de la visita de ' +
                 visit.person.firstName +
                 ' ' +
                 visit.person.lastName
               "
-              (click)="askCheckout(visit)"
+              (click)="openDetail(visit)"
             >
-              <lucide-icon [img]="CheckoutIcon" [size]="16"></lucide-icon>
-              Registrar salida
+              <lucide-icon [img]="DetailIcon" [size]="18"></lucide-icon>
             </button>
-            } }
           </td>
-          }
         </tr>
         }
       </tbody>
     </table>
+    }
 
+    @if (tab() !== 'expected') {
     <app-paginator
       tableFooter
       [length]="totalCount()"
@@ -170,5 +196,6 @@
       [pageSize]="pageSize()"
       (page)="onPageChange($event)"
     ></app-paginator>
+    }
   </app-data-table>
 </div>

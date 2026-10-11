@@ -7,6 +7,12 @@ namespace AccessControl.Application.Interfaces
         DateTime UtcNow { get; }
         TimeZoneInfo TimeZone { get; }
 
+        /// <summary>Fecha de hoy en la zona horaria del conjunto: con ella se decide qué está vigente.</summary>
+        DateOnly Today { get; }
+
+        /// <summary>Fecha y hora de este instante en la zona horaria del conjunto.</summary>
+        DateTime LocalNow { get; }
+
         /// <summary>
         /// Normaliza a UTC. Un valor sin Kind (sin offset) se interpreta en la zona horaria configurada.
         /// </summary>

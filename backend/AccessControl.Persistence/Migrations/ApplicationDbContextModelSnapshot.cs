@@ -22,6 +22,104 @@ namespace AccessControl.Persistence.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("AccessControl.Domain.Entities.AccessEvent", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("AccessPoint")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<Guid?>("ApprovedById")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ComplexId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ConfirmationChannel")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<Guid?>("ConfirmedByPersonId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("IsAdministrative")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<DateTime>("OccurredAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("OperatorId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("PersonDocument")
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)");
+
+                    b.Property<Guid?>("PersonId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("PersonKind")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("PersonName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Reason")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid?>("UnitId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("VehicleId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("VehiclePlate")
+                        .HasMaxLength(15)
+                        .HasColumnType("character varying(15)");
+
+                    b.Property<int?>("Verification")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid?>("VisitId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("VoidsEventId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OperatorId");
+
+                    b.HasIndex("PersonId");
+
+                    b.HasIndex("VisitId");
+
+                    b.HasIndex("VoidsEventId");
+
+                    b.HasIndex("ComplexId", "OccurredAt");
+
+                    b.HasIndex("ComplexId", "VehiclePlate");
+
+                    b.HasIndex("UnitId", "OccurredAt");
+
+                    b.HasIndex("VehicleId", "OccurredAt");
+
+                    b.ToTable("AccessEvents");
+                });
+
             modelBuilder.Entity("AccessControl.Domain.Entities.AppliedPermissionDefault", b =>
                 {
                     b.Property<string>("Key")
@@ -31,6 +129,90 @@ namespace AccessControl.Persistence.Migrations
                     b.HasKey("Key");
 
                     b.ToTable("AppliedPermissionDefaults");
+                });
+
+            modelBuilder.Entity("AccessControl.Domain.Entities.AuditLog", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)");
+
+                    b.Property<string>("Changes")
+                        .HasColumnType("jsonb");
+
+                    b.Property<Guid?>("ComplexId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("EntityId")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("EntityType")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("IpAddress")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<DateTime>("OccurredAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("UserName")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ComplexId", "OccurredAt");
+
+                    b.ToTable("AuditLogs");
+                });
+
+            modelBuilder.Entity("AccessControl.Domain.Entities.CatalogItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Catalog")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<Guid>("ComplexId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Label")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ComplexId", "Catalog", "Code")
+                        .IsUnique();
+
+                    b.ToTable("CatalogItems");
                 });
 
             modelBuilder.Entity("AccessControl.Domain.Entities.Complex", b =>
@@ -45,6 +227,9 @@ namespace AccessControl.Persistence.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("CreatedById")
+                        .HasColumnType("uuid");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
@@ -65,6 +250,9 @@ namespace AccessControl.Persistence.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<Guid?>("UpdatedById")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
 
                     b.HasIndex("Name")
@@ -84,6 +272,73 @@ namespace AccessControl.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("AccessControl.Domain.Entities.ComplexPolicy", b =>
+                {
+                    b.Property<Guid>("ComplexId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Key")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.HasKey("ComplexId", "Key");
+
+                    b.ToTable("ComplexPolicies");
+                });
+
+            modelBuilder.Entity("AccessControl.Domain.Entities.Incident", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("AuthorId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<Guid>("ComplexId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("OccurredAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("PersonId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<Guid?>("UnitId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("VehiclePlate")
+                        .HasMaxLength(15)
+                        .HasColumnType("character varying(15)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AuthorId");
+
+                    b.HasIndex("PersonId");
+
+                    b.HasIndex("UnitId");
+
+                    b.HasIndex("ComplexId", "OccurredAt");
+
+                    b.ToTable("Incidents");
+                });
+
             modelBuilder.Entity("AccessControl.Domain.Entities.Menu", b =>
                 {
                     b.Property<Guid>("Id")
@@ -92,6 +347,9 @@ namespace AccessControl.Persistence.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("CreatedById")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Group")
                         .HasMaxLength(100)
@@ -123,6 +381,9 @@ namespace AccessControl.Persistence.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<Guid?>("UpdatedById")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
 
                     b.HasIndex("Name")
@@ -148,8 +409,8 @@ namespace AccessControl.Persistence.Migrations
                             CreatedAt = new DateTime(2025, 11, 21, 0, 0, 0, 0, DateTimeKind.Utc),
                             Icon = "CarFront",
                             IsActive = true,
-                            Name = "Visitas",
-                            Order = 2,
+                            Name = "Visitantes",
+                            Order = 5,
                             Path = "/access-control/visits",
                             Permission = "visits.read,visits.read_own"
                         },
@@ -157,12 +418,180 @@ namespace AccessControl.Persistence.Migrations
                         {
                             Id = new Guid("d8fcac7d-c0ea-4cd5-8ad0-92b33953a142"),
                             CreatedAt = new DateTime(2025, 11, 21, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Group = "Usuarios y roles",
                             Icon = "Users",
                             IsActive = true,
-                            Name = "Residentes",
+                            Name = "Propietarios y residentes",
                             Order = 3,
-                            Path = "/access-control/residents",
+                            Path = "/access-control/people",
+                            Permission = "people.read"
+                        },
+                        new
+                        {
+                            Id = new Guid("a7d4f6b8-9ea2-43b4-85d6-e7f8091a2b3c"),
+                            CreatedAt = new DateTime(2025, 11, 21, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Icon = "Building2",
+                            IsActive = true,
+                            Name = "Unidades",
+                            Order = 2,
+                            Path = "/access-control/units",
+                            Permission = "units.read"
+                        },
+                        new
+                        {
+                            Id = new Guid("d0a7c9eb-c1d5-46e7-b809-1a2b3c4d5e6f"),
+                            CreatedAt = new DateTime(2025, 11, 21, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Icon = "DoorOpen",
+                            IsActive = true,
+                            Name = "Validar visitantes",
+                            Order = 4,
+                            Path = "/access-control/gate",
+                            Permission = "access.register"
+                        },
+                        new
+                        {
+                            Id = new Guid("e1b8dafc-d2e6-47f8-8a1b-2b3c4d5e6f70"),
+                            CreatedAt = new DateTime(2025, 11, 21, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Icon = "Ticket",
+                            IsActive = true,
+                            Name = "Autorizaciones",
+                            Order = 6,
+                            Path = "/access-control/authorizations",
+                            Permission = "authorizations.read"
+                        },
+                        new
+                        {
+                            Id = new Guid("f2c9eb0d-e3f7-4809-9b2c-3c4d5e6f7081"),
+                            CreatedAt = new DateTime(2025, 11, 21, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Icon = "Ticket",
+                            IsActive = true,
+                            Name = "Autorizar visitantes",
+                            Order = 12,
+                            Path = "/access-control/my/authorizations",
+                            Permission = "authorizations.write_own"
+                        },
+                        new
+                        {
+                            Id = new Guid("1b2c3d4e-5f6a-4b7c-9d8e-0f1a2b3c4d5e"),
+                            CreatedAt = new DateTime(2025, 11, 21, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Icon = "ScanSearch",
+                            IsActive = true,
+                            Name = "Verificar vehículos",
+                            Order = 7,
+                            Path = "/access-control/gate/vehicles",
+                            Permission = "access.register"
+                        },
+                        new
+                        {
+                            Id = new Guid("0a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d"),
+                            CreatedAt = new DateTime(2025, 11, 21, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Icon = "Car",
+                            IsActive = true,
+                            Name = "Vehículos",
+                            Order = 8,
+                            Path = "/access-control/vehicles",
+                            Permission = "vehicles.read"
+                        },
+                        new
+                        {
+                            Id = new Guid("2c3d4e5f-6a7b-4c8d-ae9f-1a2b3c4d5e6f"),
+                            CreatedAt = new DateTime(2025, 11, 21, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Icon = "Car",
+                            IsActive = true,
+                            Name = "Mis vehículos",
+                            Order = 13,
+                            Path = "/access-control/my/vehicles",
+                            Permission = "vehicles.write_own"
+                        },
+                        new
+                        {
+                            Id = new Guid("3d4e5f6a-7b8c-4d9e-bfa0-2b3c4d5e6f70"),
+                            CreatedAt = new DateTime(2025, 11, 21, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Icon = "SquareParking",
+                            IsActive = true,
+                            Name = "Parqueaderos",
+                            Order = 9,
+                            Path = "/access-control/parking",
+                            Permission = "parking.read"
+                        },
+                        new
+                        {
+                            Id = new Guid("4e5f6a7b-8c9d-4eaf-80b1-3c4d5e6f7081"),
+                            CreatedAt = new DateTime(2025, 11, 21, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Icon = "SquareParking",
+                            IsActive = true,
+                            Name = "Mis parqueaderos",
+                            Order = 14,
+                            Path = "/access-control/my/parking",
+                            Permission = "parking.read_own"
+                        },
+                        new
+                        {
+                            Id = new Guid("6a7b8c9d-aebf-40c1-a2d3-5e6f708192a3"),
+                            CreatedAt = new DateTime(2025, 11, 21, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Group = "Control",
+                            Icon = "ClipboardList",
+                            IsActive = true,
+                            Name = "Novedades",
+                            Order = 86,
+                            Path = "/access-control/incidents",
+                            Permission = "incidents.write,access.read"
+                        },
+                        new
+                        {
+                            Id = new Guid("5f6a7b8c-9dae-4fb0-91c2-4d5e6f708192"),
+                            CreatedAt = new DateTime(2025, 11, 21, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Group = "Control",
+                            Icon = "History",
+                            IsActive = true,
+                            Name = "Historial de accesos",
+                            Order = 87,
+                            Path = "/access-control/access-history",
+                            Permission = "access.read,access.read_own"
+                        },
+                        new
+                        {
+                            Id = new Guid("7b8c9dae-bfc0-41d2-b3e4-6f708192a3b4"),
+                            CreatedAt = new DateTime(2025, 11, 21, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Group = "Control",
+                            Icon = "ChartColumn",
+                            IsActive = true,
+                            Name = "Reportes",
+                            Order = 88,
+                            Path = "/access-control/reports",
+                            Permission = "reports.read"
+                        },
+                        new
+                        {
+                            Id = new Guid("b8e5a7c9-afb3-44c5-96e7-f8091a2b3c4d"),
+                            CreatedAt = new DateTime(2025, 11, 21, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Icon = "KeyRound",
+                            IsActive = true,
+                            Name = "Mis propiedades",
+                            Order = 10,
+                            Path = "/access-control/my/units",
+                            Permission = "occupancy.write_own"
+                        },
+                        new
+                        {
+                            Id = new Guid("c9f6b8da-b0c4-45d6-a7f8-091a2b3c4d5e"),
+                            CreatedAt = new DateTime(2025, 11, 21, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Icon = "House",
+                            IsActive = true,
+                            Name = "Mi residencia",
+                            Order = 11,
+                            Path = "/access-control/my/home",
+                            Permission = "units.read_own"
+                        },
+                        new
+                        {
+                            Id = new Guid("d4a1c3e5-6b7f-4081-92a3-b4c5d6e7f809"),
+                            CreatedAt = new DateTime(2025, 11, 21, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Group = "Usuarios y roles",
+                            Icon = "UserCog",
+                            IsActive = true,
+                            Name = "Usuarios",
+                            Order = 50,
+                            Path = "/access-control/users",
                             Permission = "users.read"
                         },
                         new
@@ -173,10 +602,299 @@ namespace AccessControl.Persistence.Migrations
                             Icon = "ShieldCheck",
                             IsActive = true,
                             Name = "Roles",
-                            Order = 4,
+                            Order = 51,
                             Path = "/access-control/roles",
                             Permission = "roles.read"
+                        },
+                        new
+                        {
+                            Id = new Guid("e5b2d4f6-7c80-4192-a3b4-c5d6e7f8091a"),
+                            CreatedAt = new DateTime(2025, 11, 21, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Group = "Control",
+                            Icon = "ScrollText",
+                            IsActive = true,
+                            Name = "Bitácora",
+                            Order = 90,
+                            Path = "/access-control/audit",
+                            Permission = "audit.read"
+                        },
+                        new
+                        {
+                            Id = new Guid("f6c3e5a7-8d91-42a3-b4c5-d6e7f8091a2b"),
+                            CreatedAt = new DateTime(2025, 11, 21, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Group = "Configuración",
+                            Icon = "Settings",
+                            IsActive = true,
+                            Name = "Políticas",
+                            Order = 95,
+                            Path = "/access-control/settings/policies",
+                            Permission = "settings.read"
                         });
+                });
+
+            modelBuilder.Entity("AccessControl.Domain.Entities.Occupancy", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ComplexId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("CreatedById")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateOnly?>("EndDate")
+                        .HasColumnType("date");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("PersonId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Relation")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid?>("RequestedById")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateOnly>("StartDate")
+                        .HasColumnType("date");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("StatusReason")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<Guid>("UnitId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("UpdatedById")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ComplexId");
+
+                    b.HasIndex("PersonId");
+
+                    b.HasIndex("UnitId", "PersonId");
+
+                    b.ToTable("Occupancies", t =>
+                        {
+                            t.HasCheckConstraint("CK_Occupancies_Dates", "\"EndDate\" IS NULL OR \"EndDate\" >= \"StartDate\"");
+                        });
+                });
+
+            modelBuilder.Entity("AccessControl.Domain.Entities.ParkingAssignment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Class")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("ComplexId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("CreatedById")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("EndsAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ExceptionReason")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsException")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<Guid?>("PersonId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("SpaceId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("StartsAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid?>("UnitId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("UpdatedById")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("VehicleId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("VisitId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ComplexId");
+
+                    b.HasIndex("PersonId");
+
+                    b.HasIndex("UnitId");
+
+                    b.HasIndex("VisitId");
+
+                    b.HasIndex("VehicleId", "Status");
+
+                    b.HasIndex("SpaceId", "Status", "StartsAt");
+
+                    b.ToTable("ParkingAssignments", t =>
+                        {
+                            t.HasCheckConstraint("CK_ParkingAssignments_Dates", "\"EndsAt\" IS NULL OR \"EndsAt\" > \"StartsAt\"");
+                        });
+                });
+
+            modelBuilder.Entity("AccessControl.Domain.Entities.ParkingNote", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("AuthorId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ComplexId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("SpaceId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AuthorId");
+
+                    b.HasIndex("ComplexId");
+
+                    b.HasIndex("SpaceId", "CreatedAt");
+
+                    b.ToTable("ParkingNotes");
+                });
+
+            modelBuilder.Entity("AccessControl.Domain.Entities.ParkingOutOfService", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ComplexId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("CreatedById")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("From")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<Guid>("SpaceId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("To")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ComplexId");
+
+                    b.HasIndex("SpaceId", "From");
+
+                    b.ToTable("ParkingOutOfService");
+                });
+
+            modelBuilder.Entity("AccessControl.Domain.Entities.ParkingSpace", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<Guid>("ComplexId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("CreatedById")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Location")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("UpdatedById")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("VehicleKind")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ComplexId", "Code")
+                        .IsUnique();
+
+                    b.ToTable("ParkingSpaces");
                 });
 
             modelBuilder.Entity("AccessControl.Domain.Entities.Person", b =>
@@ -190,6 +908,9 @@ namespace AccessControl.Persistence.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("CreatedById")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("DocumentNumber")
                         .IsRequired()
@@ -213,14 +934,14 @@ namespace AccessControl.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("PersonType")
-                        .HasColumnType("integer");
-
                     b.Property<string>("Phone")
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("UpdatedById")
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
@@ -228,52 +949,6 @@ namespace AccessControl.Persistence.Migrations
                         .IsUnique();
 
                     b.ToTable("Persons");
-                });
-
-            modelBuilder.Entity("AccessControl.Domain.Entities.Residence", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("ComplexId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Identifier")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
-                    b.Property<Guid>("OwnerId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("OwnerId");
-
-                    b.HasIndex("ComplexId", "Identifier")
-                        .IsUnique();
-
-                    b.ToTable("Residences");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("8c885dcd-3734-45b6-9b7e-633351852714"),
-                            ComplexId = new Guid("0f6a4c1e-7b52-4d0a-9e3c-5a1b2c3d4e5f"),
-                            CreatedAt = new DateTime(2025, 11, 21, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Identifier = "RES-001",
-                            IsActive = true,
-                            OwnerId = new Guid("e790170c-4407-4cff-8358-8f6a09a46fad")
-                        });
                 });
 
             modelBuilder.Entity("AccessControl.Domain.Entities.Role", b =>
@@ -287,6 +962,9 @@ namespace AccessControl.Persistence.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("CreatedById")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Description")
                         .HasMaxLength(300)
@@ -306,6 +984,9 @@ namespace AccessControl.Persistence.Migrations
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("UpdatedById")
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
@@ -329,6 +1010,167 @@ namespace AccessControl.Persistence.Migrations
                     b.ToTable("RolePermissions");
                 });
 
+            modelBuilder.Entity("AccessControl.Domain.Entities.Structure", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ComplexId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("CreatedById")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<Guid?>("ParentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("UpdatedById")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ParentId");
+
+                    b.HasIndex("ComplexId", "ParentId", "Name")
+                        .IsUnique();
+
+                    b.ToTable("Structures");
+                });
+
+            modelBuilder.Entity("AccessControl.Domain.Entities.Unit", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal?>("Area")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<Guid>("ComplexId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("CreatedById")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Label")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<Guid?>("StructureId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("UpdatedById")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StructureId");
+
+                    b.HasIndex("ComplexId", "Code")
+                        .IsUnique();
+
+                    b.ToTable("Units");
+                });
+
+            modelBuilder.Entity("AccessControl.Domain.Entities.UnitOwnership", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ComplexId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("CreatedById")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateOnly?>("EndDate")
+                        .HasColumnType("date");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<decimal?>("Percentage")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("numeric(5,2)");
+
+                    b.Property<Guid>("PersonId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateOnly>("StartDate")
+                        .HasColumnType("date");
+
+                    b.Property<Guid>("UnitId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("UpdatedById")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ComplexId");
+
+                    b.HasIndex("PersonId");
+
+                    b.HasIndex("UnitId", "PersonId");
+
+                    b.ToTable("UnitOwnerships", t =>
+                        {
+                            t.HasCheckConstraint("CK_UnitOwnerships_Dates", "\"EndDate\" IS NULL OR \"EndDate\" >= \"StartDate\"");
+                        });
+                });
+
             modelBuilder.Entity("AccessControl.Domain.Entities.User", b =>
                 {
                     b.Property<Guid>("Id")
@@ -345,9 +1187,15 @@ namespace AccessControl.Persistence.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<Guid?>("CreatedById")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<int>("FailedLoginCount")
+                        .HasColumnType("integer");
 
                     b.Property<string>("FirstName")
                         .IsRequired()
@@ -363,12 +1211,29 @@ namespace AccessControl.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<DateTime?>("LockedUntil")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("PasswordHash")
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<Guid?>("PersonId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("SecurityStamp")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasDefaultValueSql("gen_random_uuid()");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("UpdatedById")
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
@@ -376,6 +1241,8 @@ namespace AccessControl.Persistence.Migrations
 
                     b.HasIndex("Email")
                         .IsUnique();
+
+                    b.HasIndex("PersonId");
 
                     b.ToTable("Users");
 
@@ -386,11 +1253,14 @@ namespace AccessControl.Persistence.Migrations
                             ApartmentNumber = "",
                             CreatedAt = new DateTime(2025, 11, 21, 0, 0, 0, 0, DateTimeKind.Utc),
                             Email = "superadmin@accesscontrol.com",
+                            FailedLoginCount = 0,
                             FirstName = "Super",
                             IsActive = true,
                             IsSuperAdmin = true,
                             LastName = "Admin",
-                            PasswordHash = "$2a$11$NrwVmJEOdhpPYxIjwzhi8e79QrYbaW25WmXZXTOPwq70vuN4Rpl/S"
+                            PasswordHash = "$2a$11$NrwVmJEOdhpPYxIjwzhi8e79QrYbaW25WmXZXTOPwq70vuN4Rpl/S",
+                            SecurityStamp = new Guid("a1000000-0000-4000-8000-000000000001"),
+                            Status = 1
                         },
                         new
                         {
@@ -399,11 +1269,14 @@ namespace AccessControl.Persistence.Migrations
                             ComplexId = new Guid("0f6a4c1e-7b52-4d0a-9e3c-5a1b2c3d4e5f"),
                             CreatedAt = new DateTime(2025, 11, 21, 0, 0, 0, 0, DateTimeKind.Utc),
                             Email = "admin@accesscontrol.com",
+                            FailedLoginCount = 0,
                             FirstName = "Admin",
                             IsActive = true,
                             IsSuperAdmin = false,
                             LastName = "User",
-                            PasswordHash = "$2a$11$NrwVmJEOdhpPYxIjwzhi8e79QrYbaW25WmXZXTOPwq70vuN4Rpl/S"
+                            PasswordHash = "$2a$11$NrwVmJEOdhpPYxIjwzhi8e79QrYbaW25WmXZXTOPwq70vuN4Rpl/S",
+                            SecurityStamp = new Guid("a1000000-0000-4000-8000-000000000002"),
+                            Status = 1
                         },
                         new
                         {
@@ -412,11 +1285,14 @@ namespace AccessControl.Persistence.Migrations
                             ComplexId = new Guid("0f6a4c1e-7b52-4d0a-9e3c-5a1b2c3d4e5f"),
                             CreatedAt = new DateTime(2025, 11, 21, 0, 0, 0, 0, DateTimeKind.Utc),
                             Email = "owner@accesscontrol.com",
+                            FailedLoginCount = 0,
                             FirstName = "John",
                             IsActive = true,
                             IsSuperAdmin = false,
                             LastName = "Doe",
-                            PasswordHash = "$2a$11$ftyFUyavOWRp2SriTa84WuU8QeoAjQV/9OhC1J3QzojVsjITw/osi"
+                            PasswordHash = "$2a$11$ftyFUyavOWRp2SriTa84WuU8QeoAjQV/9OhC1J3QzojVsjITw/osi",
+                            SecurityStamp = new Guid("a1000000-0000-4000-8000-000000000003"),
+                            Status = 1
                         },
                         new
                         {
@@ -425,11 +1301,14 @@ namespace AccessControl.Persistence.Migrations
                             ComplexId = new Guid("0f6a4c1e-7b52-4d0a-9e3c-5a1b2c3d4e5f"),
                             CreatedAt = new DateTime(2025, 11, 21, 0, 0, 0, 0, DateTimeKind.Utc),
                             Email = "guard@accesscontrol.com",
+                            FailedLoginCount = 0,
                             FirstName = "Guard",
                             IsActive = true,
                             IsSuperAdmin = false,
                             LastName = "User",
-                            PasswordHash = "$2a$11$bKkXvLrTLRP4MzUnYuL6Zu1S9g7g.dUolC/DcZxHqApI9YMZco45u"
+                            PasswordHash = "$2a$11$bKkXvLrTLRP4MzUnYuL6Zu1S9g7g.dUolC/DcZxHqApI9YMZco45u",
+                            SecurityStamp = new Guid("a1000000-0000-4000-8000-000000000004"),
+                            Status = 1
                         });
                 });
 
@@ -448,16 +1327,110 @@ namespace AccessControl.Persistence.Migrations
                     b.ToTable("UserRoles");
                 });
 
-            modelBuilder.Entity("AccessControl.Domain.Entities.Visit", b =>
+            modelBuilder.Entity("AccessControl.Domain.Entities.UserToken", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<DateTime?>("CheckOut")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<Guid?>("CheckedOutById")
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Purpose")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("TokenHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<DateTime?>("UsedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TokenHash")
+                        .IsUnique();
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserTokens");
+                });
+
+            modelBuilder.Entity("AccessControl.Domain.Entities.Vehicle", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Brand")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<int>("Class")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Color")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<Guid>("ComplexId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("CreatedById")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("HasPlate")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Model")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<string>("Plate")
+                        .IsRequired()
+                        .HasMaxLength(15)
+                        .HasColumnType("character varying(15)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("UpdatedById")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ComplexId", "Plate")
+                        .IsUnique();
+
+                    b.ToTable("Vehicles");
+                });
+
+            modelBuilder.Entity("AccessControl.Domain.Entities.VehicleAuthorization", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("ComplexId")
@@ -466,37 +1439,473 @@ namespace AccessControl.Persistence.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<Guid?>("CreatedById")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateOnly?>("EndDate")
+                        .HasColumnType("date");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("ResponsiblePersonId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateOnly>("StartDate")
+                        .HasColumnType("date");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("StatusReason")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<Guid>("UnitId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("UpdatedById")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("VehicleId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ComplexId");
+
+                    b.HasIndex("ResponsiblePersonId");
+
+                    b.HasIndex("VehicleId")
+                        .IsUnique()
+                        .HasDatabaseName("UX_VehicleAuthorizations_Open")
+                        .HasFilter("\"Status\" IN (0, 1, 2)");
+
+                    b.HasIndex("UnitId", "Status");
+
+                    b.ToTable("VehicleAuthorizations", t =>
+                        {
+                            t.HasCheckConstraint("CK_VehicleAuthorizations_Dates", "\"EndDate\" IS NULL OR \"EndDate\" >= \"StartDate\"");
+                        });
+                });
+
+            modelBuilder.Entity("AccessControl.Domain.Entities.VehicleNote", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("AuthorId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ComplexId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<Guid>("VehicleId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AuthorId");
+
+                    b.HasIndex("ComplexId");
+
+                    b.HasIndex("VehicleId", "CreatedAt");
+
+                    b.ToTable("VehicleNotes");
+                });
+
+            modelBuilder.Entity("AccessControl.Domain.Entities.Visit", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("AuthorizationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ComplexId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("CreatedById")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("EntryEventId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("ExitEventId")
+                        .HasColumnType("uuid");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
                     b.Property<Guid>("PersonId")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("ReasonNote")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
                     b.Property<Guid>("RegisteredById")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("ResidenceId")
+                    b.Property<Guid>("UnitId")
                         .HasColumnType("uuid");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("VehiclePlate")
-                        .HasColumnType("text");
+                    b.Property<Guid?>("UpdatedById")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("VehicleId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Verification")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid?>("VoidEventId")
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CheckedOutById");
+                    b.HasIndex("AuthorizationId");
+
+                    b.HasIndex("EntryEventId");
+
+                    b.HasIndex("ExitEventId");
 
                     b.HasIndex("PersonId");
 
                     b.HasIndex("RegisteredById");
 
-                    b.HasIndex("ResidenceId");
+                    b.HasIndex("UnitId");
+
+                    b.HasIndex("VehicleId");
 
                     b.HasIndex("ComplexId", "CreatedAt");
 
+                    b.HasIndex("ComplexId", "ExitEventId");
+
                     b.ToTable("Visits");
+                });
+
+            modelBuilder.Entity("AccessControl.Domain.Entities.VisitAuthorization", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("AuthorizedByPersonId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ComplexId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("ConsumedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("CreatedById")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("DaysOfWeek")
+                        .HasColumnType("integer");
+
+                    b.Property<DateOnly>("EndDate")
+                        .HasColumnType("date");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("Kind")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("RevokeReason")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<DateTime?>("RevokedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("RevokedById")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateOnly>("StartDate")
+                        .HasColumnType("date");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<TimeOnly?>("TimeFrom")
+                        .HasColumnType("time without time zone");
+
+                    b.Property<TimeOnly?>("TimeTo")
+                        .HasColumnType("time without time zone");
+
+                    b.Property<Guid>("UnitId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("UpdatedById")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("VisitorDocument")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<string>("VisitorName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<Guid?>("VisitorPersonId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AuthorizedByPersonId");
+
+                    b.HasIndex("VisitorPersonId");
+
+                    b.HasIndex("ComplexId", "EndDate");
+
+                    b.HasIndex("UnitId", "Status");
+
+                    b.ToTable("VisitAuthorizations");
+                });
+
+            modelBuilder.Entity("AccessControl.Domain.Entities.AccessEvent", b =>
+                {
+                    b.HasOne("AccessControl.Domain.Entities.Complex", null)
+                        .WithMany()
+                        .HasForeignKey("ComplexId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("AccessControl.Domain.Entities.User", "Operator")
+                        .WithMany()
+                        .HasForeignKey("OperatorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("AccessControl.Domain.Entities.Person", "Person")
+                        .WithMany()
+                        .HasForeignKey("PersonId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("AccessControl.Domain.Entities.Unit", "Unit")
+                        .WithMany()
+                        .HasForeignKey("UnitId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("AccessControl.Domain.Entities.Vehicle", "Vehicle")
+                        .WithMany()
+                        .HasForeignKey("VehicleId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Operator");
+
+                    b.Navigation("Person");
+
+                    b.Navigation("Unit");
+
+                    b.Navigation("Vehicle");
+                });
+
+            modelBuilder.Entity("AccessControl.Domain.Entities.CatalogItem", b =>
+                {
+                    b.HasOne("AccessControl.Domain.Entities.Complex", null)
+                        .WithMany()
+                        .HasForeignKey("ComplexId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("AccessControl.Domain.Entities.ComplexPolicy", b =>
+                {
+                    b.HasOne("AccessControl.Domain.Entities.Complex", null)
+                        .WithMany()
+                        .HasForeignKey("ComplexId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("AccessControl.Domain.Entities.Incident", b =>
+                {
+                    b.HasOne("AccessControl.Domain.Entities.User", "Author")
+                        .WithMany()
+                        .HasForeignKey("AuthorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("AccessControl.Domain.Entities.Complex", null)
+                        .WithMany()
+                        .HasForeignKey("ComplexId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("AccessControl.Domain.Entities.Person", "Person")
+                        .WithMany()
+                        .HasForeignKey("PersonId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("AccessControl.Domain.Entities.Unit", "Unit")
+                        .WithMany()
+                        .HasForeignKey("UnitId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Author");
+
+                    b.Navigation("Person");
+
+                    b.Navigation("Unit");
+                });
+
+            modelBuilder.Entity("AccessControl.Domain.Entities.Occupancy", b =>
+                {
+                    b.HasOne("AccessControl.Domain.Entities.Complex", null)
+                        .WithMany()
+                        .HasForeignKey("ComplexId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("AccessControl.Domain.Entities.Person", "Person")
+                        .WithMany()
+                        .HasForeignKey("PersonId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("AccessControl.Domain.Entities.Unit", "Unit")
+                        .WithMany("Occupancies")
+                        .HasForeignKey("UnitId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Person");
+
+                    b.Navigation("Unit");
+                });
+
+            modelBuilder.Entity("AccessControl.Domain.Entities.ParkingAssignment", b =>
+                {
+                    b.HasOne("AccessControl.Domain.Entities.Complex", null)
+                        .WithMany()
+                        .HasForeignKey("ComplexId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("AccessControl.Domain.Entities.Person", "Person")
+                        .WithMany()
+                        .HasForeignKey("PersonId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("AccessControl.Domain.Entities.ParkingSpace", "Space")
+                        .WithMany()
+                        .HasForeignKey("SpaceId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("AccessControl.Domain.Entities.Unit", "Unit")
+                        .WithMany()
+                        .HasForeignKey("UnitId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("AccessControl.Domain.Entities.Vehicle", "Vehicle")
+                        .WithMany()
+                        .HasForeignKey("VehicleId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("AccessControl.Domain.Entities.Visit", null)
+                        .WithMany()
+                        .HasForeignKey("VisitId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Person");
+
+                    b.Navigation("Space");
+
+                    b.Navigation("Unit");
+
+                    b.Navigation("Vehicle");
+                });
+
+            modelBuilder.Entity("AccessControl.Domain.Entities.ParkingNote", b =>
+                {
+                    b.HasOne("AccessControl.Domain.Entities.User", "Author")
+                        .WithMany()
+                        .HasForeignKey("AuthorId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("AccessControl.Domain.Entities.Complex", null)
+                        .WithMany()
+                        .HasForeignKey("ComplexId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("AccessControl.Domain.Entities.ParkingSpace", null)
+                        .WithMany()
+                        .HasForeignKey("SpaceId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Author");
+                });
+
+            modelBuilder.Entity("AccessControl.Domain.Entities.ParkingOutOfService", b =>
+                {
+                    b.HasOne("AccessControl.Domain.Entities.Complex", null)
+                        .WithMany()
+                        .HasForeignKey("ComplexId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("AccessControl.Domain.Entities.ParkingSpace", null)
+                        .WithMany()
+                        .HasForeignKey("SpaceId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("AccessControl.Domain.Entities.ParkingSpace", b =>
+                {
+                    b.HasOne("AccessControl.Domain.Entities.Complex", null)
+                        .WithMany()
+                        .HasForeignKey("ComplexId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("AccessControl.Domain.Entities.Person", b =>
@@ -506,23 +1915,6 @@ namespace AccessControl.Persistence.Migrations
                         .HasForeignKey("ComplexId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("AccessControl.Domain.Entities.Residence", b =>
-                {
-                    b.HasOne("AccessControl.Domain.Entities.Complex", null)
-                        .WithMany()
-                        .HasForeignKey("ComplexId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("AccessControl.Domain.Entities.User", "Owner")
-                        .WithMany("Residences")
-                        .HasForeignKey("OwnerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Owner");
                 });
 
             modelBuilder.Entity("AccessControl.Domain.Entities.Role", b =>
@@ -545,6 +1937,63 @@ namespace AccessControl.Persistence.Migrations
                     b.Navigation("Role");
                 });
 
+            modelBuilder.Entity("AccessControl.Domain.Entities.Structure", b =>
+                {
+                    b.HasOne("AccessControl.Domain.Entities.Complex", null)
+                        .WithMany()
+                        .HasForeignKey("ComplexId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("AccessControl.Domain.Entities.Structure", "Parent")
+                        .WithMany("Children")
+                        .HasForeignKey("ParentId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Parent");
+                });
+
+            modelBuilder.Entity("AccessControl.Domain.Entities.Unit", b =>
+                {
+                    b.HasOne("AccessControl.Domain.Entities.Complex", null)
+                        .WithMany()
+                        .HasForeignKey("ComplexId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("AccessControl.Domain.Entities.Structure", "Structure")
+                        .WithMany()
+                        .HasForeignKey("StructureId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Structure");
+                });
+
+            modelBuilder.Entity("AccessControl.Domain.Entities.UnitOwnership", b =>
+                {
+                    b.HasOne("AccessControl.Domain.Entities.Complex", null)
+                        .WithMany()
+                        .HasForeignKey("ComplexId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("AccessControl.Domain.Entities.Person", "Person")
+                        .WithMany()
+                        .HasForeignKey("PersonId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("AccessControl.Domain.Entities.Unit", "Unit")
+                        .WithMany("Ownerships")
+                        .HasForeignKey("UnitId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Person");
+
+                    b.Navigation("Unit");
+                });
+
             modelBuilder.Entity("AccessControl.Domain.Entities.User", b =>
                 {
                     b.HasOne("AccessControl.Domain.Entities.Complex", "Complex")
@@ -552,7 +2001,14 @@ namespace AccessControl.Persistence.Migrations
                         .HasForeignKey("ComplexId")
                         .OnDelete(DeleteBehavior.Restrict);
 
+                    b.HasOne("AccessControl.Domain.Entities.Person", "Person")
+                        .WithMany()
+                        .HasForeignKey("PersonId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.Navigation("Complex");
+
+                    b.Navigation("Person");
                 });
 
             modelBuilder.Entity("AccessControl.Domain.Entities.UserRole", b =>
@@ -574,11 +2030,65 @@ namespace AccessControl.Persistence.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("AccessControl.Domain.Entities.Visit", b =>
+            modelBuilder.Entity("AccessControl.Domain.Entities.UserToken", b =>
                 {
-                    b.HasOne("AccessControl.Domain.Entities.User", "CheckedOutBy")
+                    b.HasOne("AccessControl.Domain.Entities.User", "User")
                         .WithMany()
-                        .HasForeignKey("CheckedOutById");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("AccessControl.Domain.Entities.Vehicle", b =>
+                {
+                    b.HasOne("AccessControl.Domain.Entities.Complex", null)
+                        .WithMany()
+                        .HasForeignKey("ComplexId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("AccessControl.Domain.Entities.VehicleAuthorization", b =>
+                {
+                    b.HasOne("AccessControl.Domain.Entities.Complex", null)
+                        .WithMany()
+                        .HasForeignKey("ComplexId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("AccessControl.Domain.Entities.Person", "Responsible")
+                        .WithMany()
+                        .HasForeignKey("ResponsiblePersonId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("AccessControl.Domain.Entities.Unit", "Unit")
+                        .WithMany()
+                        .HasForeignKey("UnitId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("AccessControl.Domain.Entities.Vehicle", "Vehicle")
+                        .WithMany("Authorizations")
+                        .HasForeignKey("VehicleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Responsible");
+
+                    b.Navigation("Unit");
+
+                    b.Navigation("Vehicle");
+                });
+
+            modelBuilder.Entity("AccessControl.Domain.Entities.VehicleNote", b =>
+                {
+                    b.HasOne("AccessControl.Domain.Entities.User", "Author")
+                        .WithMany()
+                        .HasForeignKey("AuthorId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("AccessControl.Domain.Entities.Complex", null)
                         .WithMany()
@@ -586,31 +2096,107 @@ namespace AccessControl.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("AccessControl.Domain.Entities.Vehicle", null)
+                        .WithMany()
+                        .HasForeignKey("VehicleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Author");
+                });
+
+            modelBuilder.Entity("AccessControl.Domain.Entities.Visit", b =>
+                {
+                    b.HasOne("AccessControl.Domain.Entities.VisitAuthorization", "Authorization")
+                        .WithMany()
+                        .HasForeignKey("AuthorizationId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("AccessControl.Domain.Entities.Complex", null)
+                        .WithMany()
+                        .HasForeignKey("ComplexId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("AccessControl.Domain.Entities.AccessEvent", "EntryEvent")
+                        .WithMany()
+                        .HasForeignKey("EntryEventId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("AccessControl.Domain.Entities.AccessEvent", "ExitEvent")
+                        .WithMany()
+                        .HasForeignKey("ExitEventId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("AccessControl.Domain.Entities.Person", "Person")
                         .WithMany()
                         .HasForeignKey("PersonId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("AccessControl.Domain.Entities.User", "RegisteredBy")
                         .WithMany()
                         .HasForeignKey("RegisteredById")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("AccessControl.Domain.Entities.Residence", "Residence")
+                    b.HasOne("AccessControl.Domain.Entities.Unit", "Unit")
                         .WithMany()
-                        .HasForeignKey("ResidenceId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasForeignKey("UnitId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("CheckedOutBy");
+                    b.HasOne("AccessControl.Domain.Entities.Vehicle", "Vehicle")
+                        .WithMany()
+                        .HasForeignKey("VehicleId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Authorization");
+
+                    b.Navigation("EntryEvent");
+
+                    b.Navigation("ExitEvent");
 
                     b.Navigation("Person");
 
                     b.Navigation("RegisteredBy");
 
-                    b.Navigation("Residence");
+                    b.Navigation("Unit");
+
+                    b.Navigation("Vehicle");
+                });
+
+            modelBuilder.Entity("AccessControl.Domain.Entities.VisitAuthorization", b =>
+                {
+                    b.HasOne("AccessControl.Domain.Entities.Person", "AuthorizedBy")
+                        .WithMany()
+                        .HasForeignKey("AuthorizedByPersonId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("AccessControl.Domain.Entities.Complex", null)
+                        .WithMany()
+                        .HasForeignKey("ComplexId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("AccessControl.Domain.Entities.Unit", "Unit")
+                        .WithMany()
+                        .HasForeignKey("UnitId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("AccessControl.Domain.Entities.Person", "VisitorPerson")
+                        .WithMany()
+                        .HasForeignKey("VisitorPersonId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("AuthorizedBy");
+
+                    b.Navigation("Unit");
+
+                    b.Navigation("VisitorPerson");
                 });
 
             modelBuilder.Entity("AccessControl.Domain.Entities.Role", b =>
@@ -620,11 +2206,26 @@ namespace AccessControl.Persistence.Migrations
                     b.Navigation("UserRoles");
                 });
 
+            modelBuilder.Entity("AccessControl.Domain.Entities.Structure", b =>
+                {
+                    b.Navigation("Children");
+                });
+
+            modelBuilder.Entity("AccessControl.Domain.Entities.Unit", b =>
+                {
+                    b.Navigation("Occupancies");
+
+                    b.Navigation("Ownerships");
+                });
+
             modelBuilder.Entity("AccessControl.Domain.Entities.User", b =>
                 {
-                    b.Navigation("Residences");
-
                     b.Navigation("UserRoles");
+                });
+
+            modelBuilder.Entity("AccessControl.Domain.Entities.Vehicle", b =>
+                {
+                    b.Navigation("Authorizations");
                 });
 #pragma warning restore 612, 618
         }

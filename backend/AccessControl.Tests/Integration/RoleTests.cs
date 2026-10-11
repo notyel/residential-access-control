@@ -4,7 +4,7 @@ using AccessControl.Common.DTOs.Complex;
 using AccessControl.Common.DTOs.Menu;
 using AccessControl.Common.DTOs.Role;
 using AccessControl.Common.DTOs.User;
-using AccessControl.Common.DTOs.Visit;
+using AccessControl.Common.DTOs.Access;
 using AccessControl.Persistence;
 using AccessControl.Shared.Enums;
 using AccessControl.Tests.Infrastructure;
@@ -86,7 +86,7 @@ namespace AccessControl.Tests.Integration
             var me = await (await (await api.GuardAsync()).GetAsync("/api/auth/me")).ReadDataAsync<UserDto>();
 
             Assert.Equal(SystemRoles.Guard, Assert.Single(me.Roles).SystemKey);
-            Assert.Contains(Permissions.VisitsCheckout, me.Permissions!);
+            Assert.Contains(Permissions.AccessRegister, me.Permissions!);
             Assert.DoesNotContain(Permissions.UsersRead, me.Permissions!);
         }
 
@@ -95,19 +95,19 @@ namespace AccessControl.Tests.Integration
         {
             var (admin, _) = await NewComplexAsync();
             var guard = await NewUserAsync(admin, new { roleKeys = new[] { SystemRoles.Guard } });
-            Assert.Equal(HttpStatusCode.OK, (await guard.GetAsync("/api/residences")).StatusCode);
+            Assert.Equal(HttpStatusCode.OK, (await guard.GetAsync("/api/units")).StatusCode);
 
             var role = (await RolesAsync(admin)).Single(r => r.SystemKey == SystemRoles.Guard);
             var update = await admin.PutAsJsonAsync($"/api/roles/{role.Id}", new
             {
                 name = role.Name,
                 description = role.Description,
-                permissions = role.Permissions.Where(p => p != Permissions.ResidencesRead)
+                permissions = role.Permissions.Where(p => p != Permissions.UnitsRead)
             });
             await update.ReadDataAsync<RoleDto>();
 
             // mismo token: el permiso se resuelve en el servidor, no viaja en él
-            Assert.Equal(HttpStatusCode.Forbidden, (await guard.GetAsync("/api/residences")).StatusCode);
+            Assert.Equal(HttpStatusCode.Forbidden, (await guard.GetAsync("/api/units")).StatusCode);
             Assert.Equal(HttpStatusCode.OK, (await guard.GetAsync("/api/visits")).StatusCode);
         }
 
@@ -130,7 +130,7 @@ namespace AccessControl.Tests.Integration
             Assert.Equal(HttpStatusCode.Forbidden, (await user.PostAsJsonAsync("/api/users", new { })).StatusCode);
 
             var menu = await (await user.GetAsync("/api/menu")).ReadDataAsync<List<MenuDto>>();
-            Assert.Equal("Residentes", Assert.Single(menu).Name);
+            Assert.Equal("Usuarios", Assert.Single(menu).Name);
         }
 
         [Fact]
@@ -142,7 +142,7 @@ namespace AccessControl.Tests.Integration
             var me = await (await user.GetAsync("/api/auth/me")).ReadDataAsync<UserDto>();
 
             Assert.Equal(2, me.Roles.Count);
-            Assert.Contains(Permissions.VisitsRegister, me.Permissions!); // de Portería
+            Assert.Contains(Permissions.AccessRegister, me.Permissions!); // de Portería
             Assert.Contains(Permissions.UsersRead, me.Permissions!);      // de Auditor
             Assert.DoesNotContain(Permissions.UsersManage, me.Permissions!);
         }
@@ -157,10 +157,10 @@ namespace AccessControl.Tests.Integration
             Assert.Equal(HttpStatusCode.OK, (await auditor.GetAsync("/api/users")).StatusCode);
             Assert.Equal(HttpStatusCode.OK, (await auditor.GetAsync("/api/roles")).StatusCode);
 
-            Assert.Equal(HttpStatusCode.Forbidden, (await auditor.PostAsJsonAsync("/api/visits", new { })).StatusCode);
+            Assert.Equal(HttpStatusCode.Forbidden, (await auditor.PostAsJsonAsync("/api/access/check-in", new { })).StatusCode);
             Assert.Equal(HttpStatusCode.Forbidden, (await auditor.PostAsJsonAsync("/api/users", new { })).StatusCode);
             Assert.Equal(HttpStatusCode.Forbidden, (await auditor.PostAsJsonAsync("/api/roles", new { })).StatusCode);
-            Assert.Equal(HttpStatusCode.Forbidden, (await auditor.PostAsync($"/api/visits/{Guid.NewGuid()}/checkout", null)).StatusCode);
+            Assert.Equal(HttpStatusCode.Forbidden, (await auditor.PostAsync($"/api/access/visits/{Guid.NewGuid()}/check-out", null)).StatusCode);
         }
 
         [Fact]
@@ -176,7 +176,7 @@ namespace AccessControl.Tests.Integration
             // no puede crear un rol con un permiso que él no tiene
             var escalate = await manager.PostAsJsonAsync("/api/roles", new
             {
-                name = "Con visitas", permissions = new[] { Permissions.VisitsRegister }
+                name = "Con visitas", permissions = new[] { Permissions.AccessRegister }
             });
             Assert.Equal(HttpStatusCode.Forbidden, escalate.StatusCode);
 
@@ -257,7 +257,7 @@ namespace AccessControl.Tests.Integration
 
             var list = await (await owner.GetAsync("/api/visits?pageSize=500")).ReadDataAsync<PaginatedResultDto<VisitDto>>();
 
-            Assert.All(list.Items!, v => Assert.Equal(DataSeeder.ResidenceId, v.ResidenceId));
+            Assert.All(list.Items!, v => Assert.Equal(DataSeeder.UnitId, v.UnitId));
         }
     }
 }

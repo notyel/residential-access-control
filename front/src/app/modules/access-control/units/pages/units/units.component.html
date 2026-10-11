@@ -1,0 +1,113 @@
+<ng-template appPageActions>
+  <a
+    mat-stroked-button
+    routerLink="/access-control/units/new"
+    [queryParams]="{ modo: 'lote' }"
+    *appIfPermission="P.unitsWrite"
+  >
+    Crear en lote
+  </a>
+  <a
+    mat-flat-button
+    routerLink="/access-control/units/new"
+    *appIfPermission="P.unitsWrite"
+  >
+    <lucide-icon [img]="PlusIcon" [size]="18"></lucide-icon>
+    Nueva unidad
+  </a>
+</ng-template>
+
+<div class="app-page">
+  <app-data-table
+    [loading]="loading()"
+    [empty]="units().length === 0"
+    [error]="error()"
+    emptyTitle="No hay unidades"
+    [emptyMessage]="
+      search() || state()
+        ? 'Ninguna unidad coincide con la búsqueda.'
+        : 'Registra las casas, apartamentos o locales del conjunto.'
+    "
+    (retry)="load()"
+  >
+    <ng-container tableToolbar>
+      <label class="app-toolbar-search">
+        <lucide-icon [img]="SearchIcon" [size]="16"></lucide-icon>
+        <input
+          type="search"
+          aria-label="Buscar por código o propietario"
+          placeholder="Código o propietario"
+          [value]="search()"
+          (input)="onSearch($event)"
+        />
+      </label>
+      <select
+        class="app-toolbar-select"
+        aria-label="Filtrar por estado de ocupación"
+        (change)="onState($event)"
+      >
+        <option value="">Todas</option>
+        @for (item of states; track item) {
+        <option [value]="item">{{ stateLabels[item] }}</option>
+        }
+      </select>
+      <span class="app-spacer"></span>
+      <span class="text-muted">
+        {{ totalCount() }} {{ totalCount() === 1 ? "unidad" : "unidades" }}
+      </span>
+    </ng-container>
+
+    <table class="app-table">
+      <thead>
+        <tr>
+          <th scope="col">Unidad</th>
+          <th scope="col">Tipo</th>
+          <th scope="col">Propietarios</th>
+          <th scope="col">Ocupación</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (unit of units(); track unit.id) {
+        <tr>
+          <td class="cell-primary">
+            <a
+              class="cell-ellipsis text-mono"
+              [routerLink]="['/access-control/units', unit.id]"
+              >{{ unit.label }}</a
+            >
+          </td>
+          <td class="cell-optional">{{ unit.type }}</td>
+          <td class="cell-optional cell-ellipsis">
+            {{ unit.owners.join(", ") || "—" }}
+          </td>
+          <td class="cell-aside">
+            @if (!unit.isActive) {
+            <app-status-badge variant="danger">Inactiva</app-status-badge>
+            } @else { @switch (unit.occupancyState) { @case (State.Vacant) {
+            <app-status-badge variant="neutral">{{
+              stateLabels[unit.occupancyState]
+            }}</app-status-badge>
+            } @case (State.Rented) {
+            <app-status-badge variant="warning">{{
+              stateLabels[unit.occupancyState]
+            }}</app-status-badge>
+            } @default {
+            <app-status-badge variant="success">{{
+              stateLabels[unit.occupancyState]
+            }}</app-status-badge>
+            } } }
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+
+    <app-paginator
+      tableFooter
+      [length]="totalCount()"
+      [pageIndex]="pageIndex()"
+      [pageSize]="pageSize()"
+      (page)="onPageChange($event)"
+    ></app-paginator>
+  </app-data-table>
+</div>

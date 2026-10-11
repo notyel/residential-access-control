@@ -1,0 +1,95 @@
+<app-side-panel title="Vehículo">
+  @if (errorMessage()) {
+  <p class="app-alert" role="alert">{{ errorMessage() }}</p>
+  }
+
+  @if (detail(); as d) {
+  <dl class="app-summary">
+    <div>
+      <dt>{{ d.vehicle.hasPlate ? "Placa" : "Identificador" }}</dt>
+      <dd class="text-mono">{{ d.vehicle.plate }}</dd>
+    </div>
+    <div>
+      <dt>Descripción</dt>
+      <dd>{{ describe(d.vehicle) || "—" }}</dd>
+    </div>
+    @if (d.vehicle.notes) {
+    <div>
+      <dt>Notas</dt>
+      <dd>{{ d.vehicle.notes }}</dd>
+    </div>
+    }
+    <div>
+      <dt>Presencia</dt>
+      <dd>{{ d.isInside ? "Dentro del conjunto" : "Fuera" }}</dd>
+    </div>
+  </dl>
+
+  <h3 style="margin: var(--app-space-4) 0 var(--app-space-2); font-size: 13px">
+    Autorizaciones
+  </h3>
+  <ul style="margin: 0; padding: 0; list-style: none">
+    @for (item of d.history; track item.id) {
+    <li class="cell-stack" style="padding: var(--app-space-2) 0; border-top: 1px solid var(--app-border)">
+      <span>
+        <strong class="text-mono">{{ item.unitLabel }}</strong> · {{ item.responsibleName }}
+      </span>
+      <span class="text-muted">
+        {{ statusLabels[item.status] }} · {{ item.startDate | date : "d MMM y" }}
+        @if (item.endDate) { – {{ item.endDate | date : "d MMM y" }} }
+        @if (item.statusReason) { · {{ item.statusReason }} }
+      </span>
+    </li>
+    } @empty {
+    <li class="text-muted">Sin autorización: solo ha ingresado con visitas.</li>
+    }
+  </ul>
+
+  <h3 style="margin: var(--app-space-4) 0 var(--app-space-2); font-size: 13px">Novedades</h3>
+  <ul style="margin: 0; padding: 0; list-style: none">
+    @for (note of d.notes; track note.createdAt) {
+    <li class="cell-stack" style="padding: var(--app-space-2) 0; border-top: 1px solid var(--app-border)">
+      <span>{{ note.text }}</span>
+      <span class="text-muted">
+        {{ note.createdAt | date : "d MMM y, h:mm a" }} · {{ note.authorName || "Sistema" }}
+      </span>
+    </li>
+    } @empty {
+    <li class="text-muted">Sin novedades.</li>
+    }
+  </ul>
+
+  @if (pending(); as action) {
+  <label class="cell-stack" style="margin-top: var(--app-space-4)">
+    <span>{{ actionLabels[action] }}</span>
+    <textarea rows="3" [value]="text()" (input)="onText($event)"></textarea>
+  </label>
+  } }
+
+  <ng-container sidePanelFooter>
+    @if (pending()) {
+    <button mat-button type="button" [disabled]="busy()" (click)="pending.set(null)">
+      Cancelar
+    </button>
+    <button mat-flat-button type="button" [disabled]="busy()" (click)="confirm()">
+      Confirmar
+    </button>
+    } @else if (canWrite && detail()) {
+    <button mat-button type="button" (click)="ask('note')">Novedad</button>
+    <button mat-button type="button" (click)="edit()">Editar</button>
+    @switch (detail()!.vehicle.status) {
+      @case (Status.Active) {
+      <button mat-button type="button" (click)="ask('suspend')">Suspender</button>
+      <button mat-button type="button" (click)="ask('revoke')">Revocar</button>
+      }
+      @case (Status.Suspended) {
+      <button mat-button type="button" [disabled]="busy()" (click)="reactivate()">Reactivar</button>
+      <button mat-button type="button" (click)="ask('revoke')">Revocar</button>
+      }
+    }
+    <button mat-stroked-button type="button" (click)="reassign()">Reasignar</button>
+    } @else {
+    <button mat-button type="button" (click)="close()">Cerrar</button>
+    }
+  </ng-container>
+</app-side-panel>

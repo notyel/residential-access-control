@@ -1,8 +1,8 @@
 using AccessControl.Common.DTOs.Common;
 using AccessControl.Common.DTOs.Complex;
-using AccessControl.Common.DTOs.Residence;
+using AccessControl.Common.DTOs.Unit;
 using AccessControl.Common.DTOs.User;
-using AccessControl.Common.DTOs.Visit;
+using AccessControl.Common.DTOs.Access;
 using AccessControl.Persistence;
 using AccessControl.Shared.Enums;
 using AccessControl.Tests.Infrastructure;
@@ -16,7 +16,7 @@ namespace AccessControl.Tests.Integration
     {
         private const string Password = "ClaveSegura123!";
 
-        private sealed record OtherComplex(ComplexDto Complex, string AdminEmail, Guid ResidenceId);
+        private sealed record OtherComplex(ComplexDto Complex, string AdminEmail, Guid UnitId);
 
         /// <summary>Crea un segundo conjunto con su administrador, un propietario y una residencia.</summary>
         private async Task<OtherComplex> CreateComplexAsync()
@@ -37,27 +37,17 @@ namespace AccessControl.Tests.Integration
             })).ReadDataAsync<ComplexDto>();
 
             var admin = await api.ClientForAsync(adminEmail, Password);
-            var owner = await (await admin.PostAsJsonAsync("/api/users", new
-            {
-                email = $"owner-{suffix}@test.com", firstName = "Otro", lastName = "Dueño",
-                apartmentNumber = "1", password = Password, roleKeys = new[] { "owner" }
-            })).ReadDataAsync<UserDto>();
+            await TestData.AllowWalkInsAsync(admin);
+            // mismo código de unidad que en el conjunto sembrado: la unicidad es por conjunto
+            var unitId = (await TestData.CreateUnitAsync(admin, "RES-001")).Id;
 
-            var residenceId = await api.WithDbAsync(async db =>
-            {
-                var residence = new Domain.Entities.Residence { Identifier = "RES-001", OwnerId = owner.Id };
-                db.Residences.Add(residence);
-                await db.SaveChangesAsync();
-                return residence.Id;
-            }, complex.Id);
-
-            return new OtherComplex(complex, adminEmail, residenceId);
+            return new OtherComplex(complex, adminEmail, unitId);
         }
 
-        private static object NewVisit(Guid residenceId, string document) => new
+        private static object NewVisit(Guid unitId, string document) => new
         {
-            residenceId,
-            newPerson = new { firstName = "Vera", lastName = "Visitante", documentType = "CC", documentNumber = document, personType = 0 }
+            unitId,
+            newPerson = new { firstName = "Vera", lastName = "Visitante", documentType = "CC", documentNumber = document }
         };
 
         [Fact]
@@ -69,8 +59,8 @@ namespace AccessControl.Tests.Integration
 
             // el mismo documento y el mismo identificador de residencia pueden existir en dos conjuntos
             var document = HttpExtensions.UniqueDocument();
-            var visitA = await (await adminA.PostAsJsonAsync("/api/visits", NewVisit(DataSeeder.ResidenceId, document))).ReadDataAsync<VisitDto>();
-            var visitB = await (await adminB.PostAsJsonAsync("/api/visits", NewVisit(other.ResidenceId, document))).ReadDataAsync<VisitDto>();
+            var visitA = await (await adminA.PostAsJsonAsync("/api/access/check-in", NewVisit(DataSeeder.UnitId, document))).ReadDataAsync<VisitDto>();
+            var visitB = await (await adminB.PostAsJsonAsync("/api/access/check-in", NewVisit(other.UnitId, document))).ReadDataAsync<VisitDto>();
             Assert.NotEqual(visitA.Person.Id, visitB.Person.Id);
 
             var listB = await (await adminB.GetAsync("/api/visits?pageSize=500")).ReadDataAsync<PaginatedResultDto<VisitDto>>();
@@ -82,18 +72,18 @@ namespace AccessControl.Tests.Integration
             // por id, lo de otro conjunto responde como inexistente
             Assert.Equal(HttpStatusCode.NotFound, (await adminB.GetAsync($"/api/visits/{visitA.Id}")).StatusCode);
             Assert.Equal(HttpStatusCode.NotFound, (await adminA.GetAsync($"/api/visits/{visitB.Id}")).StatusCode);
-            Assert.Equal(HttpStatusCode.NotFound, (await adminB.PostAsync($"/api/visits/{visitA.Id}/checkout", null)).StatusCode);
+            Assert.Equal(HttpStatusCode.NotFound, (await adminB.PostAsync($"/api/access/visits/{visitA.Id}/check-out", null)).StatusCode);
             Assert.Equal(HttpStatusCode.NotFound, (await adminB.GetAsync($"/api/users/{DataSeeder.OwnerUserId}")).StatusCode);
 
             var usersB = await (await adminB.GetAsync("/api/users?pageSize=500")).ReadDataAsync<PaginatedResultDto<UserDto>>();
-            Assert.Equal(2, usersB.TotalCount);
+            Assert.Equal(1, usersB.TotalCount);
             Assert.All(usersB.Items!, u => Assert.EndsWith("@test.com", u.Email));
 
-            var residencesB = await (await adminB.GetAsync("/api/residences")).ReadDataAsync<PaginatedResultDto<ResidenceDto>>();
-            Assert.Equal(other.ResidenceId, Assert.Single(residencesB.Items!).Id);
+            var residencesB = await (await adminB.GetAsync("/api/units")).ReadDataAsync<PaginatedResultDto<UnitDto>>();
+            Assert.Equal(other.UnitId, Assert.Single(residencesB.Items!).Id);
 
             // una visita no se puede registrar contra la residencia de otro conjunto
-            var cross = await adminB.PostAsJsonAsync("/api/visits", NewVisit(DataSeeder.ResidenceId, HttpExtensions.UniqueDocument()));
+            var cross = await adminB.PostAsJsonAsync("/api/access/check-in", NewVisit(DataSeeder.UnitId, HttpExtensions.UniqueDocument()));
             Assert.Equal(HttpStatusCode.BadRequest, cross.StatusCode);
         }
 
@@ -102,7 +92,7 @@ namespace AccessControl.Tests.Integration
         {
             var other = await CreateComplexAsync();
             var adminB = await api.ClientForAsync(other.AdminEmail, Password);
-            var visitB = await (await adminB.PostAsJsonAsync("/api/visits", NewVisit(other.ResidenceId, HttpExtensions.UniqueDocument()))).ReadDataAsync<VisitDto>();
+            var visitB = await (await adminB.PostAsJsonAsync("/api/access/check-in", NewVisit(other.UnitId, HttpExtensions.UniqueDocument()))).ReadDataAsync<VisitDto>();
 
             // sin elegir conjunto no ve datos de ninguno
             var none = await (await (await api.SuperAdminAsync()).GetAsync("/api/visits?pageSize=500")).ReadDataAsync<PaginatedResultDto<VisitDto>>();
@@ -119,10 +109,10 @@ namespace AccessControl.Tests.Integration
             var adminA = await api.AdminAsync();
             adminA.DefaultRequestHeaders.Add("X-Complex-Id", other.Complex.Id.ToString());
 
-            var residences = await (await adminA.GetAsync("/api/residences")).ReadDataAsync<PaginatedResultDto<ResidenceDto>>();
+            var residences = await (await adminA.GetAsync("/api/units")).ReadDataAsync<PaginatedResultDto<UnitDto>>();
 
-            Assert.DoesNotContain(residences.Items!, r => r.Id == other.ResidenceId);
-            Assert.Contains(residences.Items!, r => r.Id == DataSeeder.ResidenceId);
+            Assert.DoesNotContain(residences.Items!, r => r.Id == other.UnitId);
+            Assert.Contains(residences.Items!, r => r.Id == DataSeeder.UnitId);
         }
 
         [Fact]

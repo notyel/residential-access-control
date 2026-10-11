@@ -11,6 +11,5 @@ namespace AccessControl.Common.DTOs.Person
         public string DocumentNumber { get; set; } = null!;
         public string? Phone { get; set; }
         public string? Email { get; set; }
-        public int PersonType { get; set; }
     }
 }

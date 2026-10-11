@@ -1,0 +1,80 @@
+<ng-template appPageActions>
+  <a mat-button [routerLink]="cancelUrl">Cancelar</a>
+  <button
+    mat-flat-button
+    type="button"
+    [disabled]="!canSave()"
+    (click)="onSubmit()"
+  >
+    <lucide-icon [img]="SaveIcon" [size]="18"></lucide-icon>
+    {{ isNew ? "Crear e invitar" : "Guardar" }}
+  </button>
+</ng-template>
+
+<div class="app-page app-page--scroll app-form-page">
+  <form class="app-form-layout" [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="app-form-main">
+      @if (errorMessage()) {
+      <p class="app-alert" role="alert">{{ errorMessage() }}</p>
+      }
+
+      <app-form-section title="Datos del usuario" [step]="1">
+        <div class="app-form-grid">
+          <mat-form-field>
+            <mat-label>Nombre</mat-label>
+            <input matInput formControlName="firstName" />
+            <mat-error>Campo obligatorio</mat-error>
+          </mat-form-field>
+
+          <mat-form-field>
+            <mat-label>Apellido</mat-label>
+            <input matInput formControlName="lastName" />
+            <mat-error>Campo obligatorio</mat-error>
+          </mat-form-field>
+
+          <mat-form-field class="span-2">
+            <mat-label>Correo electrónico</mat-label>
+            <input
+              matInput
+              type="email"
+              formControlName="email"
+              autocomplete="off"
+            />
+            @if (isNew) {
+            <mat-hint
+              >Recibirá un enlace para definir su contraseña; no hay que
+              escribirla aquí</mat-hint
+            >
+            } @else {
+            <mat-hint>El correo identifica la cuenta y no se cambia</mat-hint>
+            }
+            <mat-error>Ingresa un correo válido</mat-error>
+          </mat-form-field>
+        </div>
+      </app-form-section>
+
+      <app-form-section title="Roles" [step]="2">
+        <p class="text-muted" style="margin: 0 0 var(--app-space-3)">
+          Elija al menos uno. Con varios roles, el usuario reúne los permisos
+          de todos.
+        </p>
+        <div class="app-check-list">
+          @for (role of roles(); track role.id) {
+          <mat-checkbox
+            [checked]="selected().has(role.id)"
+            [disabled]="isDisabled(role)"
+            (change)="toggle(role.id, $event.checked)"
+          >
+            <span class="cell-stack">
+              <span>{{ role.name }}{{ role.isActive ? "" : " (inactivo)" }}</span>
+              @if (role.description) {
+              <span class="text-muted">{{ role.description }}</span>
+              }
+            </span>
+          </mat-checkbox>
+          }
+        </div>
+      </app-form-section>
+    </div>
+  </form>
+</div>

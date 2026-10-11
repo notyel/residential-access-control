@@ -36,6 +36,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development",
         "ConnectionStrings__DefaultConnection": "Host=localhost;Port=5433;Username=postgres;Password=test;Database=postgres;Include Error Detail=true",
         "Database__MigrateOnStartup": "true",
+        "App__FrontendUrl": "http://localhost:4401",
         "Cors__AllowedOrigins__0": "http://localhost:4400",
         "Cors__AllowedOrigins__1": "http://localhost:4401"
       }

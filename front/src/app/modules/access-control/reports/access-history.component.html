@@ -1,0 +1,128 @@
+@if (canExport) {
+<ng-template appPageActions>
+  <button mat-stroked-button type="button" [disabled]="exporting()" (click)="export()">
+    <lucide-icon [img]="ExportIcon" [size]="18"></lucide-icon>
+    {{ exporting() ? "Exportando…" : "Exportar CSV" }}
+  </button>
+</ng-template>
+}
+
+<div class="app-page">
+  <app-data-table
+    [loading]="loading()"
+    [empty]="events().length === 0"
+    [error]="error()"
+    emptyTitle="Sin accesos"
+    emptyMessage="Ningún acceso coincide con los filtros en ese rango de fechas."
+    (retry)="load()"
+  >
+    <ng-container tableToolbar>
+      <input
+        class="app-toolbar-select"
+        type="date"
+        aria-label="Desde"
+        [value]="startDate()"
+        [max]="endDate()"
+        (change)="setFilter('startDate', $event)"
+      />
+      <input
+        class="app-toolbar-select"
+        type="date"
+        aria-label="Hasta"
+        [value]="endDate()"
+        [min]="startDate()"
+        (change)="setFilter('endDate', $event)"
+      />
+      <label class="app-toolbar-search">
+        <lucide-icon [img]="SearchIcon" [size]="16"></lucide-icon>
+        <input
+          type="search"
+          aria-label="Buscar por nombre o documento"
+          placeholder="Nombre o documento"
+          [value]="search()"
+          (input)="setText('search', $event)"
+        />
+      </label>
+      <input
+        class="app-toolbar-select text-mono"
+        type="search"
+        aria-label="Placa"
+        placeholder="Placa"
+        [value]="plate()"
+        (input)="setText('plate', $event)"
+      />
+      <select class="app-toolbar-select" aria-label="Tipo de acceso" (change)="setFilter('type', $event)">
+        <option value="">Todos los accesos</option>
+        @for (item of types; track item) {
+        <option [value]="item">{{ typeLabels[item] }}</option>
+        }
+      </select>
+      <select class="app-toolbar-select" aria-label="Clase de persona" (change)="setFilter('personKind', $event)">
+        <option value="">Todas las personas</option>
+        @for (item of kinds; track item) {
+        <option [value]="item">{{ kindLabels[item] }}</option>
+        }
+      </select>
+      <span class="app-spacer"></span>
+      <span class="text-muted">{{ totalCount() }}</span>
+    </ng-container>
+
+    <table class="app-table">
+      <thead>
+        <tr>
+          <th scope="col">Fecha y hora</th>
+          <th scope="col">Acceso</th>
+          <th scope="col">Persona</th>
+          <th scope="col">Unidad</th>
+          <th scope="col">Placa</th>
+          <th scope="col">Registró</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (event of events(); track event.id) {
+        <tr>
+          <td class="cell-numeric cell-aside">
+            {{ event.occurredAt | date : "d MMM y, h:mm a" }}
+          </td>
+          <td>
+            <span class="cell-stack">
+              <span>
+                <app-status-badge [variant]="typeVariants[event.type]">{{
+                  typeLabels[event.type]
+                }}</app-status-badge>
+                @if (event.isVoided) {
+                <app-status-badge variant="warning">Anulado</app-status-badge>
+                }
+              </span>
+              @if (event.reason) {
+              <span class="text-muted">{{ event.reason }}</span>
+              }
+            </span>
+          </td>
+          <td class="cell-primary">
+            <span class="cell-stack">
+              <span>{{ event.personName }}</span>
+              <span class="text-muted">
+                {{ kindLabels[event.personKind] }}
+                @if (event.personDocument) { ·
+                <span class="text-mono">{{ event.personDocument }}</span> }
+              </span>
+            </span>
+          </td>
+          <td class="text-mono">{{ event.unitLabel || "—" }}</td>
+          <td class="cell-optional text-mono">{{ event.vehiclePlate || "—" }}</td>
+          <td class="cell-optional">{{ event.operatorName }}</td>
+        </tr>
+        }
+      </tbody>
+    </table>
+
+    <app-paginator
+      tableFooter
+      [length]="totalCount()"
+      [pageIndex]="pageIndex()"
+      [pageSize]="pageSize()"
+      (page)="onPageChange($event)"
+    ></app-paginator>
+  </app-data-table>
+</div>

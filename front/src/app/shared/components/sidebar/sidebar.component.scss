@@ -98,3 +98,13 @@
     margin: 0 0 var(--app-space-2);
   }
 }
+
+.sidebar__group {
+  margin: var(--app-space-3) 0 var(--app-space-1);
+  padding: 0 10px;
+  color: var(--app-text-muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}

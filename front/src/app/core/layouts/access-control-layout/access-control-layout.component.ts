@@ -14,8 +14,10 @@ import {
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterOutlet } from '@angular/router';
-import { map } from 'rxjs';
+import { map, switchMap } from 'rxjs';
+import { AuthService } from '../../services/auth.service';
 import { CommandPaletteService } from '../../services/command-palette.service';
+import { MenuService } from '../../services/menu.service';
 import { PageHeaderService } from '../../services/page-header.service';
 import { SidebarComponent } from '../../../shared/components/sidebar/sidebar.component';
 import { TopbarComponent } from '../../../shared/components/topbar/topbar.component';
@@ -40,6 +42,8 @@ const SIDEBAR_STORAGE_KEY = 'sidebarCollapsed';
 export class AccessControlLayoutComponent {
   readonly pageHeader = inject(PageHeaderService);
   private readonly commandPalette = inject(CommandPaletteService);
+  private readonly authService = inject(AuthService);
+  private readonly menuService = inject(MenuService);
   private readonly main = viewChild.required<ElementRef<HTMLElement>>('main');
 
   /** En pantallas compactas el menú se muestra como overlay. */
@@ -66,6 +70,21 @@ export class AccessControlLayoutComponent {
       },
       { allowSignalWrites: true }
     );
+  }
+
+  /**
+   * Al volver a la pestaña se piden de nuevo los permisos y el menú: lo que el administrador
+   * haya cambiado mientras tanto se refleja sin cerrar sesión.
+   */
+  @HostListener('document:visibilitychange')
+  onVisibilityChange(): void {
+    if (document.visibilityState !== 'visible') {
+      return;
+    }
+    this.authService
+      .refresh()
+      .pipe(switchMap(() => this.menuService.getMenuForCurrentUser()))
+      .subscribe();
   }
 
   toggleSidebar(): void {

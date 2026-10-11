@@ -1,0 +1,272 @@
+@if (canWrite && !creating()) {
+<ng-template appPageActions>
+  <button mat-flat-button type="button" (click)="open()">
+    <lucide-icon [img]="PlusIcon" [size]="18"></lucide-icon>
+    Autorizar visitante
+  </button>
+</ng-template>
+}
+
+<div class="app-page" [class.app-page--scroll]="creating()">
+  @if (creating()) {
+  <section class="app-card" style="padding: var(--app-space-4); margin-bottom: var(--app-space-4)">
+    <h2 style="margin: 0 0 var(--app-space-3); font-size: 15px">Nueva autorización</h2>
+    @if (formError()) {
+    <p class="app-alert" role="alert">{{ formError() }}</p>
+    }
+    <form class="app-form-grid" [formGroup]="form" (ngSubmit)="save()">
+      @if (portal) {
+      <mat-form-field>
+        <mat-label>Unidad</mat-label>
+        <mat-select formControlName="unitId">
+          @for (unit of unitOptions(); track unit.id) {
+          <mat-option [value]="unit.id">{{ unit.label }}</mat-option>
+          }
+        </mat-select>
+        <mat-error>Elija la unidad</mat-error>
+      </mat-form-field>
+      } @else {
+      <div class="app-picker-field">
+        <span class="app-picker-field__label" id="authorization-unit">Unidad *</span>
+        <button
+          type="button"
+          class="app-picker-field__button"
+          aria-labelledby="authorization-unit authorization-unit-value"
+          aria-haspopup="dialog"
+          (click)="pickUnit()"
+        >
+          <span
+            id="authorization-unit-value"
+            [class.app-picker-field__placeholder]="!unitOptions().length"
+          >
+            {{ unitOptions().length ? unitOptions()[0].label : "Seleccionar unidad" }}
+          </span>
+          <lucide-icon [img]="SearchIcon" [size]="16"></lucide-icon>
+        </button>
+      </div>
+      <mat-form-field>
+        <mat-label>Quién de la unidad autoriza</mat-label>
+        <mat-select formControlName="authorizedByPersonId">
+          @for (person of authorizers(); track person.id) {
+          <mat-option [value]="person.id">{{ person.label }}</mat-option>
+          }
+        </mat-select>
+        <mat-hint>Propietario u ocupante vigente que lo solicitó.</mat-hint>
+      </mat-form-field>
+      }
+
+      <mat-form-field>
+        <mat-label>Nombre del visitante</mat-label>
+        <input matInput formControlName="visitorName" autocomplete="off" />
+        <mat-error>Campo obligatorio</mat-error>
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Documento (opcional)</mat-label>
+        <input matInput class="text-mono" formControlName="visitorDocument" autocomplete="off" />
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Motivo</mat-label>
+        <mat-select formControlName="reason">
+          @for (reason of reasons(); track reason.code) {
+          <mat-option [value]="reason.code">{{ reason.label }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Modalidad</mat-label>
+        <mat-select formControlName="kind">
+          @for (kind of kinds; track kind) {
+          <mat-option [value]="kind">{{ kindLabels[kind] }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>{{ form.controls.kind.value === Kind.Single ? "Día" : "Desde" }}</mat-label>
+        <input matInput type="date" [min]="today" formControlName="startDate" />
+        <mat-error>Campo obligatorio</mat-error>
+      </mat-form-field>
+      @if (form.controls.kind.value !== Kind.Single) {
+      <mat-form-field>
+        <mat-label>Hasta</mat-label>
+        <input
+          matInput
+          type="date"
+          [min]="form.controls.startDate.value"
+          formControlName="endDate"
+        />
+      </mat-form-field>
+      }
+      <mat-form-field>
+        <mat-label>Hora desde (opcional)</mat-label>
+        <input matInput type="time" formControlName="timeFrom" />
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Hora hasta (opcional)</mat-label>
+        <input matInput type="time" formControlName="timeTo" />
+      </mat-form-field>
+
+      @if (form.controls.kind.value === Kind.Recurring) {
+      <fieldset class="span-2 app-check-list">
+        <legend>Días de la semana</legend>
+        @for (day of weekDays; track day.value) {
+        <label>
+          <input
+            type="checkbox"
+            [checked]="days().includes(day.value)"
+            (change)="toggleDay(day.value)"
+          />
+          {{ day.label }}
+        </label>
+        }
+      </fieldset>
+      }
+
+      <mat-form-field class="span-2">
+        <mat-label>Observaciones (opcional)</mat-label>
+        <input matInput formControlName="notes" />
+      </mat-form-field>
+
+      <div class="span-2">
+        <button mat-flat-button type="submit" [disabled]="busy()">Autorizar</button>
+        <button mat-button type="button" (click)="cancel()">Cancelar</button>
+      </div>
+    </form>
+  </section>
+  }
+
+  <app-data-table
+    [loading]="loading()"
+    [empty]="items().length === 0"
+    [error]="error()"
+    emptyTitle="Sin autorizaciones"
+    [emptyMessage]="
+      portal
+        ? 'Autorice a sus visitantes para que portería los deje ingresar.'
+        : 'Ninguna autorización coincide con los filtros.'
+    "
+    (retry)="load()"
+  >
+    <ng-container tableToolbar>
+      <select
+        class="app-toolbar-select"
+        aria-label="Filtrar por estado"
+        [value]="state()"
+        (change)="setState($event)"
+      >
+        <option value="Active">Vigentes y por empezar</option>
+        <option value="Expired">Vencidas</option>
+        <option value="Revoked">Revocadas</option>
+        <option value="Consumed">Usadas</option>
+        <option value="">Todas</option>
+      </select>
+      <label class="app-toolbar-search">
+        <lucide-icon [img]="SearchIcon" [size]="16"></lucide-icon>
+        <input
+          type="search"
+          aria-label="Buscar por visitante o unidad"
+          placeholder="Visitante o unidad"
+          [value]="search()"
+          (input)="onSearch($event)"
+        />
+      </label>
+      <span class="app-spacer"></span>
+      @if (actionError(); as message) {
+      <span class="text-danger" role="alert">{{ message }}</span>
+      }
+      <span class="text-muted">{{ totalCount() }}</span>
+    </ng-container>
+
+    <table class="app-table">
+      <thead>
+        <tr>
+          <th scope="col">Visitante</th>
+          <th scope="col">Unidad</th>
+          <th scope="col">Vigencia</th>
+          <th scope="col">Autorizó</th>
+          <th scope="col">Estado</th>
+          @if (canWrite) {
+          <th scope="col"><span class="sr-only">Acciones</span></th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @for (item of items(); track item.id) {
+        <tr>
+          <td class="cell-primary">
+            <span class="cell-stack">
+              <span>{{ item.visitorName }}</span>
+              @if (item.visitorDocument) {
+              <span class="text-muted text-mono">{{ item.visitorDocument }}</span>
+              }
+            </span>
+          </td>
+          <td class="text-mono">{{ item.unitLabel }}</td>
+          <td>
+            <span class="cell-stack">
+              <span>
+                {{ item.startDate | date : "d MMM y" }}@if (item.endDate !== item.startDate) { –
+                {{ item.endDate | date : "d MMM y" }}}
+              </span>
+              <span class="text-muted">{{ kindLabels[item.kind] }} · {{ window(item) }}</span>
+            </span>
+          </td>
+          <td class="cell-optional">{{ item.authorizedByName }}</td>
+          <td class="cell-aside">
+            <span class="cell-stack">
+              <app-status-badge [variant]="stateVariants[item.state]">{{
+                stateLabels[item.state]
+              }}</app-status-badge>
+              @if (item.revokeReason) {
+              <span class="text-muted">{{ item.revokeReason }}</span>
+              }
+            </span>
+          </td>
+          @if (canWrite) {
+          <td class="cell-actions">
+            @if (canRevoke(item)) { @if (revokingId() === item.id) {
+            <span class="row-confirm">
+              <button
+                type="button"
+                class="app-icon-btn"
+                aria-label="Cancelar"
+                [disabled]="busy()"
+                (click)="revokingId.set(null)"
+              >
+                <lucide-icon [img]="CancelIcon" [size]="18"></lucide-icon>
+              </button>
+              <button
+                mat-flat-button
+                type="button"
+                [disabled]="busy()"
+                [attr.aria-label]="'Confirmar revocación de ' + item.visitorName"
+                (click)="revoke(item)"
+              >
+                Confirmar
+              </button>
+            </span>
+            } @else {
+            <button
+              mat-stroked-button
+              type="button"
+              [attr.aria-label]="'Revocar autorización de ' + item.visitorName"
+              (click)="revokingId.set(item.id)"
+            >
+              Revocar
+            </button>
+            } }
+          </td>
+          }
+        </tr>
+        }
+      </tbody>
+    </table>
+
+    <app-paginator
+      tableFooter
+      [length]="totalCount()"
+      [pageIndex]="pageIndex()"
+      [pageSize]="pageSize()"
+      (page)="onPageChange($event)"
+    ></app-paginator>
+  </app-data-table>
+</div>

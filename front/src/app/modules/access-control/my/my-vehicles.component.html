@@ -1,0 +1,99 @@
+<div class="app-page app-page--scroll">
+  @if (errorMessage()) {
+  <p class="app-alert" role="alert">{{ errorMessage() }}</p>
+  } @if (notice()) {
+  <p role="status">{{ notice() }}</p>
+  }
+
+  <section class="app-card unit-card">
+    <header class="unit-card__header">
+      <h2>Vehículos de mis unidades</h2>
+    </header>
+
+    <ul class="unit-list">
+      @for (vehicle of vehicles(); track vehicle.id) {
+      <li>
+        <strong class="text-mono">{{ vehicle.plate }}</strong>
+        <span>{{ typeLabel(vehicle.type) }}</span>
+        <span class="text-muted">
+          {{ describe(vehicle) }} · <span class="text-mono">{{ vehicle.unitLabel }}</span> ·
+          {{ vehicle.responsibleName }}
+        </span>
+        @if (vehicle.status !== null && vehicle.status !== undefined) {
+        <app-status-badge [variant]="statusVariants[vehicle.status]">{{
+          statusLabels[vehicle.status]
+        }}</app-status-badge>
+        } @if (vehicle.statusReason) {
+        <span class="text-muted">{{ vehicle.statusReason }}</span>
+        } @if (policy() !== 'no') {
+        <button mat-button type="button" [disabled]="busy()" (click)="remove(vehicle)">
+          Retirar
+        </button>
+        }
+      </li>
+      } @empty {
+      <li class="text-muted">
+        {{ loading() ? "Cargando…" : "No hay vehículos registrados." }}
+      </li>
+      }
+    </ul>
+
+    @if (policy() === 'no') {
+    <p class="text-muted">En este conjunto los vehículos los registra la administración.</p>
+    } @else if (!units().length && !loading()) {
+    <p class="text-muted">No tiene una unidad vigente en la que registrar vehículos.</p>
+    } @else if (!adding()) {
+    <p>
+      <button mat-stroked-button type="button" (click)="open()">Registrar vehículo</button>
+      @if (policy() === 'approval') {
+      <span class="text-muted">La administración debe aprobarlo.</span>
+      }
+    </p>
+    } @else {
+    <form class="app-form-grid" [formGroup]="form" (ngSubmit)="add()">
+      <mat-form-field>
+        <mat-label>Unidad</mat-label>
+        <mat-select formControlName="unitId">
+          @for (unit of units(); track unit.id) {
+          <mat-option [value]="unit.id">{{ unit.label }}</mat-option>
+          }
+        </mat-select>
+        <mat-error>Elija la unidad</mat-error>
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Tipo</mat-label>
+        <mat-select formControlName="type">
+          @for (item of types(); track item.code) {
+          <mat-option [value]="item.code">{{ item.label }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Placa</mat-label>
+        <input
+          matInput
+          class="text-mono"
+          formControlName="plate"
+          autocomplete="off"
+          (input)="onPlate()"
+        />
+        <mat-hint>Una bicicleta puede no tener.</mat-hint>
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Marca (opcional)</mat-label>
+        <input matInput formControlName="brand" />
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Color (opcional)</mat-label>
+        <input matInput formControlName="color" />
+      </mat-form-field>
+      <div class="span-2">
+        <button mat-flat-button type="submit" [disabled]="busy()">
+          {{ policy() === "approval" ? "Enviar solicitud" : "Registrar" }}
+        </button>
+        <button mat-button type="button" (click)="adding.set(false)">Cancelar</button>
+      </div>
+    </form>
+    }
+  </section>
+</div>

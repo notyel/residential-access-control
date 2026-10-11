@@ -43,7 +43,9 @@ namespace AccessControl.Application.Services
 
             menus.AddRange(all
                 .Where(m => m.Permission.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-                    .Any(_currentUser.HasPermission))
+                    // las opciones del portal ("mis…") son para quien tiene ese permiso propio, no para
+                    // quien administra todo el conjunto
+                    .Any(p => p.EndsWith("_own") && !m.Permission.Contains(',') ? _currentUser.HoldsPermission(p) : _currentUser.HasPermission(p)))
                 .Select(m => new MenuDto { Id = m.Id, Name = m.Name, Path = m.Path, Icon = m.Icon, Order = m.Order, Group = m.Group }));
 
             return menus;

@@ -1,0 +1,223 @@
+<div class="app-page app-page--scroll gate">
+  <div class="gate__search-row">
+    <label class="app-toolbar-search gate__search">
+      <lucide-icon [img]="SearchIcon" [size]="18"></lucide-icon>
+      <input
+        type="search"
+        autocomplete="off"
+        aria-label="Buscar por documento, nombre o unidad"
+        placeholder="Documento, nombre o unidad"
+        [value]="term()"
+        (input)="onInput($event)"
+      />
+    </label>
+    <button mat-flat-button type="button" (click)="enterNew()">
+      <lucide-icon [img]="NewIcon" [size]="18"></lucide-icon>
+      Visitante sin autorización
+    </button>
+  </div>
+
+  @if (errorMessage()) {
+  <p class="app-alert" role="alert">{{ errorMessage() }}</p>
+  }
+
+  @if (hasTerm) {
+  <section class="app-card gate-card" aria-labelledby="gate-authorizations">
+    <h2 id="gate-authorizations">Autorizaciones</h2>
+    <ul class="gate-list">
+      @for (a of results().authorizations; track a.id) {
+      <li>
+        <span class="cell-stack">
+          <strong>{{ a.visitorName }}</strong>
+          <span class="text-muted">
+            @if (a.visitorDocument) {
+            <span class="text-mono">{{ a.visitorDocument }}</span> · }
+            <span class="text-mono">{{ a.unitLabel }}</span> · autorizó
+            {{ a.authorizedByName }}
+          </span>
+          <span class="text-muted">
+            {{ a.startDate | date : "d MMM" }}@if (a.endDate !== a.startDate) { –
+            {{ a.endDate | date : "d MMM" }}} · {{ window(a) }}
+          </span>
+        </span>
+        @if (a.canEnterNow) {
+        <app-status-badge variant="success">Puede ingresar</app-status-badge>
+        } @else {
+        <app-status-badge variant="danger">{{ a.cannotEnterReason }}</app-status-badge>
+        }
+        @if (a.canEnterNow) {
+        <button
+          mat-flat-button
+          type="button"
+          [attr.aria-label]="'Registrar ingreso de ' + a.visitorName"
+          (click)="enterWith(a)"
+        >
+          Registrar ingreso
+        </button>
+        } @else {
+        <button
+          mat-stroked-button
+          type="button"
+          [attr.aria-label]="'Atender a ' + a.visitorName"
+          (click)="enterWith(a)"
+        >
+          Atender
+        </button>
+        }
+      </li>
+      } @empty {
+      <li class="text-muted" role="status">
+        {{ searching() ? "Buscando…" : "Ninguna autorización coincide con la búsqueda." }}
+      </li>
+      }
+    </ul>
+  </section>
+
+  @if (results().people.length) {
+  <section class="app-card gate-card" aria-labelledby="gate-people">
+    <h2 id="gate-people">Personas registradas con ese documento</h2>
+    <ul class="gate-list">
+      @for (person of results().people; track person.id) {
+      <li>
+        <span class="cell-stack">
+          <strong>{{ person.firstName }} {{ person.lastName }}</strong>
+          <span class="text-muted text-mono">{{ visitorDocument(person) }}</span>
+        </span>
+        <button mat-stroked-button type="button" (click)="enterPerson(person)">
+          Registrar ingreso
+        </button>
+      </li>
+      }
+    </ul>
+  </section>
+  }
+
+  @if (results().residents.length) {
+  <section class="app-card gate-card" aria-labelledby="gate-residents">
+    <h2 id="gate-residents">Propietarios y residentes</h2>
+    <ul class="gate-list">
+      @for (resident of results().residents; track resident.personId + resident.unitId) {
+      <li>
+        <span class="cell-stack">
+          <strong>{{ resident.name }}</strong>
+          <span class="text-muted">
+            <span class="text-mono">{{ resident.unitLabel }}</span> ·
+            {{ resident.kind === Kind.Owner ? "Propietario" : "Residente" }}
+          </span>
+        </span>
+        <span class="gate-list__actions">
+          <button
+            mat-stroked-button
+            type="button"
+            [disabled]="busy()"
+            [attr.aria-label]="'Registrar entrada de ' + resident.name"
+            (click)="residentMovement(resident, Movement.Entry)"
+          >
+            Entrada
+          </button>
+          <button
+            mat-stroked-button
+            type="button"
+            [disabled]="busy()"
+            [attr.aria-label]="'Registrar salida de ' + resident.name"
+            (click)="residentMovement(resident, Movement.Exit)"
+          >
+            Salida
+          </button>
+        </span>
+      </li>
+      }
+    </ul>
+  </section>
+  } } @else {
+  <div class="gate__columns">
+    <section class="app-card gate-card" aria-labelledby="gate-expected">
+      <h2 id="gate-expected">
+        Esperados hoy <span class="text-muted">{{ expected().length }}</span>
+      </h2>
+      <ul class="gate-list">
+        @for (a of expected(); track a.id) {
+        <li>
+          <span class="cell-stack">
+            <strong>{{ a.visitorName }}</strong>
+            <span class="text-muted">
+              <span class="text-mono">{{ a.unitLabel }}</span> · {{ window(a) }}
+            </span>
+          </span>
+          <button
+            mat-stroked-button
+            type="button"
+            [attr.aria-label]="'Registrar ingreso de ' + a.visitorName"
+            (click)="enterWith(a)"
+          >
+            Ingreso
+          </button>
+        </li>
+        } @empty {
+        <li class="text-muted">
+          {{ loading() ? "Cargando…" : "No hay visitantes autorizados para hoy." }}
+        </li>
+        }
+      </ul>
+    </section>
+
+    <section class="app-card gate-card" aria-labelledby="gate-inside">
+      <h2 id="gate-inside">
+        Dentro ahora <span class="text-muted">{{ inside().length }}</span>
+      </h2>
+      <ul class="gate-list">
+        @for (visit of inside(); track visit.id) {
+        <li>
+          <span class="cell-stack">
+            <strong>{{ visitorName(visit) }}</strong>
+            <span class="text-muted">
+              <span class="text-mono">{{ visit.unitLabel }}</span> · desde
+              {{ visit.entryAt | date : "d MMM, h:mm a" }}
+              @if (visit.vehiclePlate) { ·
+              <span class="text-mono">{{ visit.vehiclePlate }}</span> }
+            </span>
+          </span>
+          @if (visit.needsReview) {
+          <app-status-badge variant="warning">Revisar</app-status-badge>
+          } @if (confirmingId() === visit.id) {
+          <span class="row-confirm">
+            <button
+              type="button"
+              class="app-icon-btn"
+              aria-label="Cancelar"
+              [disabled]="busy()"
+              (click)="confirmingId.set(null)"
+            >
+              <lucide-icon [img]="ClearIcon" [size]="18"></lucide-icon>
+            </button>
+            <button
+              mat-flat-button
+              type="button"
+              [disabled]="busy()"
+              [attr.aria-label]="'Confirmar salida de ' + visitorName(visit)"
+              (click)="checkOut(visit)"
+            >
+              Confirmar
+            </button>
+          </span>
+          } @else {
+          <button
+            mat-stroked-button
+            type="button"
+            [attr.aria-label]="'Registrar salida de ' + visitorName(visit)"
+            (click)="askCheckOut(visit)"
+          >
+            Salida
+          </button>
+          }
+        </li>
+        } @empty {
+        <li class="text-muted">
+          {{ loading() ? "Cargando…" : "No hay visitantes dentro del conjunto." }}
+        </li>
+        }
+      </ul>
+    </section>
+  </div>
+  }
+</div>

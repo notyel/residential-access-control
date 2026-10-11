@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace AccessControl.Common.DTOs.User
 {
+    // Sin contraseña: el usuario la define con el enlace de invitación que recibe por correo
     public class CreateUserDto
     {
         [Required(ErrorMessage = "El correo es obligatorio.")]
@@ -21,10 +22,6 @@ namespace AccessControl.Common.DTOs.User
 
         [MaxLength(50)]
         public string? ApartmentNumber { get; set; }
-
-        [Required(ErrorMessage = "La contraseña es obligatoria.")]
-        [MinLength(8, ErrorMessage = "La contraseña debe tener al menos 8 caracteres.")]
-        public string Password { get; set; } = null!;
 
         /// <summary>Roles por id. Se puede combinar con RoleKeys; entre ambos debe haber al menos uno.</summary>
         public List<Guid>? RoleIds { get; set; }

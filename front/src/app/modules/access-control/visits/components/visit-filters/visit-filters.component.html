@@ -45,6 +45,21 @@
         <mat-option value="CheckedOut">{{ statusLabels.CheckedOut }}</mat-option>
       </mat-select>
     </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Cómo se verificó</mat-label>
+      <mat-select formControlName="verification">
+        <mat-option [value]="null">Cualquiera</mat-option>
+        @for (item of verifications; track item) {
+        <mat-option [value]="item">{{ verificationLabels[item] }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Placa</mat-label>
+      <input matInput class="text-mono" formControlName="plate" autocomplete="off" />
+    </mat-form-field>
   </form>
 
   <ng-container sidePanelFooter>

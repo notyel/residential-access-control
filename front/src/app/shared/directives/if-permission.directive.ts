@@ -11,7 +11,7 @@ import { AuthService } from '../../core/services/auth.service';
 
 /**
  * Muestra el contenido solo si el usuario tiene el permiso (con varios, basta uno):
- * <button *appIfPermission="P.visitsRegister">. Se actualiza si los permisos cambian.
+ * <button *appIfPermission="P.accessRegister">. Se actualiza si los permisos cambian.
  * Solo oculta la acción; quien la autoriza es el servidor.
  */
 @Directive({

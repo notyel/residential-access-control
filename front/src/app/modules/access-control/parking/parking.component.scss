@@ -1,0 +1,208 @@
+:host {
+  display: block;
+}
+
+// ---- resumen por tipo ----
+
+.parking-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: var(--app-space-3);
+  margin-bottom: var(--app-space-4);
+}
+
+.parking-summary__card {
+  padding: var(--app-space-3) var(--app-space-4);
+
+  h2 {
+    margin: 0 0 var(--app-space-2);
+    font-size: 13px;
+    color: var(--app-text-muted);
+  }
+
+  strong {
+    font-size: 26px;
+  }
+
+  dl {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 2px var(--app-space-3);
+    margin: var(--app-space-2) 0 0;
+    font-size: 13px;
+  }
+
+  dd {
+    margin: 0;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.parking-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--app-space-2);
+  margin-bottom: var(--app-space-3);
+}
+
+// ---- cuadrícula de espacios: el estado se lee por borde, texto e icono, no solo por color ----
+
+.parking-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: var(--app-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.parking-space {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  width: 100%;
+  min-height: 92px;
+  padding: var(--app-space-2) var(--app-space-3);
+  border: 1px solid var(--app-border);
+  border-left-width: 5px;
+  border-radius: var(--app-radius);
+  background: var(--app-surface);
+  color: var(--app-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+
+  &:hover,
+  &:focus-visible {
+    background: var(--app-surface-2);
+  }
+}
+
+.parking-space__code {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.parking-space__state {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--app-space-1);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.parking-space__info {
+  font-size: 12px;
+  color: var(--app-text-muted);
+}
+
+.parking-space--0 {
+  border-left-color: var(--app-success-text);
+
+  .parking-space__state {
+    color: var(--app-success-text);
+  }
+}
+
+.parking-space--1 {
+  border-left-color: var(--app-danger-text);
+
+  .parking-space__state {
+    color: var(--app-danger-text);
+  }
+}
+
+.parking-space--2 {
+  border-left-color: var(--app-warning-text);
+
+  .parking-space__state {
+    color: var(--app-warning-text);
+  }
+}
+
+.parking-space--3 {
+  border-left-style: dashed;
+  border-left-color: var(--app-neutral-text);
+  background: var(--app-neutral-bg);
+}
+
+.parking-form {
+  margin-bottom: var(--app-space-4);
+  padding: var(--app-space-4);
+
+  h2 {
+    margin: 0 0 var(--app-space-3);
+    font-size: 15px;
+  }
+}
+
+// ---- panel de detalle ----
+
+.parking-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--app-space-2);
+  margin-top: var(--app-space-4);
+}
+
+.parking-action {
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-space-2);
+  margin-top: var(--app-space-4);
+  padding: var(--app-space-3);
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius);
+  background: var(--app-surface-2);
+
+  p {
+    margin: 0;
+  }
+}
+
+.parking-heading {
+  margin: var(--app-space-4) 0 var(--app-space-2);
+  font-size: 13px;
+}
+
+.parking-history,
+.parking-options {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.parking-history li {
+  display: flex;
+  flex-direction: column;
+  padding: var(--app-space-2) 0;
+  border-top: 1px solid var(--app-border);
+  font-size: 13px;
+}
+
+.parking-options button {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--app-space-3);
+  width: 100%;
+  min-height: 40px;
+  padding: 0 var(--app-space-2);
+  border: 0;
+  border-radius: var(--app-radius);
+  background: transparent;
+  color: var(--app-text);
+  font: inherit;
+  text-align: left;
+  align-items: center;
+  cursor: pointer;
+
+  &:hover,
+  &:focus-visible {
+    background: var(--app-surface);
+  }
+}

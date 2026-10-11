@@ -62,7 +62,6 @@ export class ComplexFormComponent implements OnInit {
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(8)]],
     }),
   });
 
@@ -123,7 +122,6 @@ export class ComplexFormComponent implements OnInit {
           adminEmail: admin.email,
           adminFirstName: admin.firstName,
           adminLastName: admin.lastName,
-          adminPassword: admin.password,
         });
 
     this.saving.set(true);

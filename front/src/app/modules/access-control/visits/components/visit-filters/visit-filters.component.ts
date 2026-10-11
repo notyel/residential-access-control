@@ -7,18 +7,26 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { SidePanelComponent } from '../../../../../shared/components/side-panel/side-panel.component';
-import { VisitStatus } from '../../services/visits.service';
+import {
+  VERIFICATION_LABELS,
+  Verification,
+  VisitStatus,
+} from '../../../../../core/models/access.model';
 
 export interface VisitFilters {
   startDate: Date | null;
   endDate: Date | null;
   status: VisitStatus | null;
+  plate: string | null;
+  verification: Verification | null;
 }
 
 export const EMPTY_VISIT_FILTERS: VisitFilters = {
   startDate: null,
   endDate: null,
   status: null,
+  plate: null,
+  verification: null,
 };
 
 export const VISIT_STATUS_LABELS: Record<VisitStatus, string> = {
@@ -48,19 +56,28 @@ export class VisitFiltersComponent {
   private readonly current = inject<VisitFilters>(DIALOG_DATA);
 
   readonly statusLabels = VISIT_STATUS_LABELS;
+  readonly verificationLabels = VERIFICATION_LABELS;
+  readonly verifications = [
+    Verification.PriorAuthorization,
+    Verification.ResidentConfirmation,
+    Verification.GuardApproval,
+    Verification.Exception,
+  ];
 
   readonly form = inject(FormBuilder).group({
     startDate: [this.current.startDate],
     endDate: [this.current.endDate],
     status: [this.current.status],
+    plate: [this.current.plate],
+    verification: [this.current.verification],
   });
 
   apply(): void {
     if (this.form.invalid) {
       return;
     }
-    const { startDate, endDate, status } = this.form.getRawValue();
-    this.dialogRef.close({ startDate, endDate, status });
+    const value = this.form.getRawValue();
+    this.dialogRef.close({ ...value, plate: value.plate?.trim() || null });
   }
 
   clear(): void {

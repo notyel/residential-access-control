@@ -34,7 +34,7 @@ namespace AccessControl.Common.DTOs.Complex
 
     public class CreateComplexDto : SaveComplexDto
     {
-        // Todo conjunto nace con su primer administrador
+        // Todo conjunto nace con su primer administrador, que recibe una invitación para definir su contraseña
         [Required(ErrorMessage = "El correo del administrador es obligatorio.")]
         [EmailAddress(ErrorMessage = "El correo del administrador no tiene un formato válido.")]
         [MaxLength(200)]
@@ -47,9 +47,5 @@ namespace AccessControl.Common.DTOs.Complex
         [Required(ErrorMessage = "El apellido del administrador es obligatorio.")]
         [MaxLength(100)]
         public string AdminLastName { get; set; } = null!;
-
-        [Required(ErrorMessage = "La contraseña del administrador es obligatoria.")]
-        [MinLength(8, ErrorMessage = "La contraseña debe tener al menos 8 caracteres.")]
-        public string AdminPassword { get; set; } = null!;
     }
 }

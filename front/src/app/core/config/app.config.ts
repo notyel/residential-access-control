@@ -27,7 +27,7 @@ import { ActionsSearchProvider } from '../search/actions-search.provider';
 import { PersonsSearchProvider } from '../search/persons-search.provider';
 import { SEARCH_PROVIDERS } from '../search/search-provider';
 import { AppTitleStrategy } from '../services/app-title.strategy';
-import { ResidentsSearchProvider } from '../../modules/access-control/residents/services/residents-search.provider';
+import { UnitsSearchProvider } from '../search/units-search.provider';
 
 registerLocaleData(localeEsCo);
 
@@ -54,7 +54,7 @@ export const appConfig: ApplicationConfig = {
     { provide: SEARCH_PROVIDERS, useClass: PersonsSearchProvider, multi: true },
     {
       provide: SEARCH_PROVIDERS,
-      useClass: ResidentsSearchProvider,
+      useClass: UnitsSearchProvider,
       multi: true,
     },
     { provide: SEARCH_PROVIDERS, useClass: ActionsSearchProvider, multi: true },

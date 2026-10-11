@@ -1,0 +1,124 @@
+<ng-template appPageActions>
+  <a
+    mat-flat-button
+    routerLink="/access-control/people/new"
+    *appIfPermission="P.peopleWrite"
+  >
+    <lucide-icon [img]="PlusIcon" [size]="18"></lucide-icon>
+    Nueva persona
+  </a>
+</ng-template>
+
+<div class="app-page">
+  @if (pending().length) {
+  <section class="app-card" style="padding: var(--app-space-3) var(--app-space-4)">
+    <strong>Solicitudes pendientes de propietarios</strong>
+    @if (notice()) {
+    <p class="text-danger" role="alert">{{ notice() }}</p>
+    }
+    <ul style="margin: var(--app-space-2) 0 0; padding: 0; list-style: none">
+      @for (request of pending(); track request.id) {
+      <li class="row-confirm" style="flex-wrap: wrap">
+        <span>{{ request.personName }}</span>
+        <span class="text-muted"
+          >{{ relationLabels[request.relation] }} en
+          <a [routerLink]="['/access-control/units', request.unitId]">{{
+            request.unitLabel
+          }}</a></span
+        >
+        <button mat-button type="button" (click)="decide(request, true)">
+          Aprobar
+        </button>
+        <button mat-button type="button" (click)="decide(request, false)">
+          Rechazar
+        </button>
+      </li>
+      }
+    </ul>
+  </section>
+  }
+
+  <app-data-table
+    [loading]="loading()"
+    [empty]="people().length === 0"
+    [error]="error()"
+    emptyTitle="No hay personas"
+    [emptyMessage]="
+      search()
+        ? 'Nadie coincide con la búsqueda.'
+        : 'Registra a los propietarios y a quienes viven en el conjunto.'
+    "
+    (retry)="load()"
+  >
+    <ng-container tableToolbar>
+      <label class="app-toolbar-search">
+        <lucide-icon [img]="SearchIcon" [size]="16"></lucide-icon>
+        <input
+          type="search"
+          aria-label="Buscar por nombre o documento"
+          placeholder="Nombre o documento"
+          [value]="search()"
+          (input)="onSearch($event)"
+        />
+      </label>
+      <select
+        class="app-toolbar-select"
+        aria-label="Quiénes mostrar"
+        (change)="onScope($event)"
+      >
+        <option value="linked">Propietarios y residentes</option>
+        <option value="all">Todas las personas</option>
+      </select>
+      <span class="app-spacer"></span>
+      <span class="text-muted">
+        {{ totalCount() }} {{ totalCount() === 1 ? "persona" : "personas" }}
+      </span>
+    </ng-container>
+
+    <table class="app-table">
+      <thead>
+        <tr>
+          <th scope="col">Persona</th>
+          <th scope="col">Documento</th>
+          <th scope="col">Propietaria de</th>
+          <th scope="col">Vive en</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (person of people(); track person.id) {
+        <tr>
+          <td class="cell-primary">
+            <div class="cell-person">
+              <span class="app-avatar" aria-hidden="true">{{
+                initials(person.firstName, person.lastName)
+              }}</span>
+              <a
+                class="cell-ellipsis"
+                [routerLink]="['/access-control/people', person.id]"
+                >{{ person.firstName }} {{ person.lastName }}</a
+              >
+            </div>
+          </td>
+          <td class="cell-optional text-mono text-muted">
+            {{ person.documentType }} {{ person.documentNumber }}
+          </td>
+          <td class="cell-optional text-mono">
+            {{ person.ownedUnits.join(", ") || "—" }}
+          </td>
+          <td class="cell-aside text-mono">
+            {{ person.occupiedUnits.join(", ") || "—" }}
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+
+    <app-paginator
+      tableFooter
+      [length]="totalCount()"
+      [pageIndex]="pageIndex()"
+      [pageSize]="pageSize()"
+      (page)="onPageChange($event)"
+    ></app-paginator>
+  </app-data-table>
+</div>

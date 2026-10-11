@@ -1,0 +1,158 @@
+@if (canWrite) {
+<ng-template appPageActions>
+  <a mat-button [routerLink]="cancelUrl">Volver</a>
+  <button
+    mat-flat-button
+    type="button"
+    [disabled]="saving()"
+    (click)="onSubmit()"
+  >
+    <lucide-icon [img]="SaveIcon" [size]="18"></lucide-icon>
+    Guardar
+  </button>
+</ng-template>
+}
+
+<div class="app-page app-page--scroll app-form-page">
+  <div class="app-form-layout">
+    <div class="app-form-main">
+      @if (errorMessage()) {
+      <p class="app-alert" role="alert">{{ errorMessage() }}</p>
+      } @if (notice()) {
+      <p role="status">{{ notice() }}</p>
+      } @if (provisionalDocument()) {
+      <p class="app-alert" role="note">
+        Esta persona viene de un usuario anterior y no tiene documento
+        registrado. Complete el tipo y el número reales.
+      </p>
+      }
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        <app-form-section title="Datos de la persona" [step]="1">
+          <div class="app-form-grid">
+            <mat-form-field>
+              <mat-label>Nombres</mat-label>
+              <input matInput formControlName="firstName" />
+              <mat-error>Campo obligatorio</mat-error>
+            </mat-form-field>
+            <mat-form-field>
+              <mat-label>Apellidos</mat-label>
+              <input matInput formControlName="lastName" />
+              <mat-error>Campo obligatorio</mat-error>
+            </mat-form-field>
+            <mat-form-field>
+              <mat-label>Tipo de documento</mat-label>
+              <mat-select formControlName="documentType">
+                @for (type of documentTypes(); track type.code) {
+                <mat-option [value]="type.code">{{ type.label }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            <mat-form-field>
+              <mat-label>Número de documento</mat-label>
+              <input matInput formControlName="documentNumber" />
+              <mat-error>Campo obligatorio</mat-error>
+            </mat-form-field>
+            <mat-form-field>
+              <mat-label>Teléfono</mat-label>
+              <input matInput type="tel" formControlName="phone" />
+            </mat-form-field>
+            <mat-form-field>
+              <mat-label>Correo electrónico</mat-label>
+              <input matInput type="email" formControlName="email" />
+              <mat-error>Ingresa un correo válido</mat-error>
+            </mat-form-field>
+          </div>
+        </app-form-section>
+      </form>
+
+      @if (detail(); as data) {
+      <app-form-section title="Unidades" [step]="2">
+        <ul class="app-check-list" style="margin: 0; padding: 0; list-style: none">
+          @for (ownership of data.ownerships; track ownership.id) {
+          <li>
+            <a
+              class="text-mono"
+              [routerLink]="['/access-control/units', ownership.unitId]"
+              >{{ ownership.unitLabel }}</a
+            >
+            · Propietaria
+            <span class="text-muted">
+              desde {{ ownership.startDate | date : "d MMM y" }}
+              @if (ownership.endDate) { hasta
+              {{ ownership.endDate | date : "d MMM y" }} }
+              {{ ownership.isCurrent ? "" : "(anterior)" }}
+            </span>
+          </li>
+          } @for (occupancy of data.occupancies; track occupancy.id) {
+          <li>
+            <a
+              class="text-mono"
+              [routerLink]="['/access-control/units', occupancy.unitId]"
+              >{{ occupancy.unitLabel }}</a
+            >
+            · {{ relationLabels[occupancy.relation] }}
+            <span class="text-muted">
+              desde {{ occupancy.startDate | date : "d MMM y" }}
+              @if (occupancy.endDate) { hasta
+              {{ occupancy.endDate | date : "d MMM y" }} } ·
+              {{ occupancy.isCurrent ? "Vigente" : statusLabels[occupancy.status] }}
+            </span>
+          </li>
+          } @if (!data.ownerships.length && !data.occupancies.length) {
+          <li class="text-muted">
+            Sin vínculo con ninguna unidad. Agréguelo desde la ficha de la
+            unidad.
+          </li>
+          }
+        </ul>
+      </app-form-section>
+
+      <app-form-section title="Acceso a la plataforma" [step]="3">
+        @if (data.user; as user) {
+        <p style="margin: 0">
+          Tiene cuenta con el correo <strong>{{ user.email }}</strong>
+          <span class="text-muted">
+            ·
+            {{
+              user.status === "Invited"
+                ? "invitación sin aceptar"
+                : user.status === "Disabled"
+                ? "desactivada"
+                : "activa"
+            }}</span
+          >
+        </p>
+        } @else {
+        <p class="text-muted" style="margin: 0 0 var(--app-space-3)">
+          No tiene cuenta. Tener cuenta no da ningún vínculo con una unidad, ni
+          al revés: son independientes.
+        </p>
+        <form
+          class="app-form-grid"
+          [formGroup]="access"
+          (ngSubmit)="grantAccess()"
+          *appIfPermission="P.usersManage"
+        >
+          <mat-form-field>
+            <mat-label>Correo para la cuenta</mat-label>
+            <input matInput type="email" formControlName="email" />
+            <mat-error>Ingresa un correo válido</mat-error>
+          </mat-form-field>
+          <mat-form-field>
+            <mat-label>Rol</mat-label>
+            <mat-select formControlName="roleKey">
+              <mat-option value="owner">Propietario</mat-option>
+              <mat-option value="resident">Residente o arrendatario</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <div>
+            <button mat-stroked-button type="submit">Dar acceso</button>
+          </div>
+        </form>
+        }
+      </app-form-section>
+      }
+    </div>
+  </div>
+</div>

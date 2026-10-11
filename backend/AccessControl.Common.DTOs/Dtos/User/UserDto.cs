@@ -12,6 +12,8 @@ namespace AccessControl.Common.DTOs.User
         public string? LastName { get; set; }
         public string? ApartmentNumber { get; set; }
         public bool IsActive { get; set; }
+        /// <summary>Invited, Active o Disabled.</summary>
+        public string Status { get; set; } = null!;
         public bool IsSuperAdmin { get; set; }
         public Guid? ComplexId { get; set; }
         public string? ComplexName { get; set; }

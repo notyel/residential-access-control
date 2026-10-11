@@ -1,7 +1,7 @@
 <div class="sidebar">
   <a
     class="sidebar__brand"
-    routerLink="/access-control/dashboard"
+    routerLink="/access-control"
     (click)="navigate.emit()"
   >
     <span class="sidebar__logo">
@@ -20,8 +20,14 @@
       </button>
     </div>
     }
-    <ul>
-      @for (item of menuService.menuItems(); track item.path) {
+    @for (section of menuService.sections(); track $index) {
+    @if (section.group) {
+    <p class="sidebar__group" [id]="'menu-group-' + $index">
+      {{ section.group }}
+    </p>
+    }
+    <ul [attr.aria-labelledby]="section.group ? 'menu-group-' + $index : null">
+      @for (item of section.items; track item.path) {
       <li>
         <a
           class="sidebar__link"
@@ -36,6 +42,7 @@
       </li>
       }
     </ul>
+    }
   </nav>
 
   <div class="sidebar__footer">
